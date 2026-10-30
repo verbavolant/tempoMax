@@ -29,6 +29,8 @@ docs/human/       # documentazione per l'utente/setup
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
 | `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`; `DriveError` con status |
+| `src/geo/distance.ts` | `distanceMeters` (Haversine, raggio GRS80), `findNearestClient` (ignora i clienti senza posizione) |
+| `src/geo/currentPosition.ts` | `readCurrentPosition()` → `MeasuredPosition`; `GeolocationError` con `reason` |
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
 | `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
 | `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument` |

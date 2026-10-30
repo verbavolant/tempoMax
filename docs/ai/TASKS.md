@@ -57,7 +57,7 @@
 - Dipende da: T-001
 
 ### T-006 Geolocalizzazione + distanza
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: lettura della posizione con gestione di errori e precisione; Haversine; ricerca del cliente più vicino.
 - Done quando: test di Haversine su coppie di coordinate con distanza nota (fonte citata nel test); test del cliente più vicino.
 - File: `src/geo/`, `tests/geo/`

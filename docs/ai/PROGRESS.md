@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-30] — T-006 Geolocalizzazione + distanza
+- Fatto: `src/geo/distance.ts` (`EARTH_MEAN_RADIUS_METERS`, `distanceMeters`, `findNearestClient`), `src/geo/currentPosition.ts` (`readCurrentPosition`, `GeolocationError`). Test in `tests/geo/` (13). Fonti in ADR-004.
+- Stato: completo.
+- Verifica: `npm test` (74 passati), typecheck e lint OK. Controprova: togliendo un fattore coseno dalla formula falliscono il test Rosetta e quello di simmetria.
+- Prossimo passo: T-007 (anagrafica clienti: lista, "sono qui adesso", modifica, salvataggio in `TempoMax/clienti.json`). Da decidere con l'utente il raggio di default dei nuovi clienti.
+- Trappole/note: `readCurrentPosition` non è ancora stato provato su un dispositivo reale (solo test con `navigator` finto); lo si proverà in T-007. Timeout 20 s e `maximumAge` 30 s sono scelte di prodotto (costanti in `currentPosition.ts`). ESLint `no-loss-of-precision`: i letterali di riferimento vanno scritti nella forma più breve che rappresenta esattamente il double (es. `2886.4444428379834`).
+
 ## [2026-10-30] — T-004 Modulo storage Drive (chiuso)
 - Fatto: nessun cambio al codice rispetto alla voce precedente.
 - Stato: completo.

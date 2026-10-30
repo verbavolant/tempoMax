@@ -56,7 +56,7 @@
 - Decisione: il check-in è un tap. L'app legge la posizione, propone il cliente più vicino e, se la distanza supera il raggio del cliente, mostra un avviso ma permette di procedere. Vengono salvate posizione e precisione GPS.
 - Motivazione: una webapp non può monitorare la posizione in background (niente geofencing automatico).
 - Alternative scartate: app nativa con geofencing (costo e complessità sproporzionati).
-- Conseguenze: la distanza si calcola con la formula di Haversine, coperta da test su coppie di coordinate con distanza nota da fonte esterna (T-006).
+- Conseguenze: la distanza si calcola con la formula di Haversine, coperta da test su coppie di coordinate con distanza nota da fonte esterna (T-006). Raggio: R1 di GRS80 = 6 371 008,7714 m (Moritz, IUGG 1979). Riferimento di test: Rosetta Code "Haversine formula" (BNA→LAX), più identità esatte (1° di meridiano = R·π/180, antipodi = π·R). `accuracy` del GPS è in metri con confidenza 95% (MDN): servirà in T-008 per decidere l'avviso "fuori raggio".
 
 ## ADR-005 — Validazione dei dati scritta a mano, senza librerie
 - Data: 2026-10-30
