@@ -43,7 +43,7 @@
 - Note: il rinnovo passa da `requestAccessToken()` chiamato in un gesto dell'utente (ADR-001). Rischio da verificare su iPhone: Safari blocca i popup aperti dopo un'operazione asincrona. Strategia: controllare la scadenza (`expires_in`) *prima* che l'utente tocchi un pulsante e, se il token è scaduto, chiedere il rinnovo nel tap stesso. Le scritture in attesa restano in locale. Il popup richiede che la pagina non imposti `Cross-Origin-Opener-Policy: same-origin` (va bene `same-origin-allow-popups` o nessun header; GitHub Pages non lo imposta).
 
 ### T-004 Modulo storage Drive
-- Stato: [ ]
+- Stato: [~] codice e test pronti; manca la prova sul Drive reale (pulsante provvisorio "Prova salvataggio su Drive")
 - Obiettivo: creare o trovare la cartella `TempoMax/`, leggere e scrivere file JSON, caricare file binari.
 - Done quando: test con `fetch` simulato per ogni operazione + verifica manuale su un Drive reale.
 - File: `src/storage/drive.ts`, `tests/storage/`

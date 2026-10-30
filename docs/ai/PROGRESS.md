@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-30] — T-004 Modulo storage Drive (parziale)
+- Fatto: `src/storage/drive.ts` riscritto attorno a `DriveClient(getAccessToken)`; `fetchDriveUser` è diventato `getUser()`. `src/main.ts` ha un pulsante provvisorio "Prova salvataggio su Drive" (scrive e rilegge `TempoMax/prova.json`). Test in `tests/storage/drive.test.ts` (14).
+- Stato: parziale. Manca la prova sul Drive reale.
+- Verifica: `npm test` (61 passati), typecheck e lint OK. Controprove: senza escaping e senza pulizia della cache falliscono i test attesi.
+- Prossimo passo: l'utente clicca due volte "Prova salvataggio su Drive" (1ª volta crea, 2ª aggiorna lo stesso file id), controlla su drive.google.com che esista un solo `TempoMax/prova.json`, poi si chiude T-004.
+- Trappole/note: l'alias `root` dei parents non è documentato nelle pagine Drive consultate, quindi non lo uso: la cartella radice si cerca per nome senza vincolo di genitore (con `drive.file` sono visibili solo i file dell'app). Upload multipart limitato a 5.000.000 byte (doc: "5 MB or less"): l'audio lungo richiederà l'upload resumable (TODO in T-014). La cache delle cartelle vive solo in memoria: se l'utente cancella la cartella su Drive durante la sessione, le scritture falliscono con 404 fino al ricaricamento. Con file omonimi `findOne` prende il più vecchio (`orderBy=createdTime`).
+
 ## [2026-10-30] — T-003 Login Google (chiuso)
 - Fatto: nessun cambio al codice rispetto alla voce precedente.
 - Stato: completo. T-002 completo: l'app è "In production".

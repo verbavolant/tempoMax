@@ -28,7 +28,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/main.ts` | bootstrap: monta l'app in `#app` |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
-| `src/storage/drive.ts` | chiamate a Drive API v3 (`fetchDriveUser`, `DriveError` con status) |
+| `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`; `DriveError` con status |
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
 | `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
 | `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument` |
