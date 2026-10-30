@@ -24,7 +24,7 @@
 - Done quando: `npm run build`, `npm test` e `npm run lint` passano con un test vuoto; `.gitignore` presente; sezione TypeScript aggiunta a `CONVENTIONS.md`; comandi aggiornati in `CONTEXT.md`.
 - File: `package.json`, `tsconfig.json`, `vite.config.ts`, `index.html`, `src/main.ts`, `tests/`, `.gitignore`
 - Dipende da: nessuno
-- Note: la cartella non è ancora un repo git: serve `git init`.
+- Note: repo git già inizializzato e pubblicato su https://github.com/verbavolant/tempoMax (pubblico, branch `main`); `.gitignore` di base già presente.
 
 ### T-002 Setup Google Cloud + guida
 - Stato: [ ]
@@ -90,7 +90,7 @@
 - Done quando: URL pubblico funzionante; checklist di test manuale in `docs/human/` eseguita ed esito annotato in PROGRESS.
 - File: config di deploy (GitHub Actions), `vite.config.ts` (`base`), `docs/human/`
 - Dipende da: T-009
-- Note: GitHub Pages, account `verbavolant`. L'origine OAuth di produzione è `https://verbavolant.github.io`; il path dipende dal nome del repo (da confermare, ipotesi: `tempoMax`).
+- Note: GitHub Pages, account `verbavolant`. L'origine OAuth di produzione è `https://verbavolant.github.io`; URL dell'app: `https://verbavolant.github.io/tempoMax/` (Vite `base: '/tempoMax/'`).
 
 ## Fase 2 — Fatturazione ore
 

@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-30] — Creazione repository GitHub
+- Fatto: `git init` (branch `main`), `.gitignore` di base, repo pubblico https://github.com/verbavolant/tempoMax con push del piano. Installato `gh` via Homebrew, autenticato come `verbavolant` (protocollo https).
+- Stato: completo.
+- Verifica: `git status -sb` → `main...origin/main`.
+- Prossimo passo: T-001 (scaffold Vite + TS + Vitest); in parallelo l'utente esegue T-002 (Google Cloud, app in "In production").
+- Trappole/note: repo pubblico perché GitHub Pages gratis lo richiede; non committare mai dati dei clienti o token.
+
 ## [2026-10-30] — Pianificazione iniziale
 - Fatto: compilati `docs/ai/PLAN.md` (5 fasi), `CONTEXT.md`, `DECISIONS.md` (ADR-001…004) e `TASKS.md` (T-001…T-020). Nessun codice scritto.
 - Stato: completo; il piano è in attesa di conferma da parte dell'utente.
