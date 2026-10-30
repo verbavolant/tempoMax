@@ -17,7 +17,7 @@ TempoMax: una PWA per un giardiniere. Check-in/out geolocalizzato presso i clien
 index.html        # entry di Vite
 src/main.ts       # bootstrap dell'app
 src/              # cartelle previste: auth/, storage/, geo/, model/, ui/
-tests/            # test Vitest (*.test.ts); nasce con il primo test
+tests/            # test Vitest (*.test.ts), speculari a src/
 docs/ai/          # stato per agenti AI
 docs/human/       # documentazione per l'utente/setup
 ```
@@ -26,6 +26,11 @@ docs/human/       # documentazione per l'utente/setup
 | Path | Responsabilità |
 |------|----------------|
 | `src/main.ts` | bootstrap: monta l'app in `#app` |
+| `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
+| `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
+| `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument` |
+| `src/model/visit.ts` | `Visit`, `VisitEvent`, `parseVisit` (un file per visita) |
+| `src/model/task.ts` | `Task` (`todo` / `purchase`), `TasksDocument` (`task.json`), `parseTasksDocument` |
 | `vite.config.ts` | config di Vite + Vitest |
 | `eslint.config.js` | lint (flat config, typescript-eslint) |
 | `tsconfig.json` | type check (strict, solo `noEmit`: il build lo fa Vite) |

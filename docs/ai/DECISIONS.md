@@ -57,3 +57,12 @@
 - Motivazione: una webapp non può monitorare la posizione in background (niente geofencing automatico).
 - Alternative scartate: app nativa con geofencing (costo e complessità sproporzionati).
 - Conseguenze: la distanza si calcola con la formula di Haversine, coperta da test su coppie di coordinate con distanza nota da fonte esterna (T-006).
+
+## ADR-005 — Validazione dei dati scritta a mano, senza librerie
+- Data: 2026-10-30
+- Stato: accettata
+- Contesto: i JSON letti da Drive possono essere vecchi, corrotti o modificati a mano; vanno validati prima dell'uso.
+- Decisione: piccole funzioni `expect*` in `src/model/validation.ts` e un parser `parse*` per ogni documento, che lancia `ValidationError` con il percorso del campo (es. `clienti.clients[0].location.latitude`). Ogni documento ha `schemaVersion`, controllato per primo.
+- Motivazione: pochi tipi e semplici; nessuna dipendenza (coerente con ADR-002); messaggi in italiano.
+- Alternative scartate: zod/valibot (dipendenza in più per circa 5 tipi).
+- Conseguenze: aggiungere un campo significa aggiornare sia l'interfaccia sia il parser. Un cambio incompatibile richiede di incrementare `SCHEMA_VERSION` e di scrivere una migrazione. Gli orari devono avere sempre il fuso (`Z` o `±HH:MM`): `Date.parse` senza fuso usa l'ora locale e accetta date inesistenti (30 febbraio → 2 marzo), verificato su Node 26.

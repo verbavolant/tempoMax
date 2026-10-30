@@ -123,7 +123,7 @@
   npm run typecheck && npm run lint && npm test && npm run build
   ```
 - **Idiomi:** moduli ES; `import type` per gli import usati solo come tipo (`verbatimModuleSyntax`); `async/await` con errori propagati o mostrati all'utente; tipi del dominio in `src/model/`; niente `any` (usa `unknown` + validazione ai confini: risposte API, JSON letti da Drive).
-- **Evita:** `any`, `!` (non-null assertion) per zittire il compilatore, promise non attese (floating), variabili globali, dipendenze npm per cose che il browser fa già.
+- **Evita:** `any`, `!` (non-null assertion) per zittire il compilatore nel codice applicativo (nei test va bene su dati fissi), promise non attese (floating), variabili globali, dipendenze npm per cose che il browser fa già.
 - **Layout:**
   ```
   index.html        # entry di Vite

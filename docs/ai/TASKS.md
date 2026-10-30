@@ -50,7 +50,7 @@
 - Dipende da: T-003
 
 ### T-005 Modello dati
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: tipi e validazione per Cliente, Visita, Task (da fare / da comprare), con versione dello schema.
 - Done quando: test di validazione e serializzazione passano. Rimuovere `passWithNoTests` da `vite.config.ts`.
 - File: `src/model/`, `tests/model/`
