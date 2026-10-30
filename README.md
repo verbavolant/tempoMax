@@ -1,30 +1,24 @@
-# <Nome del progetto>
+# TempoMax
 
-<Una o due frasi: cosa fa e per chi.>
+Webapp per telefono pensata per un giardiniere: check-in e check-out geolocalizzati presso i clienti, note audio, liste "da fare" e "da comprare" e ore pronte per la fatturazione. I dati vengono salvati sul Google Drive dell'utente.
+
+> In sviluppo: per ora c'è solo lo scheletro del progetto.
 
 ## Requisiti
-- <runtime/versioni: Python 3.11, .NET 8, JDK 21, bash 5…>
-- <dipendenze di sistema>
+- Node.js ≥ 22.12
 
 ## Installazione
 ```bash
-<comandi di setup>
+npm install
 ```
 
-## Uso
+## Uso (sviluppo)
 ```bash
-<comando base + esempio reale di input/output>
+npm run dev      # http://localhost:5173
 ```
-
-## Configurazione
-| Variabile / opzione | Default | Descrizione |
-|---------------------|---------|-------------|
-|                     |         |             |
 
 ## Sviluppo
-- Test: `<comando>`
-- Lint/format: `<comando>`
-- Note per chi sviluppa con assistenza AI: vedi `docs/ai/CLAUDE.md` e `docs/ai/CONTEXT.md`.
-
-## Licenza
-<licenza>
+- Test: `npm test`
+- Lint/typecheck: `npm run lint` / `npm run typecheck`
+- Build: `npm run build` (output in `dist/`)
+- Note per chi sviluppa con assistenza AI: vedi `CLAUDE.md` e `docs/ai/`.

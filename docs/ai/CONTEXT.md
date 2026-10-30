@@ -13,31 +13,29 @@ TempoMax: una PWA per un giardiniere. Check-in/out geolocalizzato presso i clien
 - API del browser: Geolocation, MediaRecorder, IndexedDB, Service Worker.
 
 ## Struttura del repo
-> Prevista: va confermata da T-001.
 ```
-src/            # codice applicazione (TS)
-  auth/         # login Google, gestione token
-  storage/      # accesso a Drive/Sheets, coda locale
-  geo/          # geolocalizzazione, distanza
-  model/        # tipi e validazione del dominio
-  ui/           # schermate
-tests/          # test vitest
-docs/ai/        # stato per agenti AI
-docs/human/     # documentazione per l'utente/setup
+index.html        # entry di Vite
+src/main.ts       # bootstrap dell'app
+src/              # cartelle previste: auth/, storage/, geo/, model/, ui/
+tests/            # test Vitest (*.test.ts); nasce con il primo test
+docs/ai/          # stato per agenti AI
+docs/human/       # documentazione per l'utente/setup
 ```
 
 ## File/moduli chiave
 | Path | Responsabilità |
 |------|----------------|
-| (da compilare dopo T-001) | |
+| `src/main.ts` | bootstrap: monta l'app in `#app` |
+| `vite.config.ts` | config di Vite + Vitest |
+| `eslint.config.js` | lint (flat config, typescript-eslint) |
+| `tsconfig.json` | type check (strict, solo `noEmit`: il build lo fa Vite) |
 
 ## Comandi
-> Da confermare in T-001.
-- Setup: `npm install`
-- Dev: `npm run dev`
+- Setup: `npm install` (Node ≥ 22.12; verificato con Node 26.4)
+- Dev: `npm run dev` → http://localhost:5173
 - Test: `npm test`
 - Lint/typecheck: `npm run lint` / `npm run typecheck`
-- Build: `npm run build`
+- Build: `npm run build` (typecheck + `vite build` → `dist/`)
 
 ## Layout dati su Drive (ADR-003)
 ```

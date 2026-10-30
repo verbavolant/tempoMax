@@ -1,6 +1,6 @@
 # CONVENTIONS.md — Regole di codice per linguaggio
 
-> Riferimento per la §6 del `CLAUDE.md`. Tooling, idiomi e layout per i linguaggi del progetto (Python, Bash, Java, C#, Go).
+> Riferimento per la §6 del `CLAUDE.md`. Tooling, idiomi e layout per i linguaggi del progetto (Python, Bash, Java, C#, Go, TypeScript).
 > Adatta versioni e comandi al progetto concreto; i comandi effettivi vanno in `CONTEXT.md`.
 
 ## Regole comuni (tutti i linguaggi)
@@ -112,6 +112,24 @@
   go.mod | go.sum
   ```
   I test stanno accanto al codice (`foo.go` → `foo_test.go`), nello stesso pacchetto o in `<pkg>_test`.
+
+---
+
+## TypeScript (browser)
+- **Versione:** TypeScript 6.0.x. **Non passare a 7.x** finché `typescript-eslint` non lo supporta (la 8.72 richiede `>=4.8.4 <6.1.0`).
+- **Tooling:** Vite (dev/build), Vitest (test), ESLint flat config con `typescript-eslint` (lint), `tsc --noEmit` (type check, `strict` + `noUncheckedIndexedAccess`).
+- **Comandi tipici:**
+  ```bash
+  npm run typecheck && npm run lint && npm test && npm run build
+  ```
+- **Idiomi:** moduli ES; `import type` per gli import usati solo come tipo (`verbatimModuleSyntax`); `async/await` con errori propagati o mostrati all'utente; tipi del dominio in `src/model/`; niente `any` (usa `unknown` + validazione ai confini: risposte API, JSON letti da Drive).
+- **Evita:** `any`, `!` (non-null assertion) per zittire il compilatore, promise non attese (floating), variabili globali, dipendenze npm per cose che il browser fa già.
+- **Layout:**
+  ```
+  index.html        # entry di Vite
+  src/              # codice
+  tests/**/*.test.ts  # test Vitest
+  ```
 
 ---
 

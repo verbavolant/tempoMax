@@ -19,7 +19,7 @@
 ## Fase 1 — MVP check-in/out
 
 ### T-001 Scaffold progetto
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: repo git con Vite + TypeScript + Vitest + lint.
 - Done quando: `npm run build`, `npm test` e `npm run lint` passano con un test vuoto; `.gitignore` presente; sezione TypeScript aggiunta a `CONVENTIONS.md`; comandi aggiornati in `CONTEXT.md`.
 - File: `package.json`, `tsconfig.json`, `vite.config.ts`, `index.html`, `src/main.ts`, `tests/`, `.gitignore`
@@ -52,7 +52,7 @@
 ### T-005 Modello dati
 - Stato: [ ]
 - Obiettivo: tipi e validazione per Cliente, Visita, Task (da fare / da comprare), con versione dello schema.
-- Done quando: test di validazione e serializzazione passano.
+- Done quando: test di validazione e serializzazione passano. Rimuovere `passWithNoTests` da `vite.config.ts`.
 - File: `src/model/`, `tests/model/`
 - Dipende da: T-001
 
