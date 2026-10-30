@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-30] — T-003 Login Google (chiuso)
+- Fatto: nessun cambio al codice rispetto alla voce precedente.
+- Stato: completo. T-002 completo: l'app è "In production".
+- Verifica: l'utente ha fatto login da `localhost:5173` e la pagina mostra "Connesso come …" (about.get OK).
+- Prossimo passo: T-004 (modulo storage Drive: cartella `TempoMax/`, lettura/scrittura JSON, upload binari).
+- Trappole/note: il rinnovo del token dopo la scadenza reale (circa 1 h) non è ancora stato osservato: va inserito nella checklist di T-010.
+
 ## [2026-10-30] — T-003 Login Google (parziale)
 - Fatto: `src/config.ts` (Client ID + scope), `src/auth/googleAuth.ts` (`loadGoogleIdentityServices`, `GoogleAuth`, `AuthError`), `src/storage/drive.ts` (`fetchDriveUser` → about.get), schermata provvisoria in `src/main.ts`. Aggiunto `@types/google.accounts@0.0.18` (in `tsconfig.json` → `types`). Test: `tests/auth/googleAuth.test.ts` (GIS finto), `tests/storage/drive.test.ts` (fetch simulato).
 - Stato: parziale. Manca la prova manuale con login reale (Safari su Mac, `localhost:5173`), compreso il rinnovo dopo la scadenza.
