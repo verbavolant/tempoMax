@@ -27,7 +27,7 @@
 - Note: repo git già inizializzato e pubblicato su https://github.com/verbavolant/tempoMax (pubblico, branch `main`); `.gitignore` di base già presente.
 
 ### T-002 Setup Google Cloud + guida
-- Stato: [ ]
+- Stato: [~] guida scritta; manca l'esecuzione nella console da parte dell'utente e il Client ID
 - Obiettivo: progetto Google Cloud con Drive API e Sheets API abilitate, schermata di consenso OAuth, client ID web.
 - Done quando: il client ID esiste, le origini autorizzate sono configurate (dev + produzione) e i passaggi sono documentati in `docs/human/setup-google.md`.
 - File: `docs/human/setup-google.md`
@@ -37,10 +37,10 @@
 ### T-003 Login Google
 - Stato: [ ]
 - Obiettivo: login/logout con Google Identity Services (token model), scope `drive.file`, rinnovo del token alla scadenza.
-- Done quando: su iPhone si fa il login, si ottiene il token, si chiama `about.get` di Drive e il token si rinnova dopo la scadenza senza perdere lo stato.
+- Done quando: in locale (Safari su Mac, `localhost:5173`) si fa il login, si ottiene il token, si chiama `about.get` di Drive e il token si rinnova dopo la scadenza senza perdere lo stato. La prova su iPhone avviene dopo il deploy (T-010), perché un'origine `http://<IP-LAN>` non è tra quelle autorizzate.
 - File: `src/auth/`
 - Dipende da: T-001, T-002
-- Note: il rinnovo passa da `requestAccessToken()` chiamato in un gesto dell'utente (ADR-001). Rischio da verificare su iPhone: Safari blocca i popup aperti dopo un'operazione asincrona. Strategia: controllare la scadenza (`expires_in`) *prima* che l'utente tocchi un pulsante e, se il token è scaduto, chiedere il rinnovo nel tap stesso. Le scritture in attesa restano in locale.
+- Note: il rinnovo passa da `requestAccessToken()` chiamato in un gesto dell'utente (ADR-001). Rischio da verificare su iPhone: Safari blocca i popup aperti dopo un'operazione asincrona. Strategia: controllare la scadenza (`expires_in`) *prima* che l'utente tocchi un pulsante e, se il token è scaduto, chiedere il rinnovo nel tap stesso. Le scritture in attesa restano in locale. Il popup richiede che la pagina non imposti `Cross-Origin-Opener-Policy: same-origin` (va bene `same-origin-allow-popups` o nessun header; GitHub Pages non lo imposta).
 
 ### T-004 Modulo storage Drive
 - Stato: [ ]

@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-30] — T-002 Guida setup Google Cloud (parziale)
+- Fatto: `docs/human/setup-google.md`: progetto, API Drive+Sheets, Branding/Audience External, scope `drive.file`, client Web con origini `https://verbavolant.github.io`, `http://localhost`, `http://localhost:5173`, pubblicazione "In production". Passaggi verificati sulla doc ufficiale (fonti nella guida).
+- Stato: parziale. L'utente deve eseguire la guida e fornire il Client ID.
+- Verifica: confronto con la doc Google (link nella guida). Non eseguita nella console dall'agente.
+- Prossimo passo: con il Client ID → T-003. Senza → T-005 (modello dati), che non dipende da Google.
+- Trappole/note: le origini non hanno path (niente `/tempoMax/`). La posizione esatta del pulsante "Publish app" (pagina Audience) non è documentata con precisione: da confermare a schermo. Il Client secret non serve (token model client-side).
+
 ## [2026-10-30] — T-001 Scaffold progetto
 - Fatto: `package.json` (script dev/build/test/lint/typecheck), `tsconfig.json`, `vite.config.ts` (Vitest), `eslint.config.js` (flat config, `defineConfig` da `eslint/config`), `index.html`, `src/main.ts`. Aggiunta la sezione TypeScript a `docs/ai/CONVENTIONS.md`; comandi e file chiave in `CONTEXT.md`.
 - Stato: completo.
