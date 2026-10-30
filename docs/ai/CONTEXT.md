@@ -25,7 +25,13 @@ docs/human/       # documentazione per l'utente/setup
 ## File/moduli chiave
 | Path | Responsabilità |
 |------|----------------|
-| `src/main.ts` | bootstrap: monta l'app in `#app` |
+| `src/main.ts` | bootstrap: login, `authorized()` (token nel gesto + `invalidateToken` su 401), monta la schermata clienti |
+| `src/style.css` | stile mobile, chiaro/scuro |
+| `src/ui/dom.ts` | `requireElement`, `errorMessage` |
+| `src/ui/clients.ts` | `mountClientsScreen`: lista, form nuovo/modifica, "Sono qui adesso" |
+| `src/storage/layout.ts` | nomi di cartelle e file su Drive |
+| `src/storage/clientsRepository.ts` | `ClientsRepository.load()` / `save()` su `TempoMax/clienti.json` |
+| `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso) |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
 | `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`; `DriveError` con status |
@@ -33,7 +39,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/geo/currentPosition.ts` | `readCurrentPosition()` → `MeasuredPosition`; `GeolocationError` con `reason` |
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
 | `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
-| `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument` |
+| `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument`, `buildClient`, `newClientIdentity`, `DEFAULT_CLIENT_RADIUS_METERS` (150) |
 | `src/model/visit.ts` | `Visit`, `VisitEvent`, `parseVisit` (un file per visita) |
 | `src/model/task.ts` | `Task` (`todo` / `purchase`), `TasksDocument` (`task.json`), `parseTasksDocument` |
 | `vite.config.ts` | config di Vite + Vitest |

@@ -1,4 +1,5 @@
 import { type Coordinates, parseCoordinates } from './position';
+import { formatLocalIsoDateTime } from './time';
 import {
   SCHEMA_VERSION,
   expectArray,
@@ -11,6 +12,9 @@ import {
   expectUniqueIds,
   optional,
 } from './validation';
+
+// Scelta di prodotto concordata con l'utente: modificabile cliente per cliente (es. giardini grandi).
+export const DEFAULT_CLIENT_RADIUS_METERS = 150;
 
 export interface Client {
   id: string;
@@ -57,4 +61,36 @@ export function parseClientsDocument(value: unknown): ClientsDocument {
   );
   expectUniqueIds(clients, 'clienti.clients');
   return { schemaVersion, clients };
+}
+
+/** Campi modificabili dal form; le stringhe vuote diventano campi assenti. */
+export interface ClientInput {
+  name: string;
+  address: string;
+  notes: string;
+  radiusMeters: number;
+  location?: Coordinates;
+}
+
+export type ClientIdentity = Pick<Client, 'id' | 'createdAt'>;
+
+export function newClientIdentity(now: Date = new Date()): ClientIdentity {
+  return { id: crypto.randomUUID(), createdAt: formatLocalIsoDateTime(now) };
+}
+
+/** Costruisce e valida un cliente: lancia `ValidationError` se l'input non è valido. */
+export function buildClient(input: ClientInput, identity: ClientIdentity): Client {
+  const address = input.address.trim();
+  const notes = input.notes.trim();
+  return parseClient(
+    {
+      ...identity,
+      name: input.name.trim(),
+      radiusMeters: input.radiusMeters,
+      ...(address && { address }),
+      ...(input.location && { location: input.location }),
+      ...(notes && { notes }),
+    },
+    'cliente',
+  );
 }

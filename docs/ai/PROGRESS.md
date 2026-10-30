@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-30] — T-007 Anagrafica clienti (parziale)
+- Fatto: `src/model/time.ts`, `buildClient`/`newClientIdentity`/`DEFAULT_CLIENT_RADIUS_METERS` in `src/model/client.ts`, `src/storage/layout.ts`, `src/storage/clientsRepository.ts`, `src/ui/dom.ts`, `src/ui/clients.ts`, `src/style.css`; `src/main.ts` riscritto (via la schermata di prova di Drive). Test: `tests/model/time.test.ts`, `buildClient` in `tests/model/client.test.ts`, `tests/storage/clientsRepository.test.ts`.
+- Stato: parziale. Manca la prova manuale: creare e modificare un cliente con "Sono qui adesso" e controllare `TempoMax/clienti.json` su Drive.
+- Verifica: `npm test` (89 passati), typecheck, lint e build OK. Controprova: invertendo il segno del fuso falliscono i 6 test di `time.test.ts`.
+- Prossimo passo: prova dell'utente → chiudere T-007 → T-008 (check-in).
+- Trappole/note: "+ Nuovo cliente" resta disattivato finché `load()` non riesce, altrimenti un salvataggio partendo da una lista vuota sovrascriverebbe `clienti.json`. Nei test usare `vi.stubEnv('TZ', …)` (niente `@types/node` nel progetto). `authorized()` deve essere chiamato prima di qualsiasi `await` nel gestore del click. Non c'è ancora l'eliminazione dei clienti (non richiesta: le visite li referenziano).
+
 ## [2026-10-30] — T-006 Geolocalizzazione + distanza
 - Fatto: `src/geo/distance.ts` (`EARTH_MEAN_RADIUS_METERS`, `distanceMeters`, `findNearestClient`), `src/geo/currentPosition.ts` (`readCurrentPosition`, `GeolocationError`). Test in `tests/geo/` (13). Fonti in ADR-004.
 - Stato: completo.

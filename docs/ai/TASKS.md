@@ -43,7 +43,7 @@
 - Note: il rinnovo passa da `requestAccessToken()` chiamato in un gesto dell'utente (ADR-001). Rischio da verificare su iPhone: Safari blocca i popup aperti dopo un'operazione asincrona. Strategia: controllare la scadenza (`expires_in`) *prima* che l'utente tocchi un pulsante e, se il token è scaduto, chiedere il rinnovo nel tap stesso. Le scritture in attesa restano in locale. Il popup richiede che la pagina non imposti `Cross-Origin-Opener-Policy: same-origin` (va bene `same-origin-allow-popups` o nessun header; GitHub Pages non lo imposta).
 
 ### T-004 Modulo storage Drive
-- Stato: [x] verificato dall'utente su Drive reale. Il pulsante provvisorio in `src/main.ts` va rimosso quando arriva la UI di T-007/T-008
+- Stato: [x] verificato dall'utente su Drive reale
 - Obiettivo: creare o trovare la cartella `TempoMax/`, leggere e scrivere file JSON, caricare file binari.
 - Done quando: test con `fetch` simulato per ogni operazione + verifica manuale su un Drive reale.
 - File: `src/storage/drive.ts`, `tests/storage/`
@@ -64,9 +64,9 @@
 - Dipende da: T-005
 
 ### T-007 Anagrafica clienti
-- Stato: [ ]
+- Stato: [~] codice e test pronti; manca la prova manuale (Safari su Mac)
 - Obiettivo: lista dei clienti, creazione con "sono qui adesso" (posizione attuale), modifica, salvataggio su `clienti.json`.
-- Done quando: si crea un cliente su iPhone e compare in `clienti.json` su Drive.
+- Done quando: si crea un cliente (in Safari su Mac; su iPhone dopo T-010) e compare in `clienti.json` su Drive.
 - File: `src/ui/clients.ts`, `src/storage/`
 - Dipende da: T-004, T-006
 
