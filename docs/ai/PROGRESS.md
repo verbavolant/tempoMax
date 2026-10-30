@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-30] — T-004 Modulo storage Drive (chiuso)
+- Fatto: nessun cambio al codice rispetto alla voce precedente.
+- Stato: completo.
+- Verifica: l'utente ha cliccato due volte "Prova salvataggio su Drive": "riletto uguale ✓", stesso file id alla seconda scrittura, un solo `TempoMax/prova.json` su Drive. Multipart e PATCH media confermati sull'API reale.
+- Prossimo passo: T-006 (geolocalizzazione + Haversine, test su distanze note da fonte citata).
+- Trappole/note: su Drive resta `TempoMax/prova.json`: l'utente può cancellarlo a mano.
+
 ## [2026-10-30] — T-004 Modulo storage Drive (parziale)
 - Fatto: `src/storage/drive.ts` riscritto attorno a `DriveClient(getAccessToken)`; `fetchDriveUser` è diventato `getUser()`. `src/main.ts` ha un pulsante provvisorio "Prova salvataggio su Drive" (scrive e rilegge `TempoMax/prova.json`). Test in `tests/storage/drive.test.ts` (14).
 - Stato: parziale. Manca la prova sul Drive reale.
