@@ -27,7 +27,7 @@
 - Note: repo git già inizializzato e pubblicato su https://github.com/verbavolant/tempoMax (pubblico, branch `main`); `.gitignore` di base già presente.
 
 ### T-002 Setup Google Cloud + guida
-- Stato: [~] guida scritta; manca l'esecuzione nella console da parte dell'utente e il Client ID
+- Stato: [x] Client ID ricevuto (in `src/config.ts`); stato "In production" da confermare
 - Obiettivo: progetto Google Cloud con Drive API e Sheets API abilitate, schermata di consenso OAuth, client ID web.
 - Done quando: il client ID esiste, le origini autorizzate sono configurate (dev + produzione) e i passaggi sono documentati in `docs/human/setup-google.md`.
 - File: `docs/human/setup-google.md`
@@ -35,7 +35,7 @@
 - Note: lo fa **l'umano** nella console; l'agente scrive la guida verificando sulla documentazione ufficiale. Unico scope: `drive.file` (non-sensitive, vale anche per Sheets). Mettere l'app "In production" (vedi ADR-001): in "Testing" le autorizzazioni scadono dopo 7 giorni.
 
 ### T-003 Login Google
-- Stato: [ ]
+- Stato: [~] codice e test pronti; manca la prova manuale con login reale in Safari
 - Obiettivo: login/logout con Google Identity Services (token model), scope `drive.file`, rinnovo del token alla scadenza.
 - Done quando: in locale (Safari su Mac, `localhost:5173`) si fa il login, si ottiene il token, si chiama `about.get` di Drive e il token si rinnova dopo la scadenza senza perdere lo stato. La prova su iPhone avviene dopo il deploy (T-010), perché un'origine `http://<IP-LAN>` non è tra quelle autorizzate.
 - File: `src/auth/`
