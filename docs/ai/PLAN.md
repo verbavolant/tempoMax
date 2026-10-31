@@ -12,7 +12,7 @@ Webapp per telefono (PWA) che un giardiniere usa sul campo per:
 Tutti i dati vengono salvati sul **Google Drive dell'utente** (login Google).
 
 Criteri di successo:
-- check-in → check-out completo in ≤ 3 tap, se il cliente è già in anagrafica;
+- check-in e check-out con **un tap ciascuno**, anche senza cliente;
 - nessuna visita persa se manca la rete durante la visita;
 - report mensile delle ore per cliente leggibile in un Foglio Google.
 
@@ -20,7 +20,7 @@ Criteri di successo:
 - Il primo dispositivo è un **iPhone/Safari** (lo sviluppatore). Il destinatario userà **Android/Chrome**: entrambi vanno supportati e testati.
 - Audio registrato **solo dal telefono** (niente upload da PC).
 - Niente appuntamenti pianificati: il giardiniere **decide sul momento** dove andare. Niente integrazione Calendar.
-- I clienti sono spesso gli stessi, ma non sempre: serve un'anagrafica, più la creazione di un cliente "al volo" al check-in.
+- I clienti sono spesso gli stessi, ma non sempre: serve un'anagrafica, ma il check-in **non** deve richiedere un cliente (può essere indicato dopo, o mai).
 - Nessun backend: tutto client-side + API Google (vedi ADR-001).
 - HTTPS obbligatorio (GPS, microfono, OAuth).
 - Il check-in automatico all'arrivo (geofencing in background) **non è possibile** in una webapp: il check-in resta manuale, con verifica della distanza.
@@ -28,9 +28,10 @@ Criteri di successo:
 ## Fasi
 
 ### Fase 1 — MVP check-in/out  ← ATTIVA
-- Scopo: login Google, anagrafica clienti, check-in/out con GPS, nota testuale, salvataggio su Drive.
+- Scopo: login Google, **un pulsante unico check-in/check-out** con GPS, salvataggio su Drive. Cliente facoltativo; anagrafica clienti in una schermata secondaria.
+- Principio UI (richiesta dell'utente, 2026-10-31): la schermata principale è visivamente essenziale; le funzioni si aggiungono un po' alla volta, fuori dalla schermata principale.
 - Done: su iPhone reale (deploy HTTPS) si fa una visita completa e su Drive compare il JSON corretto.
-- Task: T-001 … T-010
+- Task: T-001 … T-010, T-021
 
 ### Fase 2 — Fatturazione ore
 - Scopo: Foglio Google "Registro" con una riga per visita, e riepilogo mensile delle ore per cliente.

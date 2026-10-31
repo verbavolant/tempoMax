@@ -66,3 +66,12 @@
 - Motivazione: pochi tipi e semplici; nessuna dipendenza (coerente con ADR-002); messaggi in italiano.
 - Alternative scartate: zod/valibot (dipendenza in più per circa 5 tipi).
 - Conseguenze: aggiungere un campo significa aggiornare sia l'interfaccia sia il parser. Un cambio incompatibile richiede di incrementare `SCHEMA_VERSION` e di scrivere una migrazione. Gli orari devono avere sempre il fuso (`Z` o `±HH:MM`): `Date.parse` senza fuso usa l'ora locale e accetta date inesistenti (30 febbraio → 2 marzo), verificato su Node 26.
+
+## ADR-006 — Visita senza cliente obbligatorio; schermata principale a pulsante unico
+- Data: 2026-10-31
+- Stato: accettata
+- Contesto: dopo aver provato l'anagrafica, l'utente giudica la UI troppo complicata per il giardiniere. Vuole un pulsante grande che faccia check-in e check-out anche senza aver identificato il cliente, che si potrà indicare dopo o mai.
+- Decisione: `Visit.clientId` diventa `string | null`. La schermata principale ha solo il pulsante INIZIA/FINE e il tempo trascorso. Anagrafica e assegnazione del cliente vivono in schermate secondarie.
+- Motivazione: registrare l'orario non deve dipendere da nessuna scelta; il dato più importante (le ore) non va mai perso.
+- Alternative scartate: scegliere il cliente al check-in, come previsto prima in T-008 (attrito sul campo).
+- Conseguenze: il registro ore (T-011) e i riepiloghi (T-012) devono gestire le visite "senza cliente". Nessuna visita è ancora stata salvata, quindi il cambio non richiede una nuova `SCHEMA_VERSION`. `Task.clientId` resta obbligatorio per ora: da rivedere in Fase 4.

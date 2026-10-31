@@ -64,24 +64,29 @@
 - Dipende da: T-005
 
 ### T-007 Anagrafica clienti
-- Stato: [~] codice e test pronti; manca la prova manuale (Safari su Mac)
+- Stato: [x] verificato dall'utente in Safari su Mac (creazione, modifica, GPS, `clienti.json`)
 - Obiettivo: lista dei clienti, creazione con "sono qui adesso" (posizione attuale), modifica, salvataggio su `clienti.json`.
 - Done quando: si crea un cliente (in Safari su Mac; su iPhone dopo T-010) e compare in `clienti.json` su Drive.
 - File: `src/ui/clients.ts`, `src/storage/`
 - Dipende da: T-004, T-006
 
-### T-008 Check-in
+### T-008 Schermata principale: pulsante unico Check-in / Check-out
 - Stato: [ ]
-- Obiettivo: schermata "Oggi" con il cliente più vicino proposto, avviso se fuori raggio, cliente nuovo creato al volo; la visita aperta viene salvata subito in locale e poi su Drive.
-- Done quando: dopo il check-in, ricaricando la pagina, la visita in corso è ancora presente; il JSON della visita è su Drive.
-- File: `src/ui/today.ts`, `src/storage/`
-- Dipende da: T-007
+- Obiettivo: la schermata principale è **un solo pulsante grande**. Senza visita in corso il pulsante dice "INIZIA" e fa il check-in; con una visita in corso dice "FINE", mostra da quanto tempo è iniziata e fa il check-out. Il cliente **non è obbligatorio** (ADR-006). La posizione si legge se possibile: se il GPS fallisce o va in timeout la visita parte lo stesso. La visita aperta si salva subito in locale e poi su Drive (`visite/AAAA/AAAA-MM-GG_<id>.json`).
+- Done quando: check-in → ricarico la pagina → la visita in corso c'è ancora; check-out → su Drive c'è il JSON chiuso con orari e posizioni; tutto funziona anche senza alcun cliente in anagrafica.
+- File: `src/model/visit.ts` (`clientId` nullable), `src/storage/visitsRepository.ts`, `src/ui/home.ts`, `src/main.ts`, test
+- Dipende da: T-004, T-006
+- Note: l'anagrafica clienti (T-007) resta raggiungibile da un link piccolo e secondario. Nessuna nota né altro sulla schermata: si aggiunge dopo. Associazione automatica del cliente al check-in: **da decidere con l'utente** (vedi "Bloccati").
 
-### T-009 Check-out + nota
+### T-009 Nota testuale alla visita
+- Stato: [ ] (rimandato su richiesta dell'utente: la schermata principale deve restare essenziale)
+- Obiettivo: aggiungere una nota testuale a una visita, in corso o chiusa.
+- Dipende da: T-008
+
+### T-021 Assegnare il cliente a una visita in seguito
 - Stato: [ ]
-- Obiettivo: schermata della visita in corso con timer, nota testuale e check-out con posizione; il JSON della visita viene chiuso.
-- Done quando: una visita completa su Drive ha orari, posizioni, durata calcolabile e nota.
-- File: `src/ui/visit.ts`
+- Obiettivo: in una schermata secondaria, elenco delle visite recenti con la possibilità di assegnare o cambiare il cliente (o lasciarlo vuoto).
+- Done quando: una visita senza cliente riceve un cliente e il JSON su Drive viene aggiornato.
 - Dipende da: T-008
 
 ### T-010 Deploy HTTPS + test su iPhone
@@ -89,7 +94,7 @@
 - Obiettivo: pubblicazione su hosting statico HTTPS e test end-to-end su iPhone.
 - Done quando: URL pubblico funzionante; checklist di test manuale in `docs/human/` eseguita ed esito annotato in PROGRESS.
 - File: config di deploy (GitHub Actions), `vite.config.ts` (`base`), `docs/human/`
-- Dipende da: T-009
+- Dipende da: T-008
 - Note: GitHub Pages, account `verbavolant`. L'origine OAuth di produzione è `https://verbavolant.github.io`; URL dell'app: `https://verbavolant.github.io/tempoMax/` (Vite `base: '/tempoMax/'`).
 
 ## Fase 2 — Fatturazione ore
@@ -162,4 +167,5 @@
 
 ## Bloccati / da chiarire
 > Task fermi in attesa di una decisione umana o di un'informazione mancante.
+- **T-008 Cliente automatico al check-in?** Se il GPS trova un cliente entro il suo raggio, la visita gli viene associata da sola (e si può cambiare dopo), oppure resta sempre senza cliente finché lui non lo indica?
 - **T-012 Arrotondamento ore**: per ora si usano i minuti esatti (nessun arrotondamento). La regola definitiva (quarti d'ora, minimo per uscita, ecc.) la deciderà l'utente: implementarla come funzione isolata e sostituibile.

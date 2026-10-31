@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-007 chiuso + ripianificazione della schermata principale
+- Fatto: T-007 verificato dall'utente. Su sua richiesta la UI principale diventa un pulsante unico, con il cliente facoltativo: aggiornati `PLAN.md`, `TASKS.md` (T-008 riscritto, T-009 rimandato, nuovo T-021) e ADR-006.
+- Stato: in attesa della risposta dell'utente sull'associazione automatica del cliente (TASKS → Bloccati).
+- Verifica: —
+- Prossimo passo: con la risposta → T-008.
+- Trappole/note: l'utente vuole aggiungere le funzioni un po' alla volta, senza appesantire la schermata principale.
+
 ## [2026-10-30] — T-007 Anagrafica clienti (parziale)
 - Fatto: `src/model/time.ts`, `buildClient`/`newClientIdentity`/`DEFAULT_CLIENT_RADIUS_METERS` in `src/model/client.ts`, `src/storage/layout.ts`, `src/storage/clientsRepository.ts`, `src/ui/dom.ts`, `src/ui/clients.ts`, `src/style.css`; `src/main.ts` riscritto (via la schermata di prova di Drive). Test: `tests/model/time.test.ts`, `buildClient` in `tests/model/client.test.ts`, `tests/storage/clientsRepository.test.ts`.
 - Stato: parziale. Manca la prova manuale: creare e modificare un cliente con "Sono qui adesso" e controllare `TempoMax/clienti.json` su Drive.
