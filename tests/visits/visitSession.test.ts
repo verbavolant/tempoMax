@@ -348,5 +348,37 @@ describe('VisitSession', () => {
       ]);
       expect(session.view().notice).toBe('Nota vocale non caricata: il file non è su questo telefono');
     });
+
+    it('una nota libera viene caricata subito con syncAfter, senza visita, ed esce dalla coda', async () => {
+      const { session, audio, authorizedCalls } = setup();
+      session.addFreeNote(note);
+      expect(session.view().pendingFreeNotes).toEqual([note]);
+
+      const recordingStopped = Promise.resolve();
+      const sync = session.syncAfter(recordingStopped);
+      expect(authorizedCalls).toHaveLength(1);
+      await sync;
+
+      expect(audio.upload).toHaveBeenCalledWith(null, note);
+      expect(audio.deleteLocal).toHaveBeenCalledWith('a-1');
+      expect(session.view().pendingFreeNotes).toEqual([]);
+    });
+
+    it('senza rete la nota libera resta in coda e sul telefono', async () => {
+      const { session, audio } = setup();
+      session.addFreeNote(note);
+      audio.upload.mockRejectedValueOnce(new Error('rete assente'));
+      await session.syncAfter(Promise.resolve());
+      expect(session.view().pendingFreeNotes).toEqual([note]);
+      expect(audio.deleteLocal).not.toHaveBeenCalled();
+      expect(session.view().notice).toBe('Salvata sul telefono, non ancora su Drive: rete assente');
+    });
+
+    it('syncAfter aspetta la fine del compito anche se fallisce', async () => {
+      const { session, audio } = setup();
+      session.addFreeNote(note);
+      await session.syncAfter(Promise.reject(new Error('registrazione fallita')));
+      expect(audio.upload).toHaveBeenCalledTimes(1);
+    });
   });
 });

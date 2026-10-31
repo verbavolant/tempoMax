@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { type AudioNote, startVisit } from '../../src/model/visit';
-import { AudioUploader, audioFileExtension, audioFileName } from '../../src/storage/audioUploader';
+import { AudioUploader, audioAppProperties, audioFileExtension, audioFileName } from '../../src/storage/audioUploader';
 
 const visit = { ...startVisit('2026-10-31T09:00:00+01:00'), id: 'v-1' };
 const note: AudioNote = {
@@ -27,6 +27,27 @@ describe('audioFileName', () => {
   it('usa la data locale di registrazione, la visita e la nota', () => {
     expect(audioFileName(visit, note)).toBe('2026-10-31_v-1_a-1.m4a');
   });
+
+  it('per una nota libera usa "libera" al posto della visita', () => {
+    expect(audioFileName(null, note)).toBe('2026-10-31_libera_a-1.m4a');
+  });
+});
+
+describe('audioAppProperties', () => {
+  it('nota libera: tipo free, senza visita', () => {
+    expect(audioAppProperties(null, note)).toEqual({
+      kind: 'free',
+      recordedAt: '2026-10-31T09:10:00+01:00',
+      durationSeconds: '12',
+    });
+  });
+
+  it('ogni coppia chiave-valore sta nei 124 byte UTF-8 consentiti da Drive', () => {
+    const properties = audioAppProperties({ ...visit, id: crypto.randomUUID() }, { ...note, durationSeconds: 299.999 });
+    for (const [key, value] of Object.entries(properties)) {
+      expect(new TextEncoder().encode(key + value).length).toBeLessThanOrEqual(124);
+    }
+  });
 });
 
 describe('AudioUploader', () => {
@@ -47,7 +68,12 @@ describe('AudioUploader', () => {
       link: 'https://drive.google.com/file/d/drive-1/view',
     });
     expect(drive.ensureFolderPath).toHaveBeenCalledWith(['TempoMax', 'audio', '2026']);
-    expect(drive.uploadFile).toHaveBeenCalledWith('2026-10-31_v-1_a-1.m4a', 'audio-2026', blob);
+    expect(drive.uploadFile).toHaveBeenCalledWith('2026-10-31_v-1_a-1.m4a', 'audio-2026', blob, {
+      kind: 'visit',
+      recordedAt: '2026-10-31T09:10:00+01:00',
+      durationSeconds: '12',
+      visitId: 'v-1',
+    });
   });
 
   it('restituisce null se il file non è sul telefono, senza chiamare Drive', async () => {

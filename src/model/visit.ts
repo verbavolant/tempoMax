@@ -44,7 +44,7 @@ export interface Visit {
   audio: AudioNote[];
 }
 
-function parseAudioNote(value: unknown, path: string): AudioNote {
+export function parseAudioNote(value: unknown, path: string): AudioNote {
   const object = expectObject(value, path);
   return {
     id: expectNonEmptyString(object.id, `${path}.id`),

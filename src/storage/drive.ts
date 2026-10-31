@@ -108,21 +108,30 @@ export class DriveClient {
   }
 
   async createFile(name: string, parentId: string, content: Blob): Promise<string> {
-    return parseFileId(await this.createMultipart(name, parentId, content, 'id'), 'create');
+    return parseFileId(await this.createMultipart({ name, parents: [parentId] }, content, 'id'), 'create');
   }
 
-  /** Carica un file e ne restituisce id e link per aprirlo nel visualizzatore di Drive (`webViewLink`). */
-  async uploadFile(name: string, parentId: string, content: Blob): Promise<{ id: string; webViewLink: string }> {
-    const file = expectObject(await this.createMultipart(name, parentId, content, 'id,webViewLink'), 'upload');
+  /**
+   * Carica un file e ne restituisce id e link per aprirlo nel visualizzatore di Drive (`webViewLink`).
+   * `appProperties`: proprietà private dell'app sul file (max 30, 124 byte per coppia chiave-valore).
+   */
+  async uploadFile(
+    name: string,
+    parentId: string,
+    content: Blob,
+    appProperties: Record<string, string> = {},
+  ): Promise<{ id: string; webViewLink: string }> {
+    const metadata = { name, parents: [parentId], ...(Object.keys(appProperties).length > 0 && { appProperties }) };
+    const file = expectObject(await this.createMultipart(metadata, content, 'id,webViewLink'), 'upload');
     return { id: parseFileId(file, 'upload'), webViewLink: expectNonEmptyString(file.webViewLink, 'upload.webViewLink') };
   }
 
-  private async createMultipart(name: string, parentId: string, content: Blob, fields: string): Promise<unknown> {
+  private async createMultipart(metadata: object, content: Blob, fields: string): Promise<unknown> {
     assertUploadable(content);
     const boundary = `tempomax-${crypto.randomUUID()}`;
     const body = new Blob([
       `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,
-      JSON.stringify({ name, parents: [parentId] }),
+      JSON.stringify(metadata),
       `\r\n--${boundary}\r\nContent-Type: ${content.type}\r\n\r\n`,
       content,
       `\r\n--${boundary}--`,

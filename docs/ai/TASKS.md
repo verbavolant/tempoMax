@@ -196,6 +196,26 @@
 - File: `src/register/visitRow.ts`, `src/storage/visitRegister.ts`, test
 - Dipende da: T-014b
 
+### T-028a Note libere e catalogo audio: dati
+- Stato: [x]
+- Obiettivo: note vocali registrate senza visita ("Note libere", richiesta dell'utente del 2026-10-31). `LocalVisitState.freeNotes` (assente = `[]`), `VisitSession.addFreeNote` e `syncAfter(task)`, caricamento in `TempoMax/audio/AAAA/AAAA-MM-GG_libera_<idNota>.<ext>`; ogni file audio (anche delle visite) ha `appProperties` `kind` (`visit`/`free`), `recordedAt`, `durationSeconds`, `visitId` per elencarle con una sola richiesta.
+- Done quando: test su archivio locale, sessione (nota libera caricata e tolta dalla coda; errori) e uploader (nome e proprietà).
+- File: `src/storage/localVisits.ts`, `src/storage/audioUploader.ts`, `src/storage/drive.ts`, `src/visits/visitSession.ts`, test
+- Dipende da: T-014b
+- Note: *da verificare con la prova reale*: che `appProperties` si possano impostare già nella creazione (la guida "properties" mostra solo l'update; il campo non è output-only).
+
+### T-028b Nota vocale anche senza visita
+- Stato: [ ]
+- Obiettivo: 🎤 visibile anche con il timer fermo (nota libera); al tocco su ⏹ si avvia subito il salvataggio su Drive (`syncAfter`, token nel gesto).
+- File: `src/ui/home.ts`
+- Dipende da: T-028a
+
+### T-028c Schermata "🎧 Note vocali"
+- Stato: [ ]
+- Obiettivo: elenco delle note dell'anno (Drive + quelle ancora sul telefono), divise in "Note libere" e "Note delle visite", con data e ora, durata ed eventuale cliente; ▶ riproduce (file locale o scaricato da Drive).
+- File: `src/storage/audioCatalog.ts`, `src/ui/notes.ts`, `src/ui/home.ts`, `src/main.ts`, test
+- Dipende da: T-028a
+
 ### T-027 Posizione senza rete (da valutare)
 - Stato: [ ] (da decidere con l'utente)
 - Contesto: in modalità aereo l'utente ha visto visite senza posizione. *Ipotesi*: il GPS dell'iPhone può funzionare anche senza rete, ma l'aggancio è più lento e supera il timeout di 20 s (`POSITION_TIMEOUT_MS`). Possibili soluzioni: timeout più lungo, oppure un nuovo tentativo in background che aggiorna la visita.

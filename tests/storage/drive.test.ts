@@ -203,6 +203,13 @@ describe('DriveClient', () => {
   });
 
   describe('uploadFile', () => {
+    it('mette appProperties nei metadati del multipart', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ id: 'f-1', webViewLink: 'https://drive.google.com/file/d/f-1/view' }));
+      await drive.uploadFile('nota.m4a', 'folder-1', new Blob(['x'], { type: 'audio/mp4' }), { kind: 'free' });
+      const body = await (requestAt(fetchMock, 0).init.body as Blob).text();
+      expect(body).toContain('{"name":"nota.m4a","parents":["folder-1"],"appProperties":{"kind":"free"}}');
+    });
+
     it('chiede id e webViewLink e li restituisce', async () => {
       fetchMock.mockResolvedValueOnce(jsonResponse({ id: 'f-1', webViewLink: 'https://drive.google.com/file/d/f-1/view' }));
       await expect(drive.uploadFile('nota.m4a', 'folder-1', new Blob(['x'], { type: 'audio/mp4' }))).resolves.toEqual({

@@ -25,9 +25,22 @@ describe('LocalVisitStore', () => {
 
   it('salva e rilegge visita aperta e visite da sincronizzare', () => {
     const storage = memoryStorage();
-    const state = { openVisit: open, unsyncedVisits: [closed] };
+    const freeNote = {
+      id: 'n-1',
+      recordedAt: '2026-10-31T18:00:00+01:00',
+      mimeType: 'audio/mp4',
+      durationSeconds: 8,
+      driveFileId: null,
+      driveLink: null,
+    };
+    const state = { openVisit: open, unsyncedVisits: [closed], freeNotes: [freeNote] };
     new LocalVisitStore(storage).save(state);
     expect(new LocalVisitStore(storage).load()).toEqual(state);
+  });
+
+  it('i dati salvati prima delle note libere si leggono con elenco vuoto', () => {
+    const storage = memoryStorage({ 'tempomax.visits': JSON.stringify({ openVisit: open, unsyncedVisits: [] }) });
+    expect(new LocalVisitStore(storage).load()).toEqual({ openVisit: open, unsyncedVisits: [], freeNotes: [] });
   });
 
   it('segnala un contenuto corrotto invece di ripartire da zero', () => {
@@ -37,7 +50,7 @@ describe('LocalVisitStore', () => {
 
   it('non salva uno stato non valido', () => {
     const storage = memoryStorage();
-    expect(() => new LocalVisitStore(storage).save({ openVisit: null, unsyncedVisits: [closed, closed] })).toThrow(
+    expect(() => new LocalVisitStore(storage).save({ openVisit: null, unsyncedVisits: [closed, closed], freeNotes: [] })).toThrow(
       'id duplicato',
     );
     expect(storage.items.size).toBe(0);

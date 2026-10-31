@@ -4,7 +4,7 @@ import type { MeasuredPosition } from '../model/position';
 import { formatLocalIsoDateTime } from '../model/time';
 import { type AudioNote, type Visit, endVisit, parseVisit, startVisit } from '../model/visit';
 import { type LocalVisitState, type LocalVisitStore, upsertVisit } from '../storage/localVisits';
-import type { AudioUploader } from '../storage/audioUploader';
+import type { AudioUploader, UploadedAudio } from '../storage/audioUploader';
 import { FileTooLargeError } from '../storage/drive';
 import type { VisitRegister } from '../storage/visitRegister';
 import type { VisitsRepository } from '../storage/visitsRepository';
@@ -27,6 +27,8 @@ export interface VisitSessionView {
   openVisit: Visit | null;
   clientName: string | null;
   unsyncedCount: number;
+  /** Note libere registrate e non ancora caricate su Drive. */
+  pendingFreeNotes: AudioNote[];
   notice: string | null;
 }
 
@@ -58,6 +60,7 @@ export class VisitSession {
       openVisit: this.state.openVisit,
       clientName: this.knownClients.find((client) => client.id === clientId)?.name ?? null,
       unsyncedCount: this.state.unsyncedVisits.length,
+      pendingFreeNotes: this.state.freeNotes,
       notice: this.syncError ?? this.audioNotice ?? this.positionNotice,
     };
   }
@@ -85,7 +88,7 @@ export class VisitSession {
     const open = this.state.openVisit;
     if (open) {
       const closed = endVisit(open, at);
-      this.commit({ openVisit: null, unsyncedVisits: upsertVisit(this.state.unsyncedVisits, closed) });
+      this.commit({ ...this.state, openVisit: null, unsyncedVisits: upsertVisit(this.state.unsyncedVisits, closed) });
       return this.enqueueSync(async () => {
         const checkOutPosition = await position;
         this.updateVisit(closed.id, (visit) =>
@@ -132,6 +135,26 @@ export class VisitSession {
    */
   addAudio(visitId: string, note: AudioNote): void {
     this.updateVisit(visitId, (visit) => ({ ...visit, audio: [...visit.audio, note] }));
+  }
+
+  /** Nota registrata senza visita ("Note libere"): resta sul telefono finché non è caricata. */
+  addFreeNote(note: AudioNote): void {
+    this.commit({ ...this.state, freeNotes: [...this.state.freeNotes, note] });
+  }
+
+  removeFreeNote(noteId: string): void {
+    this.commit({ ...this.state, freeNotes: this.state.freeNotes.filter((note) => note.id !== noteId) });
+  }
+
+  /**
+   * Avvia un salvataggio su Drive che parte quando `task` è finito (es. una nota appena fermata).
+   * Va chiamato dentro il tocco: `authorized` può così chiedere il token senza popup bloccati.
+   */
+  syncAfter(task: Promise<unknown>): Promise<void> {
+    return this.enqueueSync(async () => {
+      // L'esito di `task` è gestito da chi lo ha avviato: qui serve solo aspettarlo.
+      await task.catch(() => undefined);
+    });
   }
 
   removeAudio(visitId: string, noteId: string): void {
@@ -189,6 +212,7 @@ export class VisitSession {
     if (this.state.openVisit) {
       await this.saveVisit(this.state.openVisit.id);
     }
+    await this.uploadFreeNotes();
     for (const visit of [...this.state.unsyncedVisits]) {
       const saved = await this.saveVisit(visit.id);
       // Si toglie solo la versione salvata: se nel frattempo la visita è cambiata, resta in coda.
@@ -217,6 +241,35 @@ export class VisitSession {
     return visit;
   }
 
+  /** Le note libere caricate escono dalla coda; quelle impossibili da caricare restano, con un avviso. */
+  private async uploadFreeNotes(): Promise<void> {
+    for (const note of [...this.state.freeNotes]) {
+      const uploaded = await this.uploadAudio(null, note);
+      if (uploaded) {
+        this.removeFreeNote(note.id);
+        await this.dependencies.audio.deleteLocal(note.id);
+      }
+    }
+  }
+
+  /** Carica una nota; null (con avviso) se non potrà mai essere caricata. Gli errori di rete si propagano. */
+  private async uploadAudio(visit: Visit | null, note: AudioNote): Promise<UploadedAudio | null> {
+    try {
+      const uploaded = await this.dependencies.audio.upload(visit, note);
+      if (!uploaded) {
+        this.audioNotice = 'Nota vocale non caricata: il file non è su questo telefono';
+      }
+      return uploaded;
+    } catch (error) {
+      // Un file troppo grande non passerà mai: lo si segnala senza bloccare il resto.
+      if (error instanceof FileTooLargeError) {
+        this.audioNotice = `Nota vocale non caricata: ${error.message}`;
+        return null;
+      }
+      throw error;
+    }
+  }
+
   private async uploadPendingAudio(visitId: string): Promise<void> {
     const pending = this.findVisit(visitId)?.audio.filter((note) => !note.driveFileId) ?? [];
     for (const note of pending) {
@@ -224,19 +277,8 @@ export class VisitSession {
       if (!visit) {
         return;
       }
-      let uploaded;
-      try {
-        uploaded = await this.dependencies.audio.upload(visit, note);
-      } catch (error) {
-        // Un file troppo grande non passerà mai: lo si segnala senza bloccare il salvataggio della visita.
-        if (error instanceof FileTooLargeError) {
-          this.audioNotice = `Nota vocale non caricata: ${error.message}`;
-          continue;
-        }
-        throw error;
-      }
+      const uploaded = await this.uploadAudio(visit, note);
       if (!uploaded) {
-        this.audioNotice = 'Nota vocale non caricata: il file non è su questo telefono';
         continue;
       }
       const { fileId, link } = uploaded;
