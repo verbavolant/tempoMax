@@ -184,26 +184,24 @@ export class VisitSession {
   }
 
   /**
-   * `authorized` parte subito (nel tap) per poter aprire il popup di Google; il lavoro vero
-   * aspetta le operazioni precedenti in coda.
+   * `update` (posizione, cliente: modifiche sul telefono) parte subito e non dipende dal login:
+   * senza rete o con il popup bloccato la posizione va comunque salvata.
+   * `authorized` parte anch'esso subito (nel tocco) per poter aprire il popup di Google;
+   * il salvataggio su Drive aspetta l'aggiornamento locale e le operazioni precedenti in coda.
    */
   private enqueueSync(update: () => Promise<void>): Promise<void> {
+    const localUpdate = update();
     const previous = this.queue;
-    const operation = this.dependencies.authorized(async () => {
+    const driveSave = this.dependencies.authorized(async () => {
       await previous;
-      await update();
+      await localUpdate;
       await this.saveToDrive();
     });
-    this.queue = operation.then(
-      () => {
-        this.syncError = null;
-        this.emit();
-      },
-      (error: unknown) => {
-        this.syncError = `Salvata sul telefono, non ancora su Drive: ${errorText(error)}`;
-        this.emit();
-      },
-    );
+    this.queue = Promise.allSettled([localUpdate, driveSave]).then((results) => {
+      const failure = results.find((result) => result.status === 'rejected');
+      this.syncError = failure ? `Salvata sul telefono, non ancora su Drive: ${errorText(failure.reason)}` : null;
+      this.emit();
+    });
     return this.queue;
   }
 

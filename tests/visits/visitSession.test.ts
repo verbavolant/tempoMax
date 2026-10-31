@@ -176,6 +176,16 @@ describe('VisitSession', () => {
     expect(session.view().unsyncedCount).toBe(0);
   });
 
+  it('senza login (es. modalità aereo) la posizione del check-in e del check-out viene comunque salvata sul telefono', async () => {
+    const { session, advance } = setup({ authorized: () => Promise.reject(new Error('nessuna connessione')) });
+    await session.toggle();
+    expect(session.view().openVisit?.checkIn.position).toEqual(atVilla);
+    advance(30);
+    await session.toggle();
+    expect(session.localVisits()[0]?.checkOut?.position).toEqual(atVilla);
+    expect(session.view().notice).toBe('Salvata sul telefono, non ancora su Drive: nessuna connessione');
+  });
+
   it('se il login Google fallisce la visita resta sul telefono', async () => {
     const { session, repository } = setup({ authorized: () => Promise.reject(new Error('Finestra di accesso chiusa')) });
     await session.toggle();
