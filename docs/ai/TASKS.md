@@ -230,7 +230,7 @@
 - Dipende da: T-029a
 
 ### T-029c Orario di lavoro: logica dei pulsanti
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: `WorkSession.start()/stop()`: orario al tocco, salvataggio locale, coda verso Drive (JSON del giorno + riga del foglio), riprova al tocco successivo.
 - File: `src/work/workSession.ts`, test
 - Dipende da: T-029b
