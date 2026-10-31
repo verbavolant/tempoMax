@@ -191,7 +191,7 @@
 - Dipende da: T-014a
 
 ### T-014c Colonna "Audio" nel registro
-- Stato: [ ]
+- Stato: [~] codice e test pronti; manca la prova sul foglio reale
 - Obiettivo: colonna I "Audio" con i link alle note (uno per riga della cella); l'intestazione si aggiorna anche sui fogli già esistenti.
 - File: `src/register/visitRow.ts`, `src/storage/visitRegister.ts`, test
 - Dipende da: T-014b

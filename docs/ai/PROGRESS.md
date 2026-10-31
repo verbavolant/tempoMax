@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-014a, T-014b, T-014c (parziali): audio su Drive
+- Fatto: ADR-007 (note ≤ 5 MB invece del resumable: `Location` non esposto via CORS nella risposta 401, comportamento in caso di successo non verificabile). T-014a: `shouldStopForSize`, `MAX_RECORDING_SECONDS` (5 min) e callback `onLimitReached` in `src/audio/recorder.ts`; la home ferma la nota e lo dice. T-014b: `FileTooLargeError` e `uploadFile` in `src/storage/drive.ts`; `src/storage/audioUploader.ts`; `AudioNote.driveLink` (assente = null); `VisitSession.saveVisit(id)` carica le note pendenti, aggiorna id/link, cancella la copia locale, poi salva JSON e registro; ▶ apre `driveLink` se il file non è più sul telefono. T-014c: colonna I "Audio" (link uno per riga), intestazione riscritta anche sui fogli esistenti.
+- Stato: T-014a completo; T-014b e T-014c parziali (prova reale).
+- Verifica: `npm test` (186), typecheck, lint, build OK. Controprove: senza la gestione di `FileTooLargeError` fallisce il test dedicato. Registrazione in Chrome headless ancora OK.
+- Prossimo passo: prova dell'utente (checklist → Note vocali); poi T-026 (Opzioni, GPS disattivabile).
+- Trappole/note: `saveToDrive` ora toglie dalla coda la versione **restituita** da `saveVisit` (dopo l'upload la visita cambia). File troppo grande o mancante: avviso (`audioNotice`) senza bloccare la visita. Eliminare una nota già caricata toglie solo il riferimento: il file su Drive resta.
+
 ## [2026-10-31] — T-013b chiuso
 - Fatto: nessun cambio al codice.
 - Stato: completo. L'utente conferma che la registrazione funziona su iPhone con la versione che tenta i formati in sequenza.

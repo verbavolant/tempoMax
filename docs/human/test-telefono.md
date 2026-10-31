@@ -34,7 +34,9 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] Parla qualche secondo, tocca **⏹ Ferma**: compare "🎧 Nota 1 · 0:00:0x".
 - [ ] **▶** riproduce la nota; **🗑** la elimina (chiede conferma).
 - [ ] Avvia una nota e **blocca lo schermo** per 20 secondi, poi riapri: la registrazione continua? Fermandola, la nota dura circa quanto il tempo trascorso?
-- [ ] Avvia una nota e tocca direttamente **FINE**: la visita si chiude e la nota non va persa (si vedrà su Drive con T-014).
+- [ ] Avvia una nota e tocca direttamente **FINE**: la visita si chiude e la nota non va persa.
+- [ ] Dopo FINE (con rete), su Drive in `TempoMax/audio/2026/` c'è il file `.m4a` della nota e si ascolta.
+- [ ] Nel **Registro visite** la colonna **Audio** (I) contiene il link della nota, che apre il file su Drive.
 
 ## Senza rete
 - [ ] Attiva la modalità aereo, tocca **INIZIA**: compare "Salvata sul telefono, non ancora su Drive…".

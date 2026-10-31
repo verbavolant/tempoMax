@@ -54,12 +54,11 @@ export class VisitRegister {
 
   private async findOrCreateSpreadsheet(): Promise<string> {
     const folderId = await this.drive.ensureFolderPath([ROOT_FOLDER]);
-    const existingId = await this.drive.findFile(REGISTER_FILE, folderId);
-    if (existingId) {
-      return existingId;
-    }
     // Creazione in cartella via Drive, come indicato dalla guida Sheets "Create a spreadsheet".
-    const spreadsheetId = await this.drive.createEmptyFile(REGISTER_FILE, folderId, SPREADSHEET_MIME_TYPE);
+    const spreadsheetId =
+      (await this.drive.findFile(REGISTER_FILE, folderId)) ??
+      (await this.drive.createEmptyFile(REGISTER_FILE, folderId, SPREADSHEET_MIME_TYPE));
+    // Intestazione riscritta anche sui fogli esistenti: aggiunge le colonne nuove (es. Audio).
     await this.drive.request(this.valuesUrl(spreadsheetId, rowRange(1), '?valueInputOption=RAW'), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

@@ -36,10 +36,11 @@ docs/human/       # documentazione per l'utente/setup
 | `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali), assegnazione del cliente; `orderClientsByDistance`, `mergeVisits` |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista (cliente "📍 Sei qui" in cima, evidenziato), form nuovo/modifica, "Sono qui adesso"; `orderClientsForList` |
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
-| `src/register/visitRow.ts` | `REGISTER_HEADER`, `visitToRow`, `REGISTER_ID_COLUMN_INDEX` |
+| `src/register/visitRow.ts` | `REGISTER_HEADER` (A–I: … ID visita, Audio), `visitToRow`, `REGISTER_ID_COLUMN_INDEX`, `italianDate`, `clockTime` |
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
 | `src/storage/audioStore.ts` | `AudioStore` (IndexedDB `tempomax`/`audio`): `put`/`get`/`delete` per id della nota, salva ArrayBuffer + tipo |
-| `src/audio/recorder.ts` | `AudioRecording.start()` / `stop()` (MediaRecorder, blocchi da 1 s), `chooseAudioMimeType` |
+| `src/audio/recorder.ts` | `AudioRecording.start(onLimitReached)` / `stop()` (MediaRecorder, blocchi da 1 s, tetto 5 MB / 5 min), `audioMimeTypeCandidates`, `firstThatWorks`, `shouldStopForSize` |
+| `src/storage/audioUploader.ts` | `AudioUploader.upload(visit, note)` → `TempoMax/audio/AAAA/`, `deleteLocal`; `audioFileName`, `audioFileExtension` |
 | `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
 | `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json`; `listRecent(year, limit)` |
 | `src/storage/visitRegister.ts` | `VisitRegister.save(visit, clientName)`: Foglio `TempoMax/Registro visite`, aggiorna la riga (ID in colonna H) o la aggiunge |
@@ -47,7 +48,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`) |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
-| `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`, `createEmptyFile`, `listFiles`, `request` (anche per Sheets); `DriveError` con status |
+| `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`, `createEmptyFile`, `listFiles`, `uploadFile` (id + `webViewLink`), `request` (anche per Sheets); `FileTooLargeError`; `DriveError` con status |
 | `src/geo/distance.ts` | `distanceMeters` (Haversine, raggio GRS80), `findNearestClient`, `findClientAtPosition` (il più vicino tra i clienti che contengono la posizione nel raggio) |
 | `src/geo/currentPosition.ts` | `readCurrentPosition()` → `MeasuredPosition`; `GeolocationError` con `reason` |
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
@@ -72,9 +73,9 @@ docs/human/       # documentazione per l'utente/setup
 TempoMax/
   clienti.json
   task.json                         # da fare + da comprare
-  Registro visite                   # Foglio Google: una riga per visita, link Maps (vista derivata)
+  Registro visite                   # Foglio Google: una riga per visita, link Maps e Audio (vista derivata)
   visite/AAAA/AAAA-MM-GG_<idVisita>.json
-  audio/AAAA/<file audio>             # T-014
+  audio/AAAA/AAAA-MM-GG_<idVisita>_<idNota>.m4a   # note vocali (≤ 5 MB, ADR-007)
 ```
 
 ## Convenzioni del progetto
