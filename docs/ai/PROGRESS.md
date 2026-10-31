@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-029a–d: orario di lavoro (parziale)
+- Fatto: richiesta dell'utente: due pulsanti per inizio/fine del lavoro con pause. T-029a: `src/model/work.ts`, `expectIsoDate`, `roundedMinutesBetween` condivisa con `visitDurationMinutes`, `src/storage/localWork.ts`. T-029b: `src/storage/sheetRegister.ts` estratto da `VisitRegister` (test del registro visite invariati e verdi), `WorkRegister`, `src/register/workRow.ts`, `WorkRepository` (un file per giorno). T-029c: `src/work/workSession.ts`. T-029d: `src/ui/workPanel.ts` in cima alla home; home compattata (pulsante tondo `min(62vw, 30vh, 300px)`, navigazione su una riga di tre pulsanti) per stare in uno schermo.
+- Stato: T-029a/b/c completi; T-029d parziale (prova su iPhone con Drive).
+- Verifica: `npm test` (232), typecheck, lint, build OK. Chrome headless 390×844 via CDP: i pulsanti si alternano, i periodi vengono salvati in localStorage, la home sta in uno schermo.
+- Prossimo passo: prova dell'utente (checklist "Orario di lavoro"); restano da provare T-014b/c e T-028b/c; poi T-026 Opzioni/GPS.
+- Trappole/note: il primo test di concorrenza di WorkSession non esercitava la gara (lo `stop()` arrivava prima che il salvataggio partisse): la controprova lo ha mostrato. Ora attende con `vi.waitFor` il primo salvataggio in corso. Scelte dichiarate all'utente: orario indipendente dalle visite, senza GPS; pausa = Fine + nuovo Inizio.
+
 ## [2026-10-31] — T-028a/b/c: note libere ed elenco delle note
 - Fatto: richiesta dell'utente: nota vocale anche senza visita ("Note libere") e un elenco per riascoltare tutte le note. T-028a: `LocalVisitState.freeNotes`, `VisitSession.addFreeNote/removeFreeNote/syncAfter`, `uploadFreeNotes` e `uploadAudio` comuni, `appProperties` sui file audio (`audioAppProperties`), `DriveClient.uploadFile(..., appProperties)`. T-028b: 🎤 sempre visibile in `src/ui/home.ts`, ⏹ e FINE chiamano `session.syncAfter(finishRecording())` dentro il tocco. T-028c: `listFiles` restituisce anche `webViewLink`/`appProperties`, `downloadFile`, `src/storage/audioCatalog.ts`, `src/ui/notes.ts`, pulsante "🎧 Note vocali", `showSecondary` supporta il cleanup (ferma la riproduzione).
 - Stato: T-028a completo; T-028b, T-028c parziali (prova con Drive reale). Resta in sospeso anche la prova di T-014b/c.

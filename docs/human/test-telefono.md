@@ -44,6 +44,13 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] **🎧 Note vocali**: le note sono divise in "Note libere" e "Note delle visite", con data e ora (le note delle visite anche con il cliente).
 - [ ] ▶ riproduce una nota già su Drive (si scarica) e una appena registrata.
 
+## Orario di lavoro
+- [ ] In cima alla home: **▶ Inizio lavoro** (attivo) e **⏸ Fine lavoro** (grigio). Tocca **Inizio lavoro**: si scambiano, sotto compare "Al lavoro da 0:00 · oggi 0:00".
+- [ ] Pausa: **Fine lavoro** → "In pausa · oggi …"; poi **Inizio lavoro** di nuovo.
+- [ ] Il totale di "oggi" non conta il tempo di pausa.
+- [ ] Su Drive: `TempoMax/lavoro/2026/AAAA-MM-GG.json` con i periodi e il Foglio **Orario di lavoro** con una riga per periodo.
+- [ ] La home sta in una schermata senza scorrere.
+
 ## Senza rete
 - [ ] Attiva la modalità aereo, tocca **INIZIA**: compare "Salvata sul telefono, non ancora su Drive…".
 - [ ] Togli la modalità aereo, tocca **FINE**: l'avviso sparisce.

@@ -124,17 +124,15 @@ select {
 }
 
 .home {
-  min-height: calc(100vh - 32px);
-  min-height: calc(100dvh - 32px);
   display: grid;
-  place-content: center;
   justify-items: center;
-  gap: 16px;
+  gap: 12px;
   text-align: center;
 }
 
 .big-button {
-  width: min(75vw, 320px);
+  /* Si adatta anche all'altezza: tutta la home deve stare in uno schermo di telefono. */
+  width: min(62vw, 30vh, 300px);
   aspect-ratio: 1;
   border-radius: 50%;
   border: none;
@@ -152,7 +150,7 @@ select {
 }
 
 .big-button-label {
-  font-size: 2.6rem;
+  font-size: 2.3rem;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
@@ -214,4 +212,62 @@ select {
 .list .empty {
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.work-panel {
+  width: min(90vw, 420px);
+  display: grid;
+  gap: 6px;
+}
+
+.work-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.work-button {
+  min-height: 52px;
+  font-weight: 600;
+}
+
+.work-start:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.work-stop:not(:disabled) {
+  background: var(--stop);
+  border-color: var(--stop);
+  color: #fff;
+}
+
+.work-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.home-nav {
+  width: min(90vw, 420px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.nav-button {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
+.nav-button span {
+  font-size: 1.4rem;
 }

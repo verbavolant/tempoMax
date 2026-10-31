@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatElapsed, formatLocalIsoDateTime } from '../../src/model/time';
+import { formatElapsed, formatHoursMinutes, formatLocalIsoDateTime } from '../../src/model/time';
 import { expectIsoDateTime } from '../../src/model/validation';
 
 describe('formatLocalIsoDateTime', () => {
@@ -40,5 +40,17 @@ describe('formatElapsed', () => {
     [-5_000, '0:00:00'],
   ])('%i ms → %s', (milliseconds, expected) => {
     expect(formatElapsed(milliseconds)).toBe(expected);
+  });
+});
+
+describe('formatHoursMinutes', () => {
+  it.each([
+    [0, '0:00'],
+    [59_999, '0:00'],
+    [3_660_000, '1:01'],
+    [(9 * 60 + 45) * 60_000 + 59_000, '9:45'],
+    [-1, '0:00'],
+  ])('%i ms → %s', (milliseconds, expected) => {
+    expect(formatHoursMinutes(milliseconds)).toBe(expected);
   });
 });

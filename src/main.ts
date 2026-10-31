@@ -17,6 +17,10 @@ import { mountNotesScreen } from './ui/notes';
 import { AudioCatalog } from './storage/audioCatalog';
 import { formatLocalIsoDateTime } from './model/time';
 import { VisitSession } from './visits/visitSession';
+import { WorkSession } from './work/workSession';
+import { LocalWorkStore } from './storage/localWork';
+import { WorkRepository } from './storage/workRepository';
+import { WorkRegister } from './storage/workRegister';
 
 const appRoot = requireElement<HTMLDivElement>(document, '#app');
 
@@ -87,11 +91,19 @@ try {
     now: () => new Date(),
   });
 
+  const work = new WorkSession({
+    store: new LocalWorkStore(window.localStorage),
+    repository: new WorkRepository(drive),
+    register: new WorkRegister(drive),
+    authorized,
+    now: () => new Date(),
+  });
+
   let unmountCurrent: () => void = () => undefined;
 
   const showHome = () => {
     unmountCurrent();
-    unmountCurrent = mountHomeScreen(appRoot, session, audioStore, {
+    unmountCurrent = mountHomeScreen(appRoot, session, work, audioStore, {
       openClients: showClients,
       openVisits: showVisits,
       openNotes: showNotes,

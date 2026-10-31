@@ -32,7 +32,7 @@ docs/human/       # documentazione per l'utente/setup
 | `public/icons/` | icone PNG (generate con Pillow: cronometro bianco su verde) |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, `addAudio()`/`removeAudio()` (solo in locale), `addFreeNote()`, `syncAfter(task)`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
-| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (sempre: a visita aperta va alla visita, altrimenti nota libera; ⏹ avvia il salvataggio), pulsanti "👥 Clienti", "🕘 Visite", "🎧 Note vocali"; blocco del doppio tap per 2 s |
+| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (sempre: a visita aperta va alla visita, altrimenti nota libera; ⏹ avvia il salvataggio), riga di navigazione Clienti / Visite / Note vocali; in cima il pannello dell'orario di lavoro; blocco del doppio tap per 2 s |
 | `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali), assegnazione del cliente; `orderClientsByDistance`, `mergeVisits` |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista (cliente "📍 Sei qui" in cima, evidenziato), form nuovo/modifica, "Sono qui adesso"; `orderClientsForList` |
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
@@ -45,9 +45,17 @@ docs/human/       # documentazione per l'utente/setup
 | `src/storage/audioCatalog.ts` | `AudioCatalog.listYear` (una richiesta: file di `audio/AAAA` con `appProperties`), `download`; `catalogNoteFromDriveFile`, `mergeCatalog` |
 | `src/ui/notes.ts` | `mountNotesScreen`: "Note libere" e "Note delle visite", ▶/⏸ da telefono o da Drive; senza Drive mostra quelle locali |
 | `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json`; `listRecent(year, limit)` |
-| `src/storage/visitRegister.ts` | `VisitRegister.save(visit, clientName)`: Foglio `TempoMax/Registro visite`, aggiorna la riga (ID in colonna H) o la aggiunge |
+| `src/storage/sheetRegister.ts` | `SheetRegister.saveRow(id, row)`: Foglio generico in `TempoMax/` (intestazione, colonna ID, aggiorna o aggiunge) |
+| `src/storage/visitRegister.ts` | `VisitRegister.save(visit, clientName)` → Foglio "Registro visite" (ID in colonna H) |
+| `src/model/work.ts` | `WorkPeriod`, `WorkDayDocument`, `startWorkPeriod`, `endWorkPeriod`, `workedMilliseconds`, `workPeriodDate` |
+| `src/storage/localWork.ts` | `LocalWorkStore` (localStorage `tempomax.work`: periodi recenti + `unsyncedIds`), `pruneLocalWork` |
+| `src/storage/workRepository.ts` | `WorkRepository.save(period)`: lettura-modifica-scrittura di `lavoro/AAAA/AAAA-MM-GG.json` |
+| `src/storage/workRegister.ts` | `WorkRegister.save(period)` → Foglio "Orario di lavoro" |
+| `src/register/workRow.ts` | `WORK_REGISTER_HEADER`, `workPeriodToRow` |
+| `src/work/workSession.ts` | `WorkSession.start()/stop()`, `view()` (periodo in corso, totale di oggi), coda verso Drive |
+| `src/ui/workPanel.ts` | `mountWorkPanel`: "▶ Inizio lavoro" / "⏸ Fine lavoro" e riepilogo del giorno |
 | `src/storage/clientsRepository.ts` | `ClientsRepository.load()` / `save()` su `TempoMax/clienti.json` |
-| `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`) |
+| `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`), `formatHoursMinutes` (`H:MM`), `roundedMinutesBetween` (regola provvisoria) |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
 | `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`, `createEmptyFile`, `listFiles` (con `webViewLink` e `appProperties`), `uploadFile` (id + `webViewLink`, `appProperties`), `downloadFile`, `request` (anche per Sheets); `FileTooLargeError`; `DriveError` con status |
@@ -75,7 +83,9 @@ docs/human/       # documentazione per l'utente/setup
 TempoMax/
   clienti.json
   task.json                         # da fare + da comprare
+  lavoro/AAAA/AAAA-MM-GG.json       # periodi di lavoro del giorno (inizio/fine, pause)
   Registro visite                   # Foglio Google: una riga per visita, link Maps e Audio (vista derivata)
+  Orario di lavoro                  # Foglio Google: una riga per periodo di lavoro (vista derivata)
   visite/AAAA/AAAA-MM-GG_<idVisita>.json
   audio/AAAA/AAAA-MM-GG_<idVisita>_<idNota>.m4a   # note delle visite (≤ 5 MB, ADR-007)
   audio/AAAA/AAAA-MM-GG_libera_<idNota>.m4a       # note libere (senza visita)

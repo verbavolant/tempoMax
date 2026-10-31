@@ -70,6 +70,7 @@ describe('WorkSession', () => {
     advance(90);
     expect(session.view().currentPeriod).not.toBeNull();
     expect(session.view().todayMilliseconds).toBe((5 * 60 + 90) * 60_000);
+    expect(session.view().periodsToday).toBe(2);
   });
 
   it('un secondo "Inizio" mentre si lavora non apre un altro periodo', async () => {

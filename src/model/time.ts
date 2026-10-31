@@ -31,3 +31,9 @@ export function formatElapsed(milliseconds: number): string {
 export function roundedMinutesBetween(startAt: string, endAt: string): number {
   return Math.round((Date.parse(endAt) - Date.parse(startAt)) / 60_000);
 }
+
+/** Durata come `H:MM` (minuti interi per difetto), per i totali della giornata. Durate negative valgono zero. */
+export function formatHoursMinutes(milliseconds: number): string {
+  const totalMinutes = Math.max(0, Math.floor(milliseconds / 60_000));
+  return `${Math.floor(totalMinutes / 60)}:${pad(totalMinutes % 60)}`;
+}

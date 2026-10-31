@@ -3,6 +3,8 @@ import { formatElapsed, formatLocalIsoDateTime } from '../model/time';
 import type { AudioNote, Visit } from '../model/visit';
 import type { AudioStore } from '../storage/audioStore';
 import type { VisitSession, VisitSessionView } from '../visits/visitSession';
+import type { WorkSession } from '../work/workSession';
+import { mountWorkPanel } from './workPanel';
 import { errorMessage, requireElement } from './dom';
 
 // Un secondo tap involontario subito dopo il primo chiuderebbe la visita appena aperta.
@@ -19,11 +21,13 @@ interface ActiveRecording {
 export function mountHomeScreen(
   container: HTMLElement,
   session: VisitSession,
+  work: WorkSession,
   audioStore: AudioStore,
   navigation: { openClients: () => void; openVisits: () => void; openNotes: () => void },
 ): () => void {
   container.innerHTML = `
     <section class="home">
+      <div id="work-panel-slot"></div>
       <button id="visit-toggle" type="button" class="big-button">
         <span class="big-button-label"></span>
         <span class="big-button-elapsed"></span>
@@ -35,12 +39,15 @@ export function mountHomeScreen(
         <p id="audio-message" class="home-notice" role="status"></p>
       </div>
       <p id="visit-notice" class="home-notice" role="status"></p>
-      <button id="open-clients" type="button" class="secondary-button">👥 Clienti</button>
-      <button id="open-visits" type="button" class="secondary-button">🕘 Visite</button>
-      <button id="open-notes" type="button" class="secondary-button">🎧 Note vocali</button>
+      <nav class="home-nav">
+        <button id="open-clients" type="button" class="nav-button"><span>👥</span>Clienti</button>
+        <button id="open-visits" type="button" class="nav-button"><span>🕘</span>Visite</button>
+        <button id="open-notes" type="button" class="nav-button"><span>🎧</span>Note vocali</button>
+      </nav>
     </section>
   `;
 
+  const unmountWorkPanel = mountWorkPanel(requireElement<HTMLDivElement>(container, '#work-panel-slot'), work);
   const toggleButton = requireElement<HTMLButtonElement>(container, '#visit-toggle');
   const label = requireElement<HTMLSpanElement>(toggleButton, '.big-button-label');
   const elapsed = requireElement<HTMLSpanElement>(toggleButton, '.big-button-elapsed');
@@ -227,6 +234,7 @@ export function mountHomeScreen(
   requireElement<HTMLButtonElement>(container, '#open-notes').addEventListener('click', navigation.openNotes);
 
   return () => {
+    unmountWorkPanel();
     unsubscribe();
     window.clearInterval(timer);
     player?.pause();

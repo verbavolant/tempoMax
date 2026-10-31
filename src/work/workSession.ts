@@ -1,5 +1,5 @@
 import { formatLocalIsoDateTime } from '../model/time';
-import { type WorkPeriod, endWorkPeriod, startWorkPeriod, workedMilliseconds } from '../model/work';
+import { type WorkPeriod, endWorkPeriod, startWorkPeriod, workPeriodDate, workedMilliseconds } from '../model/work';
 import { type LocalWorkState, type LocalWorkStore, pruneLocalWork } from '../storage/localWork';
 import type { WorkRegister } from '../storage/workRegister';
 import type { WorkRepository } from '../storage/workRepository';
@@ -19,6 +19,8 @@ export interface WorkSessionView {
   /** Periodo in corso, null se non si sta lavorando (prima di iniziare o in pausa). */
   currentPeriod: WorkPeriod | null;
   todayMilliseconds: number;
+  /** Periodi iniziati oggi (anche brevissimi): distingue "in pausa" da "non iniziato". */
+  periodsToday: number;
   unsyncedCount: number;
   notice: string | null;
 }
@@ -42,6 +44,7 @@ export class WorkSession {
     return {
       currentPeriod: this.state.periods.find((period) => !period.end) ?? null,
       todayMilliseconds: workedMilliseconds(this.state.periods, this.today(), this.dependencies.now().getTime()),
+      periodsToday: this.state.periods.filter((period) => workPeriodDate(period) === this.today()).length,
       unsyncedCount: this.state.unsyncedIds.length,
       notice: this.notice,
     };

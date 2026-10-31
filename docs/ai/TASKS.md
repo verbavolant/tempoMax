@@ -236,7 +236,7 @@
 - Dipende da: T-029b
 
 ### T-029d Orario di lavoro: home
-- Stato: [ ]
+- Stato: [~] codice pronto e provato in Chrome; manca la prova su iPhone con Drive
 - Obiettivo: in cima alla home "▶ Inizio lavoro" / "⏸ Fine lavoro" affiancati (attivo solo quello sensato) e riga "Al lavoro da … · oggi …" / "In pausa · oggi …".
 - File: `src/ui/home.ts`, `src/main.ts`, `src/style.css`
 - Dipende da: T-029c
