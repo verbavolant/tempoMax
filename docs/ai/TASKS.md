@@ -184,14 +184,14 @@
 - Dipende da: T-013b
 
 ### T-014b Caricamento delle note su Drive
-- Stato: [~] codice e test pronti; manca la prova su Drive reale
+- Stato: [x] verificato dall'utente su iPhone (2026-10-31)
 - Obiettivo: prima di salvare il JSON della visita, le note con `driveFileId` null vengono caricate in `TempoMax/audio/AAAA/` (nome `AAAA-MM-GG_<idVisita>_<idNota>.<m4a|webm>`), con id e `webViewLink` salvati nella nota (`driveLink`, campo nuovo: assente = null); dopo il caricamento la copia locale si elimina.
 - Done quando: test della sessione (upload, errore, file locale mancante); su Drive c'è l'audio e il JSON ne contiene id e link.
 - File: `src/storage/drive.ts`, `src/storage/audioUploader.ts`, `src/model/visit.ts`, `src/visits/visitSession.ts`, `src/main.ts`, test
 - Dipende da: T-014a
 
 ### T-014c Colonna "Audio" nel registro
-- Stato: [~] codice e test pronti; manca la prova sul foglio reale
+- Stato: [x] verificato dall'utente su iPhone (2026-10-31)
 - Obiettivo: colonna I "Audio" con i link alle note (uno per riga della cella); l'intestazione si aggiorna anche sui fogli già esistenti.
 - File: `src/register/visitRow.ts`, `src/storage/visitRegister.ts`, test
 - Dipende da: T-014b
@@ -205,13 +205,13 @@
 - Note: *da verificare con la prova reale*: che `appProperties` si possano impostare già nella creazione (la guida "properties" mostra solo l'update; il campo non è output-only).
 
 ### T-028b Nota vocale anche senza visita
-- Stato: [~] codice pronto e provato in Chrome (nota libera salvata in locale); manca la prova su iPhone con caricamento su Drive
+- Stato: [x] verificato dall'utente su iPhone (2026-10-31)
 - Obiettivo: 🎤 visibile anche con il timer fermo (nota libera); al tocco su ⏹ si avvia subito il salvataggio su Drive (`syncAfter`, token nel gesto).
 - File: `src/ui/home.ts`
 - Dipende da: T-028a
 
 ### T-028c Schermata "🎧 Note vocali"
-- Stato: [~] codice pronto e provato in Chrome con note solo locali; manca la prova con le note su Drive
+- Stato: [x] verificato dall'utente su iPhone (2026-10-31)
 - Obiettivo: elenco delle note dell'anno (Drive + quelle ancora sul telefono), divise in "Note libere" e "Note delle visite", con data e ora, durata ed eventuale cliente; ▶ riproduce (file locale o scaricato da Drive).
 - File: `src/storage/audioCatalog.ts`, `src/ui/notes.ts`, `src/ui/home.ts`, `src/main.ts`, test
 - Dipende da: T-028a
@@ -236,7 +236,7 @@
 - Dipende da: T-029b
 
 ### T-029d Orario di lavoro: home
-- Stato: [~] codice pronto e provato in Chrome; manca la prova su iPhone con Drive
+- Stato: [x] verificato dall'utente su iPhone (2026-10-31)
 - Obiettivo: in cima alla home "▶ Inizio lavoro" / "⏸ Fine lavoro" affiancati (attivo solo quello sensato) e riga "Al lavoro da … · oggi …" / "In pausa · oggi …".
 - File: `src/ui/home.ts`, `src/main.ts`, `src/style.css`
 - Dipende da: T-029c

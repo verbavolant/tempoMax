@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — Verifiche utente; nuove richieste: nome dispositivo e ambiente di prova
+- Fatto: l'utente conferma su iPhone note vocali su Drive (T-014b/c), note libere e schermata Note (T-028b/c), orario di lavoro (T-029d). T-030 non ancora confermato.
+- Stato: nuove richieste in fase di progettazione, nessun codice: (1) registrare in JSON e fogli il nome del dispositivo; (2) un binario di sviluppo separato, con pubblicazione su GitHub Pages "ufficiale" **solo dopo conferma esplicita dell'utente**.
+- Verifica: —
+- Prossimo passo: proposta all'utente (repo e Pages di prova, cartella Drive e archivio locale separati; nome dispositivo da Opzioni) e attesa conferma.
+- Trappole/note: **da ora nessun push su `origin/main` senza conferma esplicita dell'utente** (ogni push su main pubblica in produzione). Questa voce è committata solo in locale.
+
 ## [2026-10-31] — T-030 dettaglio visite + bug della posizione persa offline
 - Fatto: `src/ui/notePlayer.ts` estratto da `notes.ts` (`NotePlayer`, `loadNoteAudio`); `src/ui/visits.ts`: riepilogo "⚠️ senza cliente · tocca per abbinare" e "🎧 n", dettaglio con link Maps (visite senza cliente), abbinamento, registrazioni ▶/⏸ aggiornate senza ridisegnare la tendina; senza Drive mostra le visite locali. **Bug corretto** in `VisitSession.enqueueSync`: l'aggiornamento locale (posizione, cliente) avveniva dentro `authorized()`, quindi offline o con il popup bloccato la posizione veniva scartata. Ora `update()` parte subito e indipendente, e il salvataggio su Drive lo aspetta. Probabile causa dell'osservazione "in modalità aereo non registra la posizione" (T-027).
 - Stato: T-030 parziale (prova su iPhone); bug corretto e coperto da test.
