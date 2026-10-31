@@ -38,6 +38,8 @@ docs/human/       # documentazione per l'utente/setup
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
 | `src/register/visitRow.ts` | `REGISTER_HEADER`, `visitToRow`, `REGISTER_ID_COLUMN_INDEX` |
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
+| `src/storage/audioStore.ts` | `AudioStore` (IndexedDB `tempomax`/`audio`): `put`/`get`/`delete` per id della nota, salva ArrayBuffer + tipo |
+| `src/audio/recorder.ts` | `AudioRecording.start()` / `stop()` (MediaRecorder, blocchi da 1 s), `chooseAudioMimeType` |
 | `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
 | `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json`; `listRecent(year, limit)` |
 | `src/storage/visitRegister.ts` | `VisitRegister.save(visit, clientName)`: Foglio `TempoMax/Registro visite`, aggiorna la riga (ID in colonna H) o la aggiunge |
@@ -51,7 +53,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
 | `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
 | `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument`, `buildClient`, `newClientIdentity`, `DEFAULT_CLIENT_RADIUS_METERS` (200) |
-| `src/model/visit.ts` | `Visit` (`clientId` nullable), `VisitEvent`, `parseVisit`, `startVisit`, `endVisit`, `visitStorageLocation`, `visitDurationMinutes` (provvisoria: arrotonda al minuto) |
+| `src/model/visit.ts` | `Visit` (`clientId` nullable, `audio: AudioNote[]`, assente nei JSON vecchi = `[]`), `VisitEvent`, `parseVisit`, `startVisit`, `endVisit`, `visitStorageLocation`, `visitDurationMinutes` (provvisoria: arrotonda al minuto) |
 | `src/model/task.ts` | `Task` (`todo` / `purchase`), `TasksDocument` (`task.json`), `parseTasksDocument` |
 | `vite.config.ts` | config di Vite + Vitest |
 | `eslint.config.js` | lint (flat config, typescript-eslint) |
@@ -72,7 +74,7 @@ TempoMax/
   task.json                         # da fare + da comprare
   Registro visite                   # Foglio Google: una riga per visita, link Maps (vista derivata)
   visite/AAAA/AAAA-MM-GG_<idVisita>.json
-  audio/AAAA/<idVisita>_<n>.<m4a|webm>
+  audio/AAAA/<file audio>             # T-014
 ```
 
 ## Convenzioni del progetto

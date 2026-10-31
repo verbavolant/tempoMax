@@ -2,11 +2,14 @@ import { type MeasuredPosition, parseMeasuredPosition } from './position';
 import {
   SCHEMA_VERSION,
   ValidationError,
+  expectArray,
   expectIsoDateTime,
   expectNonEmptyString,
+  expectNumberInRange,
   expectObject,
   expectSchemaVersion,
   expectString,
+  expectUniqueIds,
   nullable,
 } from './validation';
 
@@ -14,6 +17,16 @@ export interface VisitEvent {
   at: string;
   /** null quando il GPS non era disponibile o il permesso è stato negato. */
   position: MeasuredPosition | null;
+}
+
+/** Nota vocale registrata durante la visita; il file vive sul telefono finché non è caricato su Drive. */
+export interface AudioNote {
+  id: string;
+  recordedAt: string;
+  mimeType: string;
+  durationSeconds: number;
+  /** null finché il file non è stato caricato su Drive (T-014). */
+  driveFileId: string | null;
 }
 
 /** Contenuto di un file `visite/AAAA/AAAA-MM-GG_<id>.json` su Drive. */
@@ -26,6 +39,18 @@ export interface Visit {
   /** null finché la visita è in corso. */
   checkOut: VisitEvent | null;
   note: string;
+  audio: AudioNote[];
+}
+
+function parseAudioNote(value: unknown, path: string): AudioNote {
+  const object = expectObject(value, path);
+  return {
+    id: expectNonEmptyString(object.id, `${path}.id`),
+    recordedAt: expectIsoDateTime(object.recordedAt, `${path}.recordedAt`),
+    mimeType: expectNonEmptyString(object.mimeType, `${path}.mimeType`),
+    durationSeconds: expectNumberInRange(object.durationSeconds, `${path}.durationSeconds`, 0, Infinity),
+    driveFileId: nullable(object.driveFileId, (present) => expectNonEmptyString(present, `${path}.driveFileId`)),
+  };
 }
 
 function parseVisitEvent(value: unknown, path: string): VisitEvent {
@@ -45,7 +70,13 @@ export function parseVisit(value: unknown): Visit {
     checkIn: parseVisitEvent(object.checkIn, 'visita.checkIn'),
     checkOut: nullable(object.checkOut, (present) => parseVisitEvent(present, 'visita.checkOut')),
     note: expectString(object.note, 'visita.note'),
+    // Campo aggiunto con l'audio (T-013): le visite salvate prima non lo hanno e valgono "nessuna nota".
+    audio:
+      object.audio === undefined
+        ? []
+        : expectArray(object.audio, 'visita.audio').map((item, index) => parseAudioNote(item, `visita.audio[${index}]`)),
   };
+  expectUniqueIds(visit.audio, 'visita.audio');
   if (visit.checkOut && Date.parse(visit.checkOut.at) < Date.parse(visit.checkIn.at)) {
     throw new ValidationError('visita.checkOut.at', 'check-out precedente al check-in');
   }
@@ -61,6 +92,7 @@ export function startVisit(at: string): Visit {
     checkIn: { at, position: null },
     checkOut: null,
     note: '',
+    audio: [],
   });
 }
 

@@ -18,6 +18,7 @@ const closedVisit: Visit = {
   },
   checkOut: { at: '2026-10-30T11:40:00+01:00', position: null },
   note: 'Potatura siepe lato strada',
+  audio: [],
 };
 
 describe('parseVisit', () => {
@@ -80,6 +81,7 @@ describe('startVisit / endVisit', () => {
       checkIn: { at: '2026-10-31T08:00:00+01:00', position: null },
       checkOut: null,
       note: '',
+      audio: [],
     });
     expect(visit.id).not.toBe(startVisit('2026-10-31T08:00:00+01:00').id);
   });
@@ -130,5 +132,33 @@ describe('visitDurationMinutes', () => {
     ['2026-10-25T01:30:00+02:00', '2026-10-25T02:30:00+01:00', 120],
   ])('da %s a %s → %i minuti', (checkIn, checkOut, minutes) => {
     expect(visitDurationMinutes(at(checkIn, checkOut))).toBe(minutes);
+  });
+});
+
+describe('note audio', () => {
+  const note = {
+    id: 'a-1',
+    recordedAt: '2026-10-30T09:30:00+01:00',
+    mimeType: 'audio/mp4',
+    durationSeconds: 42.5,
+    driveFileId: null,
+  };
+
+  it('una visita salvata prima dell’audio (senza campo) vale “nessuna nota”', () => {
+    const legacy: Partial<Visit> = { ...closedVisit };
+    delete legacy.audio;
+    expect(parseVisit(legacy).audio).toEqual([]);
+  });
+
+  it('conserva le note audio nel round-trip JSON', () => {
+    const withAudio = { ...closedVisit, audio: [note, { ...note, id: 'a-2', driveFileId: 'drive-1' }] };
+    expect(parseVisit(JSON.parse(JSON.stringify(withAudio)))).toStrictEqual(withAudio);
+  });
+
+  it('rifiuta durate negative e id duplicati', () => {
+    expect(() => parseVisit({ ...closedVisit, audio: [{ ...note, durationSeconds: -1 }] })).toThrow(
+      'visita.audio[0].durationSeconds',
+    );
+    expect(() => parseVisit({ ...closedVisit, audio: [note, note] })).toThrow('id duplicato "a-1"');
   });
 });

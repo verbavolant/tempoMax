@@ -217,6 +217,7 @@ describe('VisitSession', () => {
         checkIn: { at: '2026-10-30T09:00:00+01:00', position: null },
         checkOut: { at: '2026-10-30T10:00:00+01:00', position: null },
         note: '',
+        audio: [],
       };
       await session.assignClient(fromDrive, 'c-villa');
       expect(lastSaved()).toEqual({ ...fromDrive, clientId: 'c-villa' });
@@ -233,6 +234,7 @@ describe('VisitSession', () => {
         checkIn: { at: '2026-10-30T09:00:00+01:00', position: null },
         checkOut: { at: '2026-10-30T10:00:00+01:00', position: null },
         note: '',
+        audio: [],
       };
       repository.save.mockRejectedValueOnce(new Error('rete assente'));
       await session.assignClient(fromDrive, null);

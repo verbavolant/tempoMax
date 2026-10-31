@@ -10,6 +10,7 @@ const visit: Visit = {
   checkIn: { at: '2026-10-31T09:05:00+01:00', position: null },
   checkOut: null,
   note: '',
+  audio: [],
 };
 
 const jsonResponse = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });

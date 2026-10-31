@@ -11,6 +11,7 @@ const closed: Visit = {
   checkIn: { at: '2026-10-31T09:05:00+01:00', position: position(45.4642, 9.19) },
   checkOut: { at: '2026-10-31T11:35:29+01:00', position: position(45.4643, 9.1901) },
   note: '',
+  audio: [],
 };
 
 describe('visitToRow', () => {

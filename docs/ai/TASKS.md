@@ -162,17 +162,29 @@
 
 ## Fase 3 — Audio
 
-### T-013 Registrazione audio
+### T-013a Audio: modello, archivio locale, registratore
+- Stato: [x]
+- Obiettivo: `Visit.audio: AudioNote[]` (compatibile: se il campo manca vale `[]`); archivio locale degli audio in IndexedDB (ArrayBuffer + tipo, per prudenza su Safari); wrapper di `MediaRecorder` con scelta del formato tramite `MediaRecorder.isTypeSupported` (Safari: MP4/AAC, fonte WebKit blog 11353).
+- Done quando: test su modello, archivio (con `fake-indexeddb`) e scelta del formato.
+- File: `src/model/visit.ts`, `src/storage/audioStore.ts`, `src/audio/recorder.ts`, test
+- Dipende da: T-008b
+
+### T-013b Audio: schermata
 - Stato: [ ]
-- Obiettivo: registrare, ascoltare ed eliminare uno o più audio durante la visita (MediaRecorder), scegliendo il formato supportato dal browser.
-- Done quando: funziona su iPhone Safari; si scopre e si annota cosa succede quando lo schermo si blocca durante la registrazione.
-- Dipende da: T-009
+- Obiettivo: durante una visita, sotto FINE, il pulsante "🎤 Nota vocale" (diventa "⏹ Ferma" con il tempo); elenco delle note della visita con ▶ ascolta e 🗑 elimina; `VisitSession.addAudio/removeAudio` passando dalla coda.
+- Done quando: su iPhone si registra, si ascolta e si elimina una nota; si annota cosa succede se lo schermo si blocca durante la registrazione.
+- File: `src/ui/home.ts`, `src/visits/visitSession.ts`, `src/style.css`, test
+- Dipende da: T-013a
 
 ### T-014 Upload audio su Drive
 - Stato: [ ]
-- Obiettivo: caricare gli audio in `audio/AAAA/` e collegarli al JSON della visita.
-- Done quando: l'audio si riproduce da Drive e il riferimento è nel JSON della visita.
-- Dipende da: T-013, T-004
+- Obiettivo: caricare gli audio in `TempoMax/audio/AAAA/` (multipart fino a 5 MB, upload resumable oltre), salvare l'id del file nella visita, colonna "Audio" nel registro con i link.
+- Done quando: l'audio si riproduce da Drive e il riferimento è nel JSON e nel registro.
+- Dipende da: T-013b, T-004
+
+### T-027 Posizione senza rete (da valutare)
+- Stato: [ ] (da decidere con l'utente)
+- Contesto: in modalità aereo l'utente ha visto visite senza posizione. *Ipotesi*: il GPS dell'iPhone può funzionare anche senza rete, ma l'aggancio è più lento e supera il timeout di 20 s (`POSITION_TIMEOUT_MS`). Possibili soluzioni: timeout più lungo, oppure un nuovo tentativo in background che aggiorna la visita.
 
 ## Fase 4 — Da fare / Da comprare
 
