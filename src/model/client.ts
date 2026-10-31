@@ -14,7 +14,7 @@ import {
 } from './validation';
 
 // Scelta di prodotto concordata con l'utente: modificabile cliente per cliente (es. giardini grandi).
-export const DEFAULT_CLIENT_RADIUS_METERS = 150;
+export const DEFAULT_CLIENT_RADIUS_METERS = 200;
 
 export interface Client {
   id: string;

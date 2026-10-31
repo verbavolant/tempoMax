@@ -78,12 +78,22 @@
 - Dipende da: T-004, T-006
 
 ### T-008b Schermata principale: pulsante unico INIZIA / FINE
-- Stato: [~] codice e test pronti; manca la prova manuale con login e GPS reali
+- Stato: [x] provato dall'utente ("Bene", 2026-10-31)
 - Obiettivo: un solo pulsante grande. INIZIA fa il check-in, FINE (con il tempo trascorso) fa il check-out. L'orario si registra **al tap**; GPS, cliente automatico e salvataggio su Drive avvengono dopo, in sequenza, e se falliscono la visita resta in locale con l'indicazione "da salvare su Drive". Sotto il pulsante, in piccolo, il nome del cliente se riconosciuto. Link secondario "Clienti ›".
 - Done quando: check-in → ricarico → la visita in corso c'è ancora; check-out → JSON chiuso su Drive con orari e posizioni; funziona senza clienti e senza GPS.
 - File: `src/visits/visitSession.ts` (logica testabile), `src/ui/home.ts`, `src/main.ts`, `src/style.css`, test
 - Dipende da: T-008a
 - Note: cliente automatico **sì**, se la posizione è entro il raggio di un cliente (decisione dell'utente del 2026-10-31); si potrà cambiare dopo (T-021).
+
+### T-022 Raggio predefinito 200 m
+- Stato: [x]
+- Obiettivo: i nuovi clienti partono con un raggio di 200 m (richiesta dell'utente del 2026-10-31); quelli già salvati tengono il proprio.
+- File: `src/model/client.ts`
+
+### T-023 Pulsante "Clienti" nella home
+- Stato: [ ]
+- Obiettivo: "Clienti" nella home diventa un pulsante vero, non un link.
+- File: `src/ui/home.ts`, `src/style.css`
 
 ### T-009 Nota testuale alla visita
 - Stato: [ ] (rimandato su richiesta dell'utente: la schermata principale deve restare essenziale)
