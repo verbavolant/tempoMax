@@ -107,7 +107,7 @@
 - Dipende da: T-008b
 
 ### T-010 Deploy HTTPS + test su iPhone
-- Stato: [ ]
+- Stato: [~] workflow e `base` pronti, Pages attivato (build_type=workflow); manca il push del workflow (serve lo scope `workflow` per `gh`) e la checklist su iPhone
 - Obiettivo: pubblicazione su hosting statico HTTPS e test end-to-end su iPhone.
 - Done quando: URL pubblico funzionante; checklist di test manuale in `docs/human/` eseguita ed esito annotato in PROGRESS.
 - File: config di deploy (GitHub Actions), `vite.config.ts` (`base`), `docs/human/`
@@ -125,7 +125,7 @@
 - Dipende da: T-008a
 
 ### T-011b Registro: Foglio Google su Drive
-- Stato: [~] codice e test pronti; manca la prova su Drive reale (una riga per visita, link cliccabili)
+- Stato: [x] verificato dall'utente (dopo aver abilitato la Sheets API); link cliccabili da confermare nella checklist di T-010
 - Obiettivo: creare `TempoMax/Registro visite` (Drive `files.create` con mimeType `application/vnd.google-apps.spreadsheet`, come indicato dalla guida Sheets "create"), scrivere l'intestazione, aggiornare la riga della visita (cercando l'ID in colonna H) o aggiungerla in fondo. Si chiama dalla coda di `VisitSession` dopo il JSON.
 - Done quando: dopo check-in e check-out nel foglio c'è **una sola** riga per la visita, con i link che aprono Maps.
 - File: `src/storage/drive.ts`, `src/storage/visitRegister.ts`, `src/storage/layout.ts`, `src/visits/visitSession.ts`, `src/main.ts`, test

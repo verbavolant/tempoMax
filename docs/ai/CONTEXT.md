@@ -55,7 +55,8 @@ docs/human/       # documentazione per l'utente/setup
 
 ## Comandi
 - Setup: `npm install` (Node ≥ 22.12; verificato con Node 26.4)
-- Dev: `npm run dev` → http://localhost:5173
+- Dev: `npm run dev` → http://localhost:5173/tempoMax/
+- Deploy: push su `main` → GitHub Actions (`.github/workflows/deploy.yml`) → https://verbavolant.github.io/tempoMax/
 - Test: `npm test`
 - Lint/typecheck: `npm run lint` / `npm run typecheck`
 - Build: `npm run build` (typecheck + `vite build` → `dist/`)

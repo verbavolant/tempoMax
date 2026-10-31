@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-011b chiuso, T-010 deploy (parziale)
+- Fatto: errori Google con servizio e messaggio (`googleErrorMessage`, `serviceName` in `src/storage/drive.ts`); il 403 era la Sheets API non abilitata nel progetto Cloud. T-010: `.github/workflows/deploy.yml` (workflow ufficiale Vite con action fissate a SHA, più lint e test), `base: '/tempoMax/'` in `vite.config.ts`, Pages attivato via `gh api -X POST repos/verbavolant/tempoMax/pages -f build_type=workflow`, checklist `docs/human/test-telefono.md`.
+- Stato: T-011b completo. T-010 parziale: il token `gh` non ha lo scope `workflow`, quindi il push del workflow viene rifiutato. L'utente deve lanciare `gh auth refresh -h github.com -s workflow`.
+- Verifica: `npm test` (143), lint, build OK; `dist/index.html` punta a `/tempoMax/assets/…`.
+- Prossimo passo: refresh dello scope → push → controllare l'esecuzione dell'Action → l'utente esegue `docs/human/test-telefono.md` su iPhone.
+- Trappole/note: in locale l'app ora è su `http://localhost:5173/tempoMax/` (l'origine OAuth non cambia: le origini non hanno path). La doc Vite riporta le action fissate a SHA: per aggiornarle, ricopiare il file `docs/guide/static-deploy-github-pages.yaml` del repo vitejs/vite.
+
 ## [2026-10-31] — T-022, T-023, T-011a, T-011b (registro parziale)
 - Fatto: T-008b confermato dall'utente. T-022: `DEFAULT_CLIENT_RADIUS_METERS` = 200 (i clienti già salvati tengono il loro raggio). T-023: "👥 Clienti" è un pulsante (`.secondary-button`). T-011a: `src/geo/mapsLink.ts`, `visitDurationMinutes`, `src/register/visitRow.ts`. T-011b: `createEmptyFile` e `request` pubblico in `DriveClient`, `src/storage/visitRegister.ts`, `VisitSession` salva il JSON e poi la riga del registro, wiring in `src/main.ts`.
 - Stato: T-022, T-023, T-011a completi; T-011b parziale (manca la prova reale).
