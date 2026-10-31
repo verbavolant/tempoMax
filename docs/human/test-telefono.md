@@ -51,6 +51,13 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] Su Drive: `TempoMax/lavoro/2026/AAAA-MM-GG.json` con i periodi e il Foglio **Orario di lavoro** con una riga per periodo.
 - [ ] La home sta in una schermata senza scorrere.
 
+## Dettaglio visite
+- [ ] **🕘 Visite**: una visita senza cliente mostra "⚠️ senza cliente · tocca per abbinare" e "🎧 n" se ha note.
+- [ ] Toccandola: "📍 Apri in Maps il luogo della visita" apre Maps sul punto del check-in.
+- [ ] "Abbina a un cliente" → scegli → Salva: la visita mostra il cliente (e nel registro la colonna Cliente).
+- [ ] "Registrazioni": ▶ riproduce la nota della visita, ⏸ la ferma.
+- [ ] In **modalità aereo**: INIZIA e FINE → poi, con la rete, la visita in Visite ha il link Maps (la posizione ora si salva anche offline).
+
 ## Senza rete
 - [ ] Attiva la modalità aereo, tocca **INIZIA**: compare "Salvata sul telefono, non ancora su Drive…".
 - [ ] Togli la modalità aereo, tocca **FINE**: l'avviso sparisce.

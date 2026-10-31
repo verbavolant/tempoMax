@@ -271,3 +271,26 @@ select {
 .nav-button span {
   font-size: 1.4rem;
 }
+
+.visit-details {
+  margin-top: 6px;
+}
+
+.assign-form {
+  display: grid;
+  gap: 8px;
+}
+
+.maps-link {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted);
+}
+
+.visit-details h4 {
+  margin: 4px 0;
+}

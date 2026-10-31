@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-030 dettaglio visite + bug della posizione persa offline
+- Fatto: `src/ui/notePlayer.ts` estratto da `notes.ts` (`NotePlayer`, `loadNoteAudio`); `src/ui/visits.ts`: riepilogo "⚠️ senza cliente · tocca per abbinare" e "🎧 n", dettaglio con link Maps (visite senza cliente), abbinamento, registrazioni ▶/⏸ aggiornate senza ridisegnare la tendina; senza Drive mostra le visite locali. **Bug corretto** in `VisitSession.enqueueSync`: l'aggiornamento locale (posizione, cliente) avveniva dentro `authorized()`, quindi offline o con il popup bloccato la posizione veniva scartata. Ora `update()` parte subito e indipendente, e il salvataggio su Drive lo aspetta. Probabile causa dell'osservazione "in modalità aereo non registra la posizione" (T-027).
+- Stato: T-030 parziale (prova su iPhone); bug corretto e coperto da test.
+- Verifica: `npm test` (236): il nuovo test sulla posizione senza login falliva prima della correzione e ora passa. Chrome headless con GPS (`Emulation.setGeolocationOverride`) e microfono simulati: link Maps `…query=45.4642%2C9.19`, abbinamento visibile, nota riprodotta.
+- Prossimo passo: prova dell'utente (checklist "Dettaglio visite", con modalità aereo); restano da provare T-014b/c, T-028b/c, T-029d; poi T-026 Opzioni/GPS.
+- Trappole/note: per i test UI con GPS usare `Browser.grantPermissions` + `Emulation.setGeolocationOverride`. La sessione dell'orario non ha aggiornamenti locali asincroni, quindi non ha lo stesso problema.
+
 ## [2026-10-31] — T-029a–d: orario di lavoro (parziale)
 - Fatto: richiesta dell'utente: due pulsanti per inizio/fine del lavoro con pause. T-029a: `src/model/work.ts`, `expectIsoDate`, `roundedMinutesBetween` condivisa con `visitDurationMinutes`, `src/storage/localWork.ts`. T-029b: `src/storage/sheetRegister.ts` estratto da `VisitRegister` (test del registro visite invariati e verdi), `WorkRegister`, `src/register/workRow.ts`, `WorkRepository` (un file per giorno). T-029c: `src/work/workSession.ts`. T-029d: `src/ui/workPanel.ts` in cima alla home; home compattata (pulsante tondo `min(62vw, 30vh, 300px)`, navigazione su una riga di tre pulsanti) per stare in uno schermo.
 - Stato: T-029a/b/c completi; T-029d parziale (prova su iPhone con Drive).

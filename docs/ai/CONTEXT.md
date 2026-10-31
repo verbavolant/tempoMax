@@ -33,7 +33,8 @@ docs/human/       # documentazione per l'utente/setup
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, `addAudio()`/`removeAudio()` (solo in locale), `addFreeNote()`, `syncAfter(task)`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
 | `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (sempre: a visita aperta va alla visita, altrimenti nota libera; ⏹ avvia il salvataggio), riga di navigazione Clienti / Visite / Note vocali; in cima il pannello dell'orario di lavoro; blocco del doppio tap per 2 s |
-| `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali), assegnazione del cliente; `orderClientsByDistance`, `mergeVisits` |
+| `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali; senza Drive solo locali), dettaglio con link Maps (se senza cliente), abbinamento, registrazioni ▶; `orderClientsByDistance`, `mergeVisits` |
+| `src/ui/notePlayer.ts` | `NotePlayer` (un lettore per schermata), `loadNoteAudio` (telefono, altrimenti Drive con cache) |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista (cliente "📍 Sei qui" in cima, evidenziato), form nuovo/modifica, "Sono qui adesso"; `orderClientsForList` |
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
 | `src/register/visitRow.ts` | `REGISTER_HEADER` (A–I: … ID visita, Audio), `visitToRow`, `REGISTER_ID_COLUMN_INDEX`, `italianDate`, `clockTime` |

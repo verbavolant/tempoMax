@@ -241,8 +241,15 @@
 - File: `src/ui/home.ts`, `src/main.ts`, `src/style.css`
 - Dipende da: T-029c
 
+### T-030 Visite: luogo, abbinamento e registrazioni
+- Stato: [~] codice pronto e provato in Chrome (GPS e microfono simulati); manca la prova su iPhone
+- Obiettivo: richiesta dell'utente del 2026-10-31. Nell'elenco visite: "⚠️ senza cliente · tocca per abbinare" e il numero di note (🎧 n); nel dettaglio: "📍 Apri in Maps" (posizione del check-in) per le visite senza cliente, l'abbinamento al cliente (già presente) e l'elenco delle registrazioni della visita con ▶. Riproduzione comune con la schermata Note vocali (`src/ui/notePlayer.ts`).
+- Done quando: test di `loadNoteAudio`; su iPhone si apre Maps, si abbina un cliente e si ascolta una nota della visita.
+- File: `src/ui/notePlayer.ts`, `src/ui/notes.ts`, `src/ui/visits.ts`, `src/main.ts`, `src/style.css`, test
+- Dipende da: T-021b, T-028c
+
 ### T-027 Posizione senza rete (da valutare)
-- Stato: [ ] (da decidere con l'utente)
+- Stato: [!] probabilmente risolto da un bug corretto il 2026-10-31: senza login (offline) l'aggiornamento della posizione veniva scartato. Da riverificare in modalità aereo prima di toccare il timeout.
 - Contesto: in modalità aereo l'utente ha visto visite senza posizione. *Ipotesi*: il GPS dell'iPhone può funzionare anche senza rete, ma l'aggancio è più lento e supera il timeout di 20 s (`POSITION_TIMEOUT_MS`). Possibili soluzioni: timeout più lungo, oppure un nuovo tentativo in background che aggiorna la visita.
 
 ## Fase 4 — Da fare / Da comprare

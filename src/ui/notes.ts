@@ -6,6 +6,7 @@ import { type CatalogNote, type AudioCatalog, mergeCatalog } from '../storage/au
 import type { AudioStore } from '../storage/audioStore';
 import type { VisitsRepository } from '../storage/visitsRepository';
 import { errorMessage, requireElement } from './dom';
+import { NotePlayer } from './notePlayer';
 
 // Visite lette per mostrare il nome del cliente accanto alle note: le più recenti bastano.
 const VISITS_FOR_CLIENT_NAMES = 30;
@@ -40,62 +41,14 @@ export async function mountNotesScreen(container: HTMLElement, dependencies: Not
   const freeList = requireElement<HTMLUListElement>(container, '#notes-free');
   const visitList = requireElement<HTMLUListElement>(container, '#notes-visits');
 
-  const player = new Audio();
-  let playingNoteId: string | null = null;
-  let playingUrl: string | null = null;
-  const downloaded = new Map<string, Blob>();
-
-  const stopPlayback = () => {
-    player.pause();
-    if (playingUrl) {
-      URL.revokeObjectURL(playingUrl);
-    }
-    playingUrl = null;
-    playingNoteId = null;
-  };
-  player.addEventListener('ended', () => {
-    stopPlayback();
-    render();
-  });
-
-  /** File dal telefono se c'è, altrimenti scaricato da Drive (una volta per sessione). */
-  const loadAudio = async (note: CatalogNote): Promise<Blob> => {
-    const local = await dependencies.audioStore.get(note.noteId);
-    if (local) {
-      return local;
-    }
-    const { driveFileId } = note;
-    if (!driveFileId) {
-      throw new Error('file non presente né sul telefono né su Drive');
-    }
-    const cached = downloaded.get(driveFileId);
-    if (cached) {
-      return cached;
-    }
-    const audio = await dependencies.authorized(() => dependencies.catalog.download(driveFileId));
-    downloaded.set(driveFileId, audio);
-    return audio;
-  };
-
-  const togglePlayback = async (note: CatalogNote) => {
-    if (playingNoteId === note.noteId) {
-      stopPlayback();
-      render();
-      return;
-    }
-    stopPlayback();
-    playingNoteId = note.noteId;
-    render();
-    message.textContent = note.driveFileId ? 'Caricamento…' : '';
-    const audio = await loadAudio(note);
-    if (playingNoteId !== note.noteId) {
-      return;
-    }
-    playingUrl = URL.createObjectURL(audio);
-    player.src = playingUrl;
-    message.textContent = '';
-    await player.play();
-  };
+  const player = new NotePlayer(
+    {
+      audioStore: dependencies.audioStore,
+      download: (driveFileId) => dependencies.catalog.download(driveFileId),
+      authorized: dependencies.authorized,
+    },
+    () => render(),
+  );
 
   let notes: CatalogNote[] = [];
   let visitDescriptions = new Map<string, string>();
@@ -105,9 +58,9 @@ export async function mountNotesScreen(container: HTMLElement, dependencies: Not
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'list-item note-item';
-    button.classList.toggle('here', playingNoteId === note.noteId);
+    button.classList.toggle('here', player.isPlaying(note.noteId));
     const title = document.createElement('strong');
-    title.textContent = `${playingNoteId === note.noteId ? '⏸' : '▶'} ${describeWhen(note.recordedAt)}`;
+    title.textContent = `${player.isPlaying(note.noteId) ? '⏸' : '▶'} ${describeWhen(note.recordedAt)}`;
     const details = document.createElement('small');
     details.textContent = [
       note.durationSeconds === null ? null : formatElapsed(note.durationSeconds * 1000),
@@ -118,9 +71,8 @@ export async function mountNotesScreen(container: HTMLElement, dependencies: Not
       .join(' · ');
     button.append(title, details);
     button.addEventListener('click', () => {
-      togglePlayback(note).catch((error: unknown) => {
-        stopPlayback();
-        render();
+      message.textContent = '';
+      player.toggle(note).catch((error: unknown) => {
         message.textContent = `Impossibile ascoltare la nota: ${errorMessage(error)}`;
       });
     });
@@ -170,5 +122,5 @@ export async function mountNotesScreen(container: HTMLElement, dependencies: Not
   notes = mergeCatalog(fromDrive, localVisits, dependencies.session.view().pendingFreeNotes);
   render();
 
-  return stopPlayback;
+  return () => player.stop();
 }

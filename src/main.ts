@@ -144,6 +144,8 @@ try {
         loadClients: () => clientsRepository.load(),
         session,
         authorized,
+        audioStore,
+        download: (driveFileId) => drive.downloadFile(driveFileId),
         currentYear: formatLocalIsoDateTime(new Date()).slice(0, 4),
       }),
     );
