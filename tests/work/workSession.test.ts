@@ -109,6 +109,9 @@ describe('WorkSession', () => {
     const repository = { save: vi.fn<(period: WorkPeriod) => Promise<void>>().mockReturnValueOnce(firstSave).mockResolvedValue() };
     const { session, advance } = setup({ repository });
     const started = session.start();
+    // Il primo salvataggio deve essere già partito (con la versione aperta) quando arriva la fine.
+    await vi.waitFor(() => expect(repository.save).toHaveBeenCalledTimes(1));
+    expect(repository.save).toHaveBeenLastCalledWith(expect.objectContaining({ end: null }));
     advance(30);
     const stopped = session.stop();
     releaseFirstSave();
