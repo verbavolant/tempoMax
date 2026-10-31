@@ -190,9 +190,6 @@ select {
   gap: 8px;
 }
 
-.audio-panel[hidden] {
-  display: none;
-}
 
 .secondary-button.recording {
   background: var(--stop);

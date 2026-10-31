@@ -9,7 +9,8 @@ import { errorMessage, requireElement } from './dom';
 const DOUBLE_TAP_GUARD_MS = 2_000;
 
 interface ActiveRecording {
-  visitId: string;
+  /** null per una nota libera (registrata senza visita). */
+  visitId: string | null;
   recording: AudioRecording;
   startedAt: string;
 }
@@ -28,7 +29,7 @@ export function mountHomeScreen(
         <span class="big-button-elapsed"></span>
       </button>
       <p id="visit-client" class="home-client"></p>
-      <div id="audio-panel" class="audio-panel" hidden>
+      <div id="audio-panel" class="audio-panel">
         <button id="audio-toggle" type="button" class="secondary-button"></button>
         <ul id="audio-list" class="audio-list"></ul>
         <p id="audio-message" class="home-notice" role="status"></p>
@@ -44,7 +45,6 @@ export function mountHomeScreen(
   const elapsed = requireElement<HTMLSpanElement>(toggleButton, '.big-button-elapsed');
   const clientText = requireElement<HTMLParagraphElement>(container, '#visit-client');
   const noticeText = requireElement<HTMLParagraphElement>(container, '#visit-notice');
-  const audioPanel = requireElement<HTMLDivElement>(container, '#audio-panel');
   const audioButton = requireElement<HTMLButtonElement>(container, '#audio-toggle');
   const audioList = requireElement<HTMLUListElement>(container, '#audio-list');
   const audioMessage = requireElement<HTMLParagraphElement>(container, '#audio-message');
@@ -134,7 +134,6 @@ export function mountHomeScreen(
     toggleButton.classList.toggle('running', open !== null);
     label.textContent = open ? 'FINE' : 'INIZIA';
     clientText.textContent = open ? (view.clientName ?? '') : '';
-    audioPanel.hidden = open === null && active === null;
     renderAudioList(open);
     const pending = view.unsyncedCount > 0 ? `Visite da salvare su Drive: ${view.unsyncedCount}` : '';
     noticeText.textContent = [view.notice, pending].filter(Boolean).join(' · ');
@@ -159,10 +158,14 @@ export function mountHomeScreen(
         driveFileId: null,
         driveLink: null,
       };
-      // Prima il file sul telefono, poi il riferimento nella visita: mai un riferimento senza file.
+      // Prima il file sul telefono, poi il riferimento: mai un riferimento senza file.
       await audioStore.put(note.id, audio);
-      session.addAudio(current.visitId, note);
-      audioMessage.textContent = completionMessage;
+      if (current.visitId) {
+        session.addAudio(current.visitId, note);
+      } else {
+        session.addFreeNote(note);
+      }
+      audioMessage.textContent = completionMessage || (current.visitId ? '' : 'Nota libera salvata.');
     } catch (error) {
       audioMessage.textContent = `Nota non salvata: ${errorMessage(error)}`;
     } finally {
@@ -171,7 +174,7 @@ export function mountHomeScreen(
     }
   };
 
-  const startRecording = async (visitId: string) => {
+  const startRecording = async (visitId: string | null) => {
     audioBusy = true;
     audioMessage.textContent = '';
     render(session.view());
@@ -201,7 +204,9 @@ export function mountHomeScreen(
     try {
       // Prima il check-in/out (orario del tap, token nel gesto), poi l'eventuale nota in corso.
       void session.toggle();
-      void finishRecording();
+      if (active) {
+        void session.syncAfter(finishRecording());
+      }
     } catch (error) {
       noticeText.textContent = errorMessage(error);
     }
@@ -209,13 +214,11 @@ export function mountHomeScreen(
 
   audioButton.addEventListener('click', () => {
     if (active) {
-      void finishRecording();
+      // Salvataggio su Drive avviato nel tocco (token senza popup bloccati), eseguito a nota salvata.
+      void session.syncAfter(finishRecording());
       return;
     }
-    const open = session.view().openVisit;
-    if (open) {
-      void startRecording(open.id);
-    }
+    void startRecording(session.view().openVisit?.id ?? null);
   });
 
   requireElement<HTMLButtonElement>(container, '#open-clients').addEventListener('click', navigation.openClients);

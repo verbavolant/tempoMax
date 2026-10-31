@@ -205,7 +205,7 @@
 - Note: *da verificare con la prova reale*: che `appProperties` si possano impostare già nella creazione (la guida "properties" mostra solo l'update; il campo non è output-only).
 
 ### T-028b Nota vocale anche senza visita
-- Stato: [ ]
+- Stato: [~] codice pronto e provato in Chrome (nota libera salvata in locale); manca la prova su iPhone con caricamento su Drive
 - Obiettivo: 🎤 visibile anche con il timer fermo (nota libera); al tocco su ⏹ si avvia subito il salvataggio su Drive (`syncAfter`, token nel gesto).
 - File: `src/ui/home.ts`
 - Dipende da: T-028a
