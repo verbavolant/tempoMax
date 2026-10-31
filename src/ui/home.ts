@@ -20,7 +20,7 @@ export function mountHomeScreen(
   container: HTMLElement,
   session: VisitSession,
   audioStore: AudioStore,
-  navigation: { openClients: () => void; openVisits: () => void },
+  navigation: { openClients: () => void; openVisits: () => void; openNotes: () => void },
 ): () => void {
   container.innerHTML = `
     <section class="home">
@@ -37,6 +37,7 @@ export function mountHomeScreen(
       <p id="visit-notice" class="home-notice" role="status"></p>
       <button id="open-clients" type="button" class="secondary-button">👥 Clienti</button>
       <button id="open-visits" type="button" class="secondary-button">🕘 Visite</button>
+      <button id="open-notes" type="button" class="secondary-button">🎧 Note vocali</button>
     </section>
   `;
 
@@ -223,6 +224,7 @@ export function mountHomeScreen(
 
   requireElement<HTMLButtonElement>(container, '#open-clients').addEventListener('click', navigation.openClients);
   requireElement<HTMLButtonElement>(container, '#open-visits').addEventListener('click', navigation.openVisits);
+  requireElement<HTMLButtonElement>(container, '#open-notes').addEventListener('click', navigation.openNotes);
 
   return () => {
     unsubscribe();

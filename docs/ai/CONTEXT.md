@@ -31,8 +31,8 @@ docs/human/       # documentazione per l'utente/setup
 | `public/sw.js` | service worker: precache della pagina e dei file referenziati, network-first, solo stessa origine |
 | `public/icons/` | icone PNG (generate con Pillow: cronometro bianco su verde) |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
-| `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, `addAudio()`/`removeAudio()` (solo in locale), GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
-| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (solo a visita aperta: registra, ▶ ascolta, 🗑 elimina), pulsanti "👥 Clienti" e "🕘 Visite"; blocco del doppio tap per 2 s |
+| `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, `addAudio()`/`removeAudio()` (solo in locale), `addFreeNote()`, `syncAfter(task)`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
+| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (sempre: a visita aperta va alla visita, altrimenti nota libera; ⏹ avvia il salvataggio), pulsanti "👥 Clienti", "🕘 Visite", "🎧 Note vocali"; blocco del doppio tap per 2 s |
 | `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali), assegnazione del cliente; `orderClientsByDistance`, `mergeVisits` |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista (cliente "📍 Sei qui" in cima, evidenziato), form nuovo/modifica, "Sono qui adesso"; `orderClientsForList` |
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
@@ -40,15 +40,17 @@ docs/human/       # documentazione per l'utente/setup
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
 | `src/storage/audioStore.ts` | `AudioStore` (IndexedDB `tempomax`/`audio`): `put`/`get`/`delete` per id della nota, salva ArrayBuffer + tipo |
 | `src/audio/recorder.ts` | `AudioRecording.start(onLimitReached)` / `stop()` (MediaRecorder, blocchi da 1 s, tetto 5 MB / 5 min), `audioMimeTypeCandidates`, `firstThatWorks`, `shouldStopForSize` |
-| `src/storage/audioUploader.ts` | `AudioUploader.upload(visit, note)` → `TempoMax/audio/AAAA/`, `deleteLocal`; `audioFileName`, `audioFileExtension` |
-| `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
+| `src/storage/audioUploader.ts` | `AudioUploader.upload(visit | null, note)` → `TempoMax/audio/AAAA/` con `appProperties` (kind, recordedAt, durationSeconds, visitId), `deleteLocal`; `audioFileName`, `audioAppProperties`, `audioFileExtension` |
+| `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit`, `unsyncedVisits`, `freeNotes`), `upsertVisit` |
+| `src/storage/audioCatalog.ts` | `AudioCatalog.listYear` (una richiesta: file di `audio/AAAA` con `appProperties`), `download`; `catalogNoteFromDriveFile`, `mergeCatalog` |
+| `src/ui/notes.ts` | `mountNotesScreen`: "Note libere" e "Note delle visite", ▶/⏸ da telefono o da Drive; senza Drive mostra quelle locali |
 | `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json`; `listRecent(year, limit)` |
 | `src/storage/visitRegister.ts` | `VisitRegister.save(visit, clientName)`: Foglio `TempoMax/Registro visite`, aggiorna la riga (ID in colonna H) o la aggiunge |
 | `src/storage/clientsRepository.ts` | `ClientsRepository.load()` / `save()` su `TempoMax/clienti.json` |
 | `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`) |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
-| `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`, `createEmptyFile`, `listFiles`, `uploadFile` (id + `webViewLink`), `request` (anche per Sheets); `FileTooLargeError`; `DriveError` con status |
+| `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`, `createEmptyFile`, `listFiles` (con `webViewLink` e `appProperties`), `uploadFile` (id + `webViewLink`, `appProperties`), `downloadFile`, `request` (anche per Sheets); `FileTooLargeError`; `DriveError` con status |
 | `src/geo/distance.ts` | `distanceMeters` (Haversine, raggio GRS80), `findNearestClient`, `findClientAtPosition` (il più vicino tra i clienti che contengono la posizione nel raggio) |
 | `src/geo/currentPosition.ts` | `readCurrentPosition()` → `MeasuredPosition`; `GeolocationError` con `reason` |
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
@@ -75,7 +77,8 @@ TempoMax/
   task.json                         # da fare + da comprare
   Registro visite                   # Foglio Google: una riga per visita, link Maps e Audio (vista derivata)
   visite/AAAA/AAAA-MM-GG_<idVisita>.json
-  audio/AAAA/AAAA-MM-GG_<idVisita>_<idNota>.m4a   # note vocali (≤ 5 MB, ADR-007)
+  audio/AAAA/AAAA-MM-GG_<idVisita>_<idNota>.m4a   # note delle visite (≤ 5 MB, ADR-007)
+  audio/AAAA/AAAA-MM-GG_libera_<idNota>.m4a       # note libere (senza visita)
 ```
 
 ## Convenzioni del progetto

@@ -13,6 +13,8 @@ import { mountClientsScreen } from './ui/clients';
 import { errorMessage, requireElement } from './ui/dom';
 import { mountHomeScreen } from './ui/home';
 import { mountVisitsScreen } from './ui/visits';
+import { mountNotesScreen } from './ui/notes';
+import { AudioCatalog } from './storage/audioCatalog';
 import { formatLocalIsoDateTime } from './model/time';
 import { VisitSession } from './visits/visitSession';
 
@@ -89,20 +91,33 @@ try {
 
   const showHome = () => {
     unmountCurrent();
-    unmountCurrent = mountHomeScreen(appRoot, session, audioStore, { openClients: showClients, openVisits: showVisits });
+    unmountCurrent = mountHomeScreen(appRoot, session, audioStore, {
+      openClients: showClients,
+      openVisits: showVisits,
+      openNotes: showNotes,
+    });
   };
 
-  /** Schermata secondaria con "Indietro"; `mount` va chiamato senza await precedenti, per il popup di login nel tap. */
-  const showSecondary = (mount: (container: HTMLDivElement) => Promise<void>) => {
+  /**
+   * Schermata secondaria con "Indietro"; `mount` va chiamato senza await precedenti, per il popup di login nel tap.
+   * Se `mount` restituisce una funzione, viene chiamata quando si lascia la schermata.
+   */
+  const showSecondary = (mount: (container: HTMLDivElement) => Promise<void | (() => void)>) => {
     unmountCurrent();
+    let cleanup: void | (() => void);
     // L'anagrafica può essere cambiata: il prossimo check-in la rilegge.
-    unmountCurrent = () => session.invalidateClients();
+    unmountCurrent = () => {
+      session.invalidateClients();
+      cleanup?.();
+    };
     appRoot.innerHTML = `
       <button id="back-home" type="button" class="secondary-button">‹ Indietro</button>
       <div id="secondary-screen"></div>
     `;
     requireElement<HTMLButtonElement>(appRoot, '#back-home').addEventListener('click', showHome);
-    void mount(requireElement<HTMLDivElement>(appRoot, '#secondary-screen'));
+    void mount(requireElement<HTMLDivElement>(appRoot, '#secondary-screen')).then((result) => {
+      cleanup = result;
+    });
   };
 
   const showClients = () =>
@@ -114,6 +129,19 @@ try {
     showSecondary((container) =>
       mountVisitsScreen(container, {
         repository: visitsRepository,
+        loadClients: () => clientsRepository.load(),
+        session,
+        authorized,
+        currentYear: formatLocalIsoDateTime(new Date()).slice(0, 4),
+      }),
+    );
+
+  const showNotes = () =>
+    showSecondary((container) =>
+      mountNotesScreen(container, {
+        catalog: new AudioCatalog(drive),
+        audioStore,
+        visitsRepository,
         loadClients: () => clientsRepository.load(),
         session,
         authorized,

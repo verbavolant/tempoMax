@@ -211,7 +211,7 @@
 - Dipende da: T-028a
 
 ### T-028c Schermata "🎧 Note vocali"
-- Stato: [ ]
+- Stato: [~] codice pronto e provato in Chrome con note solo locali; manca la prova con le note su Drive
 - Obiettivo: elenco delle note dell'anno (Drive + quelle ancora sul telefono), divise in "Note libere" e "Note delle visite", con data e ora, durata ed eventuale cliente; ▶ riproduce (file locale o scaricato da Drive).
 - File: `src/storage/audioCatalog.ts`, `src/ui/notes.ts`, `src/ui/home.ts`, `src/main.ts`, test
 - Dipende da: T-028a

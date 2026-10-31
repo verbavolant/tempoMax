@@ -210,3 +210,8 @@ select {
   align-items: center;
   gap: 8px;
 }
+
+.list .empty {
+  color: var(--muted);
+  font-size: 0.95rem;
+}

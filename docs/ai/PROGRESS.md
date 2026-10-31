@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-028a/b/c: note libere ed elenco delle note
+- Fatto: richiesta dell'utente: nota vocale anche senza visita ("Note libere") e un elenco per riascoltare tutte le note. T-028a: `LocalVisitState.freeNotes`, `VisitSession.addFreeNote/removeFreeNote/syncAfter`, `uploadFreeNotes` e `uploadAudio` comuni, `appProperties` sui file audio (`audioAppProperties`), `DriveClient.uploadFile(..., appProperties)`. T-028b: 🎤 sempre visibile in `src/ui/home.ts`, ⏹ e FINE chiamano `session.syncAfter(finishRecording())` dentro il tocco. T-028c: `listFiles` restituisce anche `webViewLink`/`appProperties`, `downloadFile`, `src/storage/audioCatalog.ts`, `src/ui/notes.ts`, pulsante "🎧 Note vocali", `showSecondary` supporta il cleanup (ferma la riproduzione).
+- Stato: T-028a completo; T-028b, T-028c parziali (prova con Drive reale). Resta in sospeso anche la prova di T-014b/c.
+- Verifica: `npm test` (199), typecheck, lint, build OK. Chrome headless: nota libera registrata senza visita → elencata nella schermata Note (anche senza Drive) → ▶ avvia la riproduzione.
+- Prossimo passo: prova dell'utente (checklist "Note vocali" e "Note libere ed elenco note"); poi T-026 Opzioni/GPS.
+- Trappole/note: *da verificare*: che `appProperties` vengano salvate già nella creazione multipart (in caso contrario `catalogNoteFromDriveFile` ricava data, tipo e visita dal nome, senza ora né durata). I nomi dei clienti nell'elenco vengono dalle ultime 30 visite più quelle locali; per le altre compare "visita del …".
+
 ## [2026-10-31] — T-014a, T-014b, T-014c (parziali): audio su Drive
 - Fatto: ADR-007 (note ≤ 5 MB invece del resumable: `Location` non esposto via CORS nella risposta 401, comportamento in caso di successo non verificabile). T-014a: `shouldStopForSize`, `MAX_RECORDING_SECONDS` (5 min) e callback `onLimitReached` in `src/audio/recorder.ts`; la home ferma la nota e lo dice. T-014b: `FileTooLargeError` e `uploadFile` in `src/storage/drive.ts`; `src/storage/audioUploader.ts`; `AudioNote.driveLink` (assente = null); `VisitSession.saveVisit(id)` carica le note pendenti, aggiorna id/link, cancella la copia locale, poi salva JSON e registro; ▶ apre `driveLink` se il file non è più sul telefono. T-014c: colonna I "Audio" (link uno per riga), intestazione riscritta anche sui fogli esistenti.
 - Stato: T-014a completo; T-014b e T-014c parziali (prova reale).

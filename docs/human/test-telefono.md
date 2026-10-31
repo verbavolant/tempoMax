@@ -38,6 +38,12 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] Dopo FINE (con rete), su Drive in `TempoMax/audio/2026/` c'è il file `.m4a` della nota e si ascolta.
 - [ ] Nel **Registro visite** la colonna **Audio** (I) contiene il link della nota, che apre il file su Drive.
 
+## Note libere ed elenco note
+- [ ] **Senza visita in corso** tocca 🎤, parla, ⏹: compare "Nota libera salvata.".
+- [ ] Su Drive, in `TempoMax/audio/2026/`, c'è il file `AAAA-MM-GG_libera_….m4a`.
+- [ ] **🎧 Note vocali**: le note sono divise in "Note libere" e "Note delle visite", con data e ora (le note delle visite anche con il cliente).
+- [ ] ▶ riproduce una nota già su Drive (si scarica) e una appena registrata.
+
 ## Senza rete
 - [ ] Attiva la modalità aereo, tocca **INIZIA**: compare "Salvata sul telefono, non ancora su Drive…".
 - [ ] Togli la modalità aereo, tocca **FINE**: l'avviso sparisce.

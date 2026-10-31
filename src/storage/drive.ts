@@ -27,6 +27,14 @@ export class DriveError extends Error {
   }
 }
 
+export interface DriveFileSummary {
+  id: string;
+  name: string;
+  webViewLink: string | null;
+  /** Proprietà private dell'app; oggetto vuoto se il file non ne ha. */
+  appProperties: Record<string, string>;
+}
+
 export interface DriveUser {
   displayName: string;
   emailAddress: string;
@@ -75,11 +83,11 @@ export class DriveClient {
     return this.findOne(`name = '${escapeQueryValue(name)}' and '${escapeQueryValue(parentId)}' in parents and mimeType != '${FOLDER_MIME_TYPE}' and trashed = false`);
   }
 
-  /** File (non cartelle) contenuti in una cartella, ordinati per nome decrescente. */
-  async listFiles(parentId: string, pageSize: number): Promise<{ id: string; name: string }[]> {
+  /** File (non cartelle) contenuti in una cartella, ordinati per nome decrescente (max 1000 per la API). */
+  async listFiles(parentId: string, pageSize: number): Promise<DriveFileSummary[]> {
     const params = new URLSearchParams({
       q: `'${escapeQueryValue(parentId)}' in parents and mimeType != '${FOLDER_MIME_TYPE}' and trashed = false`,
-      fields: 'files(id,name)',
+      fields: 'files(id,name,webViewLink,appProperties)',
       orderBy: 'name desc',
       pageSize: String(pageSize),
     });
@@ -87,8 +95,22 @@ export class DriveClient {
     return expectArray(expectObject(await response.json(), 'list').files, 'list.files').map((file, index) => {
       const path = `list.files[${index}]`;
       const object = expectObject(file, path);
-      return { id: parseFileId(object, path), name: expectNonEmptyString(object.name, `${path}.name`) };
+      const properties = object.appProperties === undefined ? {} : expectObject(object.appProperties, `${path}.appProperties`);
+      return {
+        id: parseFileId(object, path),
+        name: expectNonEmptyString(object.name, `${path}.name`),
+        webViewLink: object.webViewLink === undefined ? null : expectNonEmptyString(object.webViewLink, `${path}.webViewLink`),
+        appProperties: Object.fromEntries(
+          Object.entries(properties).map(([key, value]) => [key, expectString(value, `${path}.appProperties.${key}`)]),
+        ),
+      };
     });
+  }
+
+  /** Contenuto di un file binario (es. una nota vocale). */
+  async downloadFile(fileId: string): Promise<Blob> {
+    const response = await this.request(`${DRIVE_API_URL}/files/${encodeURIComponent(fileId)}?alt=media`);
+    return response.blob();
   }
 
   async readJson(fileId: string): Promise<unknown> {

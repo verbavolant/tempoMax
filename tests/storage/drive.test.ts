@@ -88,15 +88,25 @@ describe('DriveClient', () => {
     });
 
     it('listFiles elenca i file della cartella per nome decrescente', async () => {
-      fetchMock.mockResolvedValueOnce(jsonResponse({ files: [{ id: 'f-2', name: '2026-10-31_b.json' }] }));
-      await expect(drive.listFiles('folder-1', 20)).resolves.toEqual([{ id: 'f-2', name: '2026-10-31_b.json' }]);
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({
+          files: [
+            { id: 'f-2', name: '2026-10-31_b.json' },
+            { id: 'f-3', name: 'nota.m4a', webViewLink: 'https://drive.google.com/file/d/f-3/view', appProperties: { kind: 'free' } },
+          ],
+        }),
+      );
+      await expect(drive.listFiles('folder-1', 20)).resolves.toEqual([
+        { id: 'f-2', name: '2026-10-31_b.json', webViewLink: null, appProperties: {} },
+        { id: 'f-3', name: 'nota.m4a', webViewLink: 'https://drive.google.com/file/d/f-3/view', appProperties: { kind: 'free' } },
+      ]);
       const params = requestAt(fetchMock, 0).url.searchParams;
       expect(params.get('q')).toBe(
         "'folder-1' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false",
       );
       expect(params.get('orderBy')).toBe('name desc');
       expect(params.get('pageSize')).toBe('20');
-      expect(params.get('fields')).toBe('files(id,name)');
+      expect(params.get('fields')).toBe('files(id,name,webViewLink,appProperties)');
     });
 
     it('readJson scarica il contenuto con alt=media', async () => {
