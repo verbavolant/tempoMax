@@ -224,7 +224,7 @@
 - Note: indipendente dalle visite e senza GPS (scelte dichiarate all'utente, da confermare).
 
 ### T-029b Orario di lavoro: Drive e Foglio "Orario di lavoro"
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: `TempoMax/lavoro/AAAA/AAAA-MM-GG.json` (lettura-modifica-scrittura del giorno); registro generico riusato per il Foglio "Orario di lavoro" (Data · Inizio · Fine · Durata (min) · ID periodo), una riga per periodo.
 - File: `src/storage/workRepository.ts`, `src/storage/sheetRegister.ts` (estratto da `visitRegister.ts`), `src/register/workRow.ts`, test
 - Dipende da: T-029a
