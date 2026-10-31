@@ -6,7 +6,11 @@ import { requireElement } from './dom';
 const DOUBLE_TAP_GUARD_MS = 2_000;
 
 /** Monta la schermata principale; restituisce la funzione che la smonta (ferma il timer). */
-export function mountHomeScreen(container: HTMLElement, session: VisitSession, onOpenClients: () => void): () => void {
+export function mountHomeScreen(
+  container: HTMLElement,
+  session: VisitSession,
+  navigation: { openClients: () => void; openVisits: () => void },
+): () => void {
   container.innerHTML = `
     <section class="home">
       <button id="visit-toggle" type="button" class="big-button">
@@ -16,6 +20,7 @@ export function mountHomeScreen(container: HTMLElement, session: VisitSession, o
       <p id="visit-client" class="home-client"></p>
       <p id="visit-notice" class="home-notice" role="status"></p>
       <button id="open-clients" type="button" class="secondary-button">👥 Clienti</button>
+      <button id="open-visits" type="button" class="secondary-button">🕘 Visite</button>
     </section>
   `;
 
@@ -50,7 +55,8 @@ export function mountHomeScreen(container: HTMLElement, session: VisitSession, o
       noticeText.textContent = error instanceof Error ? error.message : String(error);
     }
   });
-  requireElement<HTMLButtonElement>(container, '#open-clients').addEventListener('click', onOpenClients);
+  requireElement<HTMLButtonElement>(container, '#open-clients').addEventListener('click', navigation.openClients);
+  requireElement<HTMLButtonElement>(container, '#open-visits').addEventListener('click', navigation.openVisits);
 
   return () => {
     unsubscribe();

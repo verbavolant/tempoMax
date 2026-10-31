@@ -112,7 +112,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select {
   /* 16px+ evita lo zoom automatico di Safari iOS sul campo attivo. */
   font: inherit;
   padding: 10px;

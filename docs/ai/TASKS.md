@@ -121,7 +121,7 @@
 - Note: solo l'anno corrente (per non creare cartelle di anni vuoti): a inizio gennaio le visite di dicembre non compaiono. Da rivedere se serve.
 
 ### T-021b Visite recenti e assegnazione del cliente: schermata
-- Stato: [ ]
+- Stato: [~] codice e test pronti; da provare sul telefono (assegnare il cliente a una visita, controllare JSON e registro)
 - Obiettivo: pulsante "🕘 Visite" nella home → elenco delle ultime 20 visite (data, orari, cliente o "senza cliente"); tocco su una visita → scelta del cliente (quello più vicino alla posizione del check-in proposto per primo) oppure "nessuno" → salvataggio.
 - Done quando: una visita senza cliente riceve un cliente; JSON e riga del registro aggiornati.
 - File: `src/ui/visits.ts`, `src/ui/home.ts`, `src/main.ts`, `src/style.css`

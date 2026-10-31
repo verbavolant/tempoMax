@@ -18,8 +18,8 @@ export type RegisterRow = [string, string, string, number | '', string, string, 
 export const REGISTER_ID_COLUMN_INDEX = REGISTER_HEADER.indexOf('ID visita');
 
 // Data e ora si leggono dalla stringa locale (`2026-10-31T09:05:00+01:00`): niente conversioni di fuso.
-const italianDate = (at: string) => `${at.slice(8, 10)}/${at.slice(5, 7)}/${at.slice(0, 4)}`;
-const clockTime = (at: string) => at.slice(11, 16);
+export const italianDate = (at: string) => `${at.slice(8, 10)}/${at.slice(5, 7)}/${at.slice(0, 4)}`;
+export const clockTime = (at: string) => at.slice(11, 16);
 
 export function visitToRow(visit: Visit, clientName: string | null): RegisterRow {
   const { checkIn, checkOut } = visit;

@@ -58,6 +58,11 @@ export class VisitSession {
     };
   }
 
+  /** Visite presenti solo o anche sul telefono: quella in corso e quelle in attesa di Drive. */
+  localVisits(): Visit[] {
+    return [...(this.state.openVisit ? [this.state.openVisit] : []), ...this.state.unsyncedVisits];
+  }
+
   subscribe(listener: (view: VisitSessionView) => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);

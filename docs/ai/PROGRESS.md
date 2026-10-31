@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-021a, T-021b (parziale): assegnare il cliente dopo
+- Fatto: T-021a: `DriveClient.listFiles`, `VisitsRepository.listRecent`, `VisitSession.assignClient` e `localVisits`. T-021b: `src/ui/visits.ts` (elenco, tendina dei clienti ordinata per distanza dal check-in, "nessun cliente"), pulsante "🕘 Visite" in `src/ui/home.ts`, `showSecondary` in `src/main.ts`, stile del `select`. `italianDate`/`clockTime` esportati da `src/register/visitRow.ts`.
+- Stato: T-021a completo; T-021b parziale (prova sul telefono).
+- Verifica: `npm test` (156), typecheck, lint, build OK; screenshot della home con i due pulsanti.
+- Prossimo passo: prova dell'utente; poi, come da programma, Fase 2 → T-012 (riepilogo ore per cliente/mese) oppure T-019 (PWA), da concordare.
+- Trappole/note: `assignClient` su una visita letta da Drive la mette in `unsyncedVisits`, così senza rete viene risalvata. L'elenco mostra solo l'anno corrente (vedi note di T-021a). La schermata unisce le visite locali (in corso o non sincronizzate) a quelle di Drive, preferendo la versione locale.
+
 ## [2026-10-31] — T-010 chiuso, T-024, T-025 (parziale)
 - Fatto: T-010 verificato dall'utente su iPhone. T-024: "‹ Indietro" usa `.secondary-button`; rimosso `.link-button` (non più usato). T-025: `src/ui/clients.ts` legge il GPS in parallelo al caricamento e evidenzia (classe `.here`, "📍 Sei qui", in cima) il cliente di `findClientAtPosition`; `orderClientsForList` testato in `tests/ui/clients.test.ts`.
 - Stato: T-024 completo; T-025 parziale (prova sul telefono).

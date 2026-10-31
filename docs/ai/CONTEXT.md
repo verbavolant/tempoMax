@@ -25,11 +25,12 @@ docs/human/       # documentazione per l'utente/setup
 ## File/moduli chiave
 | Path | Responsabilità |
 |------|----------------|
-| `src/main.ts` | bootstrap: `authorized()` (token nel gesto + `invalidateToken` su 401), `VisitSession`, navigazione Home ↔ Clienti. Nessuna schermata di login: il token si chiede al primo tap |
+| `src/main.ts` | bootstrap: `authorized()` (token nel gesto + `invalidateToken` su 401), `VisitSession`, navigazione Home ↔ Clienti / Visite (`showSecondary`). Nessuna schermata di login: il token si chiede al primo tap |
 | `src/style.css` | stile mobile, chiaro/scuro |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
-| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, pulsante "👥 Clienti"; blocco del doppio tap per 2 s |
+| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, pulsanti "👥 Clienti" e "🕘 Visite"; blocco del doppio tap per 2 s |
+| `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali), assegnazione del cliente; `orderClientsByDistance`, `mergeVisits` |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista (cliente "📍 Sei qui" in cima, evidenziato), form nuovo/modifica, "Sono qui adesso"; `orderClientsForList` |
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
 | `src/register/visitRow.ts` | `REGISTER_HEADER`, `visitToRow`, `REGISTER_ID_COLUMN_INDEX` |
