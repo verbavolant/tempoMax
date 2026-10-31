@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-013b: errore microfono su iPhone (diagnosi in corso)
+- Fatto: su iPhone (Safari, permesso "consenti mentre visiti il sito") compare "Microfono non disponibile: The request is not allowed by the user agent or the platform in the current context…" (NotAllowedError). Non riproducibile qui. `src/audio/recorder.ts`: messaggio che distingue "il telefono non ha concesso il microfono (…)" (getUserMedia) da "registratore non avviato (…)" (MediaRecorder), con `name` dell'errore e `cause`; `audioMimeTypeCandidates` + `firstThatWorks` tentano i formati in ordine e infine quello del browser.
+- Stato: in attesa del nuovo messaggio dall'iPhone.
+- Verifica: `npm test` (169), typecheck, lint OK; registrazione in Chrome headless ancora funzionante (AAC).
+- Prossimo passo: se l'errore è "registratore non avviato" il fallback dovrebbe risolvere; se è "non ha concesso il microfono", controllare Impostazioni iOS → Safari → Microfono e le impostazioni del sito ("aA" → Impostazioni sito web).
+- Trappole/note: piste dalle fonti (WebKit 221031, 217570, 252303): microfono negato a livello di iOS, richiesta fuori dal gesto (esclusa: `getUserMedia` parte in modo sincrono nel click), limiti di MediaRecorder. Il codec esplicito `mp4a.40.2` non era mai stato provato su Safari.
+
 ## [2026-10-31] — T-013a, T-013b (parziale): note vocali
 - Fatto: T-013a: `AudioNote` e `Visit.audio` (assente nei JSON vecchi = `[]`), `src/storage/audioStore.ts` (IndexedDB, ArrayBuffer + tipo), `src/audio/recorder.ts` (MediaRecorder a blocchi da 1 s, `chooseAudioMimeType`), devDependency `fake-indexeddb@6.2.7`. T-013b: `VisitSession.addAudio/removeAudio` (solo in locale, tramite `updateVisit`), UI in `src/ui/home.ts` (pannello audio, elenco ridisegnato solo quando cambia), `AudioStore` creato in `src/main.ts`, stili. Aggiunto T-027 (GPS senza rete, da valutare) su osservazione dell'utente.
 - Stato: T-013a completo; T-013b parziale (prova su iPhone, schermo bloccato).

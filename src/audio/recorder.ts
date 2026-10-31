@@ -6,10 +6,28 @@ const PREFERRED_MIME_TYPES = ['audio/mp4;codecs=mp4a.40.2', 'audio/mp4', 'audio/
 // Blocchi da un secondo: se la registrazione si interrompe per errore, i secondi già registrati restano.
 const CHUNK_MILLISECONDS = 1_000;
 
-/** Il primo formato supportato, oppure undefined per lasciare scegliere al browser. */
-export function chooseAudioMimeType(isTypeSupported: (mimeType: string) => boolean): string | undefined {
-  return PREFERRED_MIME_TYPES.find((mimeType) => isTypeSupported(mimeType));
+/**
+ * Formati da tentare in ordine: quelli preferiti dichiarati supportati, poi `undefined` (scelta del browser).
+ * "Supportato" non garantisce che il registratore parta: per questo si tenta il successivo se fallisce.
+ */
+export function audioMimeTypeCandidates(isTypeSupported: (mimeType: string) => boolean): (string | undefined)[] {
+  return [...PREFERRED_MIME_TYPES.filter((mimeType) => isTypeSupported(mimeType)), undefined];
 }
+
+/** Restituisce il primo risultato di `create` che non lancia; altrimenti rilancia l'ultimo errore. */
+export function firstThatWorks<T, R>(candidates: readonly T[], create: (candidate: T) => R): R {
+  let lastError: unknown = new Error('Nessun formato da provare');
+  for (const candidate of candidates) {
+    try {
+      return create(candidate);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+const describe = (error: unknown) => (error instanceof Error ? `${error.name}: ${error.message}` : String(error));
 
 export interface RecordedAudio {
   audio: Blob;
@@ -39,9 +57,23 @@ export class AudioRecording {
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       throw new Error('Questo browser non può registrare audio');
     }
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mimeType = chooseAudioMimeType((candidate) => MediaRecorder.isTypeSupported(candidate));
-    return new AudioRecording(stream, new MediaRecorder(stream, mimeType ? { mimeType } : undefined), mimeType);
+    let stream: MediaStream;
+    try {
+      // Chiamata prima di qualsiasi await del gestore: alcuni browser la accettano solo dentro il tocco.
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (error) {
+      throw new Error(`il telefono non ha concesso il microfono (${describe(error)})`, { cause: error });
+    }
+    const candidates = audioMimeTypeCandidates((candidate) => MediaRecorder.isTypeSupported(candidate));
+    try {
+      return firstThatWorks(
+        candidates,
+        (mimeType) => new AudioRecording(stream, new MediaRecorder(stream, mimeType ? { mimeType } : undefined), mimeType),
+      );
+    } catch (error) {
+      stream.getTracks().forEach((track) => track.stop());
+      throw new Error(`registratore non avviato (${describe(error)})`, { cause: error });
+    }
   }
 
   elapsedSeconds(): number {
