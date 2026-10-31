@@ -36,11 +36,12 @@ docs/human/       # documentazione per l'utente/setup
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
 | `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
 | `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json` |
+| `src/storage/visitRegister.ts` | `VisitRegister.save(visit, clientName)`: Foglio `TempoMax/Registro visite`, aggiorna la riga (ID in colonna H) o la aggiunge |
 | `src/storage/clientsRepository.ts` | `ClientsRepository.load()` / `save()` su `TempoMax/clienti.json` |
 | `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`) |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
-| `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`; `DriveError` con status |
+| `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`, `createEmptyFile`, `request` (anche per Sheets); `DriveError` con status |
 | `src/geo/distance.ts` | `distanceMeters` (Haversine, raggio GRS80), `findNearestClient`, `findClientAtPosition` (il più vicino tra i clienti che contengono la posizione nel raggio) |
 | `src/geo/currentPosition.ts` | `readCurrentPosition()` → `MeasuredPosition`; `GeolocationError` con `reason` |
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
@@ -64,9 +65,9 @@ docs/human/       # documentazione per l'utente/setup
 TempoMax/
   clienti.json
   task.json                         # da fare + da comprare
+  Registro visite                   # Foglio Google: una riga per visita, link Maps (vista derivata)
   visite/AAAA/AAAA-MM-GG_<idVisita>.json
   audio/AAAA/<idVisita>_<n>.<m4a|webm>
-  Registro ore (Foglio Google)
 ```
 
 ## Convenzioni del progetto

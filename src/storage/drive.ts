@@ -110,6 +110,16 @@ export class DriveClient {
     });
   }
 
+  /** Crea un file senza contenuto (cartella, Foglio Google…) e ne restituisce l'id. Senza genitore va in "Il mio Drive". */
+  async createEmptyFile(name: string, parentId: string | null, mimeType: string): Promise<string> {
+    const response = await this.request(`${DRIVE_API_URL}/files?fields=id`, {
+      method: 'POST',
+      headers: { 'Content-Type': JSON_MIME_TYPE },
+      body: JSON.stringify({ name, mimeType, ...(parentId && { parents: [parentId] }) }),
+    });
+    return parseFileId(await response.json(), 'create');
+  }
+
   private async findOrCreateFolder(name: string, parentId: string | null): Promise<string> {
     // Senza genitore cerchiamo ovunque: con lo scope drive.file l'app vede solo le cartelle create da lei.
     const parentClause = parentId ? ` and '${escapeQueryValue(parentId)}' in parents` : '';
@@ -119,12 +129,7 @@ export class DriveClient {
     if (existingId) {
       return existingId;
     }
-    const response = await this.request(`${DRIVE_API_URL}/files?fields=id`, {
-      method: 'POST',
-      headers: { 'Content-Type': JSON_MIME_TYPE },
-      body: JSON.stringify({ name, mimeType: FOLDER_MIME_TYPE, ...(parentId && { parents: [parentId] }) }),
-    });
-    return parseFileId(await response.json(), 'folder');
+    return this.createEmptyFile(name, parentId, FOLDER_MIME_TYPE);
   }
 
   /** Il più vecchio tra i file che soddisfano la query, così un eventuale duplicato non sostituisce l'originale. */
@@ -135,10 +140,11 @@ export class DriveClient {
     return first === undefined ? null : parseFileId(first, 'list.files[0]');
   }
 
-  private async request(url: string, init: RequestInit = {}): Promise<Response> {
+  /** Richiesta autenticata a un'API Google con lo stesso token (usata anche per la Sheets API). */
+  async request(url: string, init: RequestInit = {}): Promise<Response> {
     const accessToken = this.getAccessToken();
     if (!accessToken) {
-      throw new DriveError(401, 'Accesso Google scaduto: tocca "Accedi con Google"');
+      throw new DriveError(401, 'Accesso Google scaduto: riprova per accedere di nuovo');
     }
     const response = await fetch(url, {
       ...init,

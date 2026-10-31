@@ -34,11 +34,13 @@ function setup(overrides: Partial<VisitSessionDependencies> = {}) {
   const storage = memoryStorage();
   const saved: Visit[] = [];
   const repository = { save: vi.fn(async (visit: Visit) => void saved.push(structuredClone(visit))) };
+  const register = { save: vi.fn<(visit: Visit, clientName: string | null) => Promise<void>>().mockResolvedValue() };
   let clock = new Date(Date.UTC(2026, 9, 31, 8, 0, 0));
   const authorizedCalls: number[] = [];
   const dependencies: VisitSessionDependencies = {
     store: new LocalVisitStore(storage),
     repository,
+    register,
     loadClients: vi.fn().mockResolvedValue([villa]),
     readPosition: vi.fn().mockResolvedValue(atVilla),
     authorized: (action) => {
@@ -52,6 +54,7 @@ function setup(overrides: Partial<VisitSessionDependencies> = {}) {
     storage,
     saved,
     repository,
+    register,
     authorizedCalls,
     dependencies,
     session: new VisitSession(dependencies),
@@ -169,5 +172,24 @@ describe('VisitSession', () => {
     expect(repository.save).not.toHaveBeenCalled();
     expect(session.view().openVisit).not.toBeNull();
     expect(session.view().notice).toBe('Salvata sul telefono, non ancora su Drive: Finestra di accesso chiusa');
+  });
+
+  it('dopo il JSON aggiorna il registro con il nome del cliente', async () => {
+    const { session, register, advance } = setup();
+    await session.toggle();
+    advance(30);
+    await session.toggle();
+    const [lastVisit, clientName] = register.save.mock.calls.at(-1) ?? [];
+    expect(clientName).toBe('Villa Rossi');
+    expect(lastVisit?.checkOut?.at).toBe('2026-10-31T09:30:00+01:00');
+  });
+
+  it('se il registro fallisce la visita chiusa resta in coda', async () => {
+    const { session, register, advance } = setup();
+    await session.toggle();
+    advance(30);
+    register.save.mockRejectedValueOnce(new Error('Google Drive ha risposto 500'));
+    await session.toggle();
+    expect(session.view()).toMatchObject({ unsyncedCount: 1 });
   });
 });

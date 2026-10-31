@@ -4,6 +4,7 @@ import type { MeasuredPosition } from '../model/position';
 import { formatLocalIsoDateTime } from '../model/time';
 import { type Visit, endVisit, startVisit } from '../model/visit';
 import { type LocalVisitState, type LocalVisitStore, upsertVisit } from '../storage/localVisits';
+import type { VisitRegister } from '../storage/visitRegister';
 import type { VisitsRepository } from '../storage/visitsRepository';
 
 const errorText = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -11,6 +12,7 @@ const errorText = (error: unknown) => (error instanceof Error ? error.message : 
 export interface VisitSessionDependencies {
   store: Pick<LocalVisitStore, 'load' | 'save'>;
   repository: Pick<VisitsRepository, 'save'>;
+  register: Pick<VisitRegister, 'save'>;
   loadClients: () => Promise<Client[]>;
   readPosition: () => Promise<MeasuredPosition>;
   /** Garantisce un token valido prima dell'azione; va chiamato in modo sincrono dentro il tap. */
@@ -147,15 +149,24 @@ export class VisitSession {
   /** Salva la visita in corso e tutte quelle chiuse in attesa; toglie dalla coda solo la versione confermata. */
   private async saveToDrive(): Promise<void> {
     if (this.state.openVisit) {
-      await this.dependencies.repository.save(this.state.openVisit);
+      await this.saveVisit(this.state.openVisit);
     }
     for (const visit of [...this.state.unsyncedVisits]) {
-      await this.dependencies.repository.save(visit);
+      await this.saveVisit(visit);
       this.commit({
         ...this.state,
         unsyncedVisits: this.state.unsyncedVisits.filter((current) => current !== visit),
       });
     }
+  }
+
+  /** Prima il JSON (fonte di verità), poi la riga del registro: se il registro fallisce, la visita resta in coda. */
+  private async saveVisit(visit: Visit): Promise<void> {
+    await this.dependencies.repository.save(visit);
+    const clientName = visit.clientId
+      ? ((await this.loadClients()).find((client) => client.id === visit.clientId)?.name ?? null)
+      : null;
+    await this.dependencies.register.save(visit, clientName);
   }
 
   private updateVisit(id: string, change: (visit: Visit) => Visit): void {

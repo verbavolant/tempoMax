@@ -125,7 +125,7 @@
 - Dipende da: T-008a
 
 ### T-011b Registro: Foglio Google su Drive
-- Stato: [ ]
+- Stato: [~] codice e test pronti; manca la prova su Drive reale (una riga per visita, link cliccabili)
 - Obiettivo: creare `TempoMax/Registro visite` (Drive `files.create` con mimeType `application/vnd.google-apps.spreadsheet`, come indicato dalla guida Sheets "create"), scrivere l'intestazione, aggiornare la riga della visita (cercando l'ID in colonna H) o aggiungerla in fondo. Si chiama dalla coda di `VisitSession` dopo il JSON.
 - Done quando: dopo check-in e check-out nel foglio c'è **una sola** riga per la visita, con i link che aprono Maps.
 - File: `src/storage/drive.ts`, `src/storage/visitRegister.ts`, `src/storage/layout.ts`, `src/visits/visitSession.ts`, `src/main.ts`, test

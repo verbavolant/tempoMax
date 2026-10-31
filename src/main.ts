@@ -5,6 +5,7 @@ import { readCurrentPosition } from './geo/currentPosition';
 import { ClientsRepository } from './storage/clientsRepository';
 import { DriveClient, DriveError } from './storage/drive';
 import { LocalVisitStore } from './storage/localVisits';
+import { VisitRegister } from './storage/visitRegister';
 import { VisitsRepository } from './storage/visitsRepository';
 import { mountClientsScreen } from './ui/clients';
 import { errorMessage, requireElement } from './ui/dom';
@@ -37,6 +38,7 @@ try {
   const session = new VisitSession({
     store: new LocalVisitStore(window.localStorage),
     repository: new VisitsRepository(drive),
+    register: new VisitRegister(drive),
     loadClients: () => clientsRepository.load(),
     readPosition: readCurrentPosition,
     authorized,

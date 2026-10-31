@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-022, T-023, T-011a, T-011b (registro parziale)
+- Fatto: T-008b confermato dall'utente. T-022: `DEFAULT_CLIENT_RADIUS_METERS` = 200 (i clienti già salvati tengono il loro raggio). T-023: "👥 Clienti" è un pulsante (`.secondary-button`). T-011a: `src/geo/mapsLink.ts`, `visitDurationMinutes`, `src/register/visitRow.ts`. T-011b: `createEmptyFile` e `request` pubblico in `DriveClient`, `src/storage/visitRegister.ts`, `VisitSession` salva il JSON e poi la riga del registro, wiring in `src/main.ts`.
+- Stato: T-022, T-023, T-011a completi; T-011b parziale (manca la prova reale).
+- Verifica: `npm test` (141), typecheck, lint, build OK. Controprova: con "aggiungi sempre" al posto di "aggiorna la riga" fallisce il test anti-duplicati.
+- Prossimo passo: l'utente fa INIZIA/FINE e controlla `TempoMax/Registro visite` (intestazione + una riga, link cliccabili); poi T-010.
+- Trappole/note: creare il Foglio con Drive `files.create` + mimeType spreadsheet è documentato nella guida Sheets "Create" (non in quella Drive). Intervalli senza nome del foglio solo nella forma limitata "A1:B2" (documentata): ricerca dell'ID in `H1:H10000`. *Ipotesi*: un URL scritto RAW è cliccabile; da verificare. La durata usa l'arrotondamento al minuto più vicino (provvisorio, in `visitDurationMinutes`).
+
 ## [2026-10-31] — T-008b Pulsante unico INIZIA / FINE (parziale)
 - Fatto: `src/visits/visitSession.ts`, `src/ui/home.ts`, `formatElapsed` in `src/model/time.ts`, `src/main.ts` riscritto (Home all'avvio, Clienti come schermata secondaria; tolti i pulsanti "Accedi" ed "Esci"), stile del pulsante grande in `src/style.css`. Test: `tests/visits/visitSession.test.ts` (9), `formatElapsed` (6); totale 124.
 - Stato: parziale. Manca la prova manuale: INIZIA → ricarica → FINE con login e GPS reali, poi il JSON su Drive.

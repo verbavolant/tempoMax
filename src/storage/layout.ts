@@ -2,3 +2,4 @@
 export const ROOT_FOLDER = 'TempoMax';
 export const CLIENTS_FILE = 'clienti.json';
 export const VISITS_FOLDER = 'visite';
+export const REGISTER_FILE = 'Registro visite';
