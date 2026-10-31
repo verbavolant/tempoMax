@@ -1,7 +1,8 @@
+import { LOCAL_STORAGE_PREFIX } from '../config';
 import { type WorkPeriod, parseWorkPeriod, workPeriodDate } from '../model/work';
 import { ValidationError, expectArray, expectNonEmptyString, expectObject, expectUniqueIds } from '../model/validation';
 
-const STORAGE_KEY = 'tempomax.work';
+const STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}.work`;
 
 /**
  * Sul telefono: i periodi recenti (per il totale di oggi e il periodo in corso)

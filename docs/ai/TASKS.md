@@ -248,6 +248,23 @@
 - File: `src/ui/notePlayer.ts`, `src/ui/notes.ts`, `src/ui/visits.ts`, `src/main.ts`, `src/style.css`, test
 - Dipende da: T-021b, T-028c
 
+### T-031a Ambiente di prova: configurazione nel codice
+- Stato: [x]
+- Obiettivo: `VITE_APP_ENV` (`production` | `staging`) e `VITE_BASE` decidono nome dell'app ("TempoMax" / "TempoMax DEV"), icone (verdi / arancioni), cartella Drive (`TempoMax` / `TempoMax-dev`), prefisso dell'archivio locale e del database IndexedDB, cache del service worker separata per scope. Manifest generato da `vite.config.ts` (non più statico in `public/`).
+- Done quando: build di produzione invariata nei nomi; build di staging con nomi, icone e cartella diversi; test verdi.
+- File: `src/config.ts`, `src/storage/layout.ts`, `src/storage/localVisits.ts`, `src/storage/localWork.ts`, `src/storage/audioStore.ts`, `vite.config.ts`, `index.html`, `public/sw.js`, `public/icons-dev/*`
+- Note: decisione dell'utente del 2026-10-31 (ADR-008).
+
+### T-031b Ambiente di prova: repo, Pages e flusso di rilascio
+- Stato: [ ]
+- Obiettivo: repo pubblico `verbavolant/tempoMax-dev` (Pages: https://verbavolant.github.io/tempoMax-dev/); workflow che imposta ambiente e base dal nome del repo; ramo locale `dev` → `staging/main`; produzione (`origin/main`) **solo con conferma esplicita dell'utente**. Procedura in `docs/human/rilascio.md`.
+- Dipende da: T-031a
+
+### T-032 Nome del dispositivo + schermata Opzioni
+- Stato: [ ]
+- Obiettivo: richiesta dell'utente del 2026-10-31. Schermata "Opzioni" con "Nome di questo telefono" (chiesto al primo avvio, precompilato da un'ipotesi dal browser: il nome vero del telefono non è leggibile dal web). Il nome viene registrato in visite, note audio e periodi di lavoro (campo `device`, assente nei dati vecchi), nelle `appProperties` degli audio e in una colonna "Dispositivo" dei due fogli.
+- Dipende da: T-031b (si sviluppa già sul binario di prova)
+
 ### T-027 Posizione senza rete (da valutare)
 - Stato: [!] probabilmente risolto da un bug corretto il 2026-10-31: senza login (offline) l'aggiornamento della posizione veniva scartato. Da riverificare in modalità aereo prima di toccare il timeout.
 - Contesto: in modalità aereo l'utente ha visto visite senza posizione. *Ipotesi*: il GPS dell'iPhone può funzionare anche senza rete, ma l'aggancio è più lento e supera il timeout di 20 s (`POSITION_TIMEOUT_MS`). Possibili soluzioni: timeout più lungo, oppure un nuovo tentativo in background che aggiorna la visita.

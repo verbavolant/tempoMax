@@ -1,7 +1,8 @@
+import { LOCAL_STORAGE_PREFIX } from '../config';
 import { type AudioNote, type Visit, parseAudioNote, parseVisit } from '../model/visit';
 import { expectArray, expectObject, expectUniqueIds, nullable } from '../model/validation';
 
-const STORAGE_KEY = 'tempomax.visits';
+const STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}.visits`;
 
 /**
  * Ciò che vive sul telefono: la visita in corso, le visite non ancora confermate da Drive

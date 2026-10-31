@@ -42,6 +42,16 @@ jobs:
         run: npm run lint
       - name: Test
         run: npm test
+      - name: Choose environment
+        # ADR-008: il repo tempoMax-dev pubblica la versione di prova, tempoMax quella ufficiale.
+        run: |
+          repository_name="${GITHUB_REPOSITORY#*/}"
+          echo "VITE_BASE=/${repository_name}/" >> "$GITHUB_ENV"
+          if [[ "$repository_name" == "tempoMax-dev" ]]; then
+            echo "VITE_APP_ENV=staging" >> "$GITHUB_ENV"
+          else
+            echo "VITE_APP_ENV=production" >> "$GITHUB_ENV"
+          fi
       - name: Build
         run: npm run build
       - name: Setup Pages

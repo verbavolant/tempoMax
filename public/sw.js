@@ -1,6 +1,10 @@
 // Service worker di TempoMax: rete prima, cache come riserva, solo per i file dell'app (stessa origine).
 // Le API Google non passano da qui: senza rete le visite restano nell'archivio locale dell'app.
-const CACHE_NAME = 'tempomax-v1';
+// Versione ufficiale e di prova condividono l'origine, quindi CacheStorage (ADR-008): un nome per scope.
+const CACHE_PREFIX = `tempomax:${self.registration.scope}:`;
+const CACHE_NAME = `${CACHE_PREFIX}v1`;
+// Nome usato prima di T-031a, uguale per tutti gli scope.
+const LEGACY_CACHE_NAME = 'tempomax-v1';
 
 // Alla prima visita i file sono già stati scaricati prima che il service worker esistesse:
 // si mettono in cache la pagina e i file che essa referenzia, così l'app si apre subito anche offline.
@@ -42,7 +46,11 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       const names = await caches.keys();
-      await Promise.all(names.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name)));
+      // Solo le cache di questo scope (o quella vecchia senza scope): quelle dell'altra versione restano.
+      const obsolete = names.filter(
+        (name) => name === LEGACY_CACHE_NAME || (name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME),
+      );
+      await Promise.all(obsolete.map((name) => caches.delete(name)));
       await self.clients.claim();
     })(),
   );

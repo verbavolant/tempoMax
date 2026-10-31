@@ -27,9 +27,9 @@ docs/human/       # documentazione per l'utente/setup
 |------|----------------|
 | `src/main.ts` | bootstrap: registra il service worker (solo build), login Google caricato in background (l'app parte anche offline), `authorized()` (offline → errore immediato; token nel gesto; `invalidateToken` su 401), `VisitSession`, navigazione Home ↔ Clienti / Visite (`showSecondary`). Nessuna schermata di login: il token si chiede al primo tap |
 | `src/style.css` | stile mobile, chiaro/scuro |
-| `public/manifest.webmanifest` | manifest PWA (nome, icone 192/512 + maskable, standalone) |
-| `public/sw.js` | service worker: precache della pagina e dei file referenziati, network-first, solo stessa origine |
-| `public/icons/` | icone PNG (generate con Pillow: cronometro bianco su verde) |
+| `vite.config.ts` → `manifest.webmanifest` | manifest PWA generato per ambiente (nome, icone 192/512 + maskable, standalone) |
+| `public/sw.js` | service worker: precache della pagina e dei file referenziati, network-first, solo stessa origine; cache `tempomax:<scope>:v1` |
+| `public/icons/`, `public/icons-dev/` | icone PNG (Pillow: cronometro bianco su verde / arancione per la prova) |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, `addAudio()`/`removeAudio()` (solo in locale), `addFreeNote()`, `syncAfter(task)`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
 | `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (sempre: a visita aperta va alla visita, altrimenti nota libera; ⏹ avvia il salvataggio), riga di navigazione Clienti / Visite / Note vocali; in cima il pannello dell'orario di lavoro; blocco del doppio tap per 2 s |
@@ -78,6 +78,8 @@ docs/human/       # documentazione per l'utente/setup
 - Test: `npm test`
 - Lint/typecheck: `npm run lint` / `npm run typecheck`
 - Build: `npm run build` (typecheck + `vite build` → `dist/`)
+- Build di prova in locale: `VITE_APP_ENV=staging VITE_BASE=/tempoMax-dev/ npm run build`
+- Ambienti (ADR-008): `src/config.ts` (`IS_STAGING`, `LOCAL_STORAGE_PREFIX`, `DRIVE_ROOT_FOLDER`), plugin `appEnvironment` in `vite.config.ts` (nome, icone, manifest generato)
 
 ## Layout dati su Drive (ADR-003)
 ```

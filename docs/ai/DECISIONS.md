@@ -85,3 +85,12 @@
 - Motivazione: le note da cantiere sono brevi; con AAC il limite vale diversi minuti; nessuna dipendenza da un comportamento CORS non verificato.
 - Alternative scartate: upload resumable (rischio CORS non verificabile); ricostruire l'URI della sessione da `X-GUploader-UploadID` (formato non documentato).
 - Conseguenze: se servissero note più lunghe, verificare `Location` con un token reale e implementare il resumable.
+
+## ADR-008 — Ambiente di prova separato e rilascio solo su conferma
+- Data: 2026-10-31
+- Stato: accettata
+- Contesto: l'utente vuole provare le novità senza toccare la versione usata dal giardiniere; la produzione va aggiornata solo con la sua conferma esplicita.
+- Decisione: secondo repo `verbavolant/tempoMax-dev` con il proprio GitHub Pages (`/tempoMax-dev/`), alimentato dal ramo `dev`; `main` di `verbavolant/tempoMax` resta la produzione. La versione di prova ha nome "TempoMax DEV", icone arancioni, cartella Drive `TempoMax-dev` e archivio locale, database e cache con nomi propri.
+- Motivazione: GitHub Pages pubblica un solo sito per repo. Le due versioni condividono l'origine `https://verbavolant.github.io`, e con essa localStorage, IndexedDB e CacheStorage: senza nomi separati la versione di prova leggerebbe o cancellerebbe i dati di produzione. La stessa origine evita anche di modificare il client OAuth.
+- Alternative scartate: sottocartella dello stesso Pages (richiede di costruire due rami in un solo artefatto); Netlify o altri host (nuovo account e nuova origine OAuth); dati Drive in comune (le prove finirebbero nei registri ufficiali: scartato dall'utente).
+- Conseguenze: ogni push su `origin/main` pubblica in produzione e va fatto **solo** dopo il "sì" dell'utente. Il workflow ricava ambiente e base dal nome del repo.

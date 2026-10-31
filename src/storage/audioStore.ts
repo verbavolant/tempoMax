@@ -1,4 +1,5 @@
-const DATABASE_NAME = 'tempomax';
+import { LOCAL_STORAGE_PREFIX } from '../config';
+const DATABASE_NAME = LOCAL_STORAGE_PREFIX;
 const DATABASE_VERSION = 1;
 const STORE_NAME = 'audio';
 
