@@ -37,3 +37,14 @@ export function findNearestClient(position: Coordinates, clients: readonly Clien
   }
   return nearest;
 }
+
+/**
+ * Il cliente presso cui ci si trova: tra quelli che contengono la posizione nel proprio raggio, il più vicino.
+ * Non basta il più vicino in assoluto: un cliente più lontano ma con un raggio ampio può contenere la posizione.
+ */
+export function findClientAtPosition(position: Coordinates, clients: readonly Client[]): Client | null {
+  const containing = clients.filter(
+    (client) => client.location && distanceMeters(position, client.location) <= client.radiusMeters,
+  );
+  return findNearestClient(position, containing)?.client ?? null;
+}

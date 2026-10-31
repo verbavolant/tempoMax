@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-008a Visite: modello, archivio locale, Drive
+- Fatto: `src/model/visit.ts` (`clientId` nullable, `startVisit`, `endVisit`, `visitStorageLocation`), `src/storage/localVisits.ts`, `src/storage/visitsRepository.ts`, `VISITS_FOLDER` in `layout.ts`, `findClientAtPosition` in `src/geo/distance.ts`. T-008 diviso in T-008a/T-008b (troppi file per un solo task). Test: 109 passati.
+- Stato: completo.
+- Verifica: `npm test`, typecheck, lint OK. Controprova: con "il più vicino in assoluto" al posto di "il più vicino tra quelli che contengono la posizione" fallisce il test dedicato.
+- Prossimo passo: T-008b (`src/visits/visitSession.ts` + `src/ui/home.ts`, pulsante unico).
+- Trappole/note: anno e nome del file vengono dalla stringa locale `checkIn.at` (`slice`), non da `Date`, così una visita a mezzanotte e mezza del 1° gennaio finisce nel giorno locale giusto. *Ipotesi da verificare*: Safari può cancellare il localStorage dei siti non usati da giorni (ITP); per una PWA installata dovrebbe non valere. Le visite non sincronizzate restano a rischio finché non arrivano su Drive: verificare in T-010/T-019.
+
 ## [2026-10-31] — T-007 chiuso + ripianificazione della schermata principale
 - Fatto: T-007 verificato dall'utente. Su sua richiesta la UI principale diventa un pulsante unico, con il cliente facoltativo: aggiornati `PLAN.md`, `TASKS.md` (T-008 riscritto, T-009 rimandato, nuovo T-021) e ADR-006.
 - Stato: in attesa della risposta dell'utente sull'associazione automatica del cliente (TASKS → Bloccati).

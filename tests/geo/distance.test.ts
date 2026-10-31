@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { EARTH_MEAN_RADIUS_METERS, distanceMeters, findNearestClient } from '../../src/geo/distance';
+import {
+  EARTH_MEAN_RADIUS_METERS,
+  distanceMeters,
+  findClientAtPosition,
+  findNearestClient,
+} from '../../src/geo/distance';
 import type { Client } from '../../src/model/client';
 
 describe('distanceMeters', () => {
@@ -65,5 +70,43 @@ describe('findNearestClient', () => {
   it('restituisce null se nessun cliente ha una posizione', () => {
     expect(findNearestClient(here, [client('a'), client('b')])).toBeNull();
     expect(findNearestClient(here, [])).toBeNull();
+  });
+});
+
+describe('findClientAtPosition', () => {
+  const here = { latitude: 45.4642, longitude: 9.19 };
+  // 0,001° di latitudine ≈ 111 m (R·π/180 / 1000).
+  const north = (degrees: number) => ({ latitude: here.latitude + degrees, longitude: here.longitude });
+  const client = (id: string, radiusMeters: number, location?: Client['location']): Client => ({
+    id,
+    name: id,
+    radiusMeters,
+    createdAt: '2026-10-30T09:00:00+01:00',
+    ...(location && { location }),
+  });
+
+  it('riconosce il cliente se la posizione è entro il raggio', () => {
+    const villa = client('villa', 150, north(0.001));
+    expect(findClientAtPosition(here, [villa])).toBe(villa);
+  });
+
+  it('nessun cliente se la posizione è fuori dal raggio', () => {
+    expect(findClientAtPosition(here, [client('villa', 100, north(0.001))])).toBeNull();
+  });
+
+  it('preferisce un cliente più lontano che contiene la posizione a uno più vicino che non la contiene', () => {
+    const nearSmall = client('vicino-piccolo', 50, north(0.001));
+    const farLarge = client('lontano-grande', 500, north(-0.003));
+    expect(findClientAtPosition(here, [nearSmall, farLarge])).toBe(farLarge);
+  });
+
+  it('tra più clienti che contengono la posizione sceglie il più vicino', () => {
+    const near = client('vicino', 300, north(0.001));
+    const far = client('lontano', 300, north(0.002));
+    expect(findClientAtPosition(here, [far, near])).toBe(near);
+  });
+
+  it('ignora i clienti senza posizione', () => {
+    expect(findClientAtPosition(here, [client('senza', 10_000)])).toBeNull();
   });
 });

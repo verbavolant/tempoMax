@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type Visit, parseVisit } from '../../src/model/visit';
+import { type Visit, endVisit, parseVisit, startVisit, visitStorageLocation } from '../../src/model/visit';
 
 const closedVisit: Visit = {
   schemaVersion: 1,
@@ -50,5 +50,56 @@ describe('parseVisit', () => {
     const withoutNote: Partial<Visit> = { ...closedVisit };
     delete withoutNote.note;
     expect(() => parseVisit(withoutNote)).toThrow('visita.note: attesa una stringa');
+  });
+});
+
+describe('cliente facoltativo', () => {
+  it('accetta una visita senza cliente', () => {
+    const withoutClient = { ...closedVisit, clientId: null };
+    expect(parseVisit(withoutClient)).toStrictEqual(withoutClient);
+  });
+
+  it('rifiuta un clientId vuoto', () => {
+    expect(() => parseVisit({ ...closedVisit, clientId: '' })).toThrow('visita.clientId: stringa vuota');
+  });
+});
+
+describe('startVisit / endVisit', () => {
+  it('apre una visita senza cliente né posizione', () => {
+    const visit = startVisit('2026-10-31T08:00:00+01:00');
+    expect(visit).toMatchObject({
+      schemaVersion: 1,
+      clientId: null,
+      checkIn: { at: '2026-10-31T08:00:00+01:00', position: null },
+      checkOut: null,
+      note: '',
+    });
+    expect(visit.id).not.toBe(startVisit('2026-10-31T08:00:00+01:00').id);
+  });
+
+  it('chiude la visita conservando il resto', () => {
+    const open = { ...startVisit('2026-10-31T08:00:00+01:00'), clientId: 'c-1' };
+    expect(endVisit(open, '2026-10-31T10:30:00+01:00')).toStrictEqual({
+      ...open,
+      checkOut: { at: '2026-10-31T10:30:00+01:00', position: null },
+    });
+  });
+
+  it('rifiuta di chiudere due volte o prima del check-in', () => {
+    expect(() => endVisit(closedVisit, '2026-10-30T12:00:00+01:00')).toThrow('visita già chiusa');
+    const open = startVisit('2026-10-31T08:00:00+01:00');
+    expect(() => endVisit(open, '2026-10-31T07:59:00+01:00')).toThrow('check-out precedente al check-in');
+  });
+
+  it('rifiuta un orario senza fuso', () => {
+    expect(() => startVisit('2026-10-31T08:00:00')).toThrow('visita.checkIn.at');
+  });
+});
+
+describe('visitStorageLocation', () => {
+  it('usa la data locale del check-in anche quando in UTC sarebbe il giorno prima', () => {
+    // 00:30 a Roma (+01:00) corrisponde alle 23:30 UTC del 31 dicembre: conta il giorno locale.
+    const visit = { ...closedVisit, id: 'v-7', checkIn: { at: '2027-01-01T00:30:00+01:00', position: null }, checkOut: null };
+    expect(visitStorageLocation(visit)).toEqual({ year: '2027', fileName: '2027-01-01_v-7.json' });
   });
 });

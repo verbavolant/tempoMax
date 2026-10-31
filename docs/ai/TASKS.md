@@ -70,31 +70,38 @@
 - File: `src/ui/clients.ts`, `src/storage/`
 - Dipende da: T-004, T-006
 
-### T-008 Schermata principale: pulsante unico Check-in / Check-out
-- Stato: [ ]
-- Obiettivo: la schermata principale è **un solo pulsante grande**. Senza visita in corso il pulsante dice "INIZIA" e fa il check-in; con una visita in corso dice "FINE", mostra da quanto tempo è iniziata e fa il check-out. Il cliente **non è obbligatorio** (ADR-006). La posizione si legge se possibile: se il GPS fallisce o va in timeout la visita parte lo stesso. La visita aperta si salva subito in locale e poi su Drive (`visite/AAAA/AAAA-MM-GG_<id>.json`).
-- Done quando: check-in → ricarico la pagina → la visita in corso c'è ancora; check-out → su Drive c'è il JSON chiuso con orari e posizioni; tutto funziona anche senza alcun cliente in anagrafica.
-- File: `src/model/visit.ts` (`clientId` nullable), `src/storage/visitsRepository.ts`, `src/ui/home.ts`, `src/main.ts`, test
+### T-008a Visite: modello, archivio locale, salvataggio su Drive
+- Stato: [x]
+- Obiettivo: `Visit.clientId` nullable; helper `startVisit` / `endVisit` / `visitStorageLocation`; `LocalVisitStore` (localStorage: visita aperta + visite non ancora salvate su Drive); `VisitsRepository.save` in `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json`; `findClientAtPosition` (il cliente più vicino tra quelli che contengono la posizione nel loro raggio).
+- Done quando: test su modello, archivio locale, repository e ricerca del cliente.
+- File: `src/model/visit.ts`, `src/storage/localVisits.ts`, `src/storage/visitsRepository.ts`, `src/storage/layout.ts`, `src/geo/distance.ts`, test
 - Dipende da: T-004, T-006
-- Note: l'anagrafica clienti (T-007) resta raggiungibile da un link piccolo e secondario. Nessuna nota né altro sulla schermata: si aggiunge dopo. Associazione automatica del cliente al check-in: **da decidere con l'utente** (vedi "Bloccati").
+
+### T-008b Schermata principale: pulsante unico INIZIA / FINE
+- Stato: [ ]
+- Obiettivo: un solo pulsante grande. INIZIA fa il check-in, FINE (con il tempo trascorso) fa il check-out. L'orario si registra **al tap**; GPS, cliente automatico e salvataggio su Drive avvengono dopo, in sequenza, e se falliscono la visita resta in locale con l'indicazione "da salvare su Drive". Sotto il pulsante, in piccolo, il nome del cliente se riconosciuto. Link secondario "Clienti ›".
+- Done quando: check-in → ricarico → la visita in corso c'è ancora; check-out → JSON chiuso su Drive con orari e posizioni; funziona senza clienti e senza GPS.
+- File: `src/visits/visitSession.ts` (logica testabile), `src/ui/home.ts`, `src/main.ts`, `src/style.css`, test
+- Dipende da: T-008a
+- Note: cliente automatico **sì**, se la posizione è entro il raggio di un cliente (decisione dell'utente del 2026-10-31); si potrà cambiare dopo (T-021).
 
 ### T-009 Nota testuale alla visita
 - Stato: [ ] (rimandato su richiesta dell'utente: la schermata principale deve restare essenziale)
 - Obiettivo: aggiungere una nota testuale a una visita, in corso o chiusa.
-- Dipende da: T-008
+- Dipende da: T-008b
 
 ### T-021 Assegnare il cliente a una visita in seguito
 - Stato: [ ]
 - Obiettivo: in una schermata secondaria, elenco delle visite recenti con la possibilità di assegnare o cambiare il cliente (o lasciarlo vuoto).
 - Done quando: una visita senza cliente riceve un cliente e il JSON su Drive viene aggiornato.
-- Dipende da: T-008
+- Dipende da: T-008b
 
 ### T-010 Deploy HTTPS + test su iPhone
 - Stato: [ ]
 - Obiettivo: pubblicazione su hosting statico HTTPS e test end-to-end su iPhone.
 - Done quando: URL pubblico funzionante; checklist di test manuale in `docs/human/` eseguita ed esito annotato in PROGRESS.
 - File: config di deploy (GitHub Actions), `vite.config.ts` (`base`), `docs/human/`
-- Dipende da: T-008
+- Dipende da: T-008b
 - Note: GitHub Pages, account `verbavolant`. L'origine OAuth di produzione è `https://verbavolant.github.io`; URL dell'app: `https://verbavolant.github.io/tempoMax/` (Vite `base: '/tempoMax/'`).
 
 ## Fase 2 — Fatturazione ore
@@ -167,5 +174,4 @@
 
 ## Bloccati / da chiarire
 > Task fermi in attesa di una decisione umana o di un'informazione mancante.
-- **T-008 Cliente automatico al check-in?** Se il GPS trova un cliente entro il suo raggio, la visita gli viene associata da sola (e si può cambiare dopo), oppure resta sempre senza cliente finché lui non lo indica?
 - **T-012 Arrotondamento ore**: per ora si usano i minuti esatti (nessun arrotondamento). La regola definitiva (quarti d'ora, minimo per uscita, ecc.) la deciderà l'utente: implementarla come funzione isolata e sostituibile.

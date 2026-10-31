@@ -74,4 +74,5 @@
 - Decisione: `Visit.clientId` diventa `string | null`. La schermata principale ha solo il pulsante INIZIA/FINE e il tempo trascorso. Anagrafica e assegnazione del cliente vivono in schermate secondarie.
 - Motivazione: registrare l'orario non deve dipendere da nessuna scelta; il dato più importante (le ore) non va mai perso.
 - Alternative scartate: scegliere il cliente al check-in, come previsto prima in T-008 (attrito sul campo).
+- Aggiornamento 2026-10-31: l'utente ha scelto l'**associazione automatica**. Al check-in, se la posizione cade nel raggio di uno o più clienti, si associa il più vicino; altrimenti `clientId` resta `null`. L'orario si registra al tap, mentre GPS e salvataggio avvengono dopo.
 - Conseguenze: il registro ore (T-011) e i riepiloghi (T-012) devono gestire le visite "senza cliente". Nessuna visita è ancora stata salvata, quindi il cambio non richiede una nuova `SCHEMA_VERSION`. `Task.clientId` resta obbligatorio per ora: da rivedere in Fase 4.

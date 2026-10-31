@@ -30,17 +30,19 @@ docs/human/       # documentazione per l'utente/setup
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista, form nuovo/modifica, "Sono qui adesso" |
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
+| `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
+| `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json` |
 | `src/storage/clientsRepository.ts` | `ClientsRepository.load()` / `save()` su `TempoMax/clienti.json` |
 | `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso) |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
 | `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`; `DriveError` con status |
-| `src/geo/distance.ts` | `distanceMeters` (Haversine, raggio GRS80), `findNearestClient` (ignora i clienti senza posizione) |
+| `src/geo/distance.ts` | `distanceMeters` (Haversine, raggio GRS80), `findNearestClient`, `findClientAtPosition` (il più vicino tra i clienti che contengono la posizione nel raggio) |
 | `src/geo/currentPosition.ts` | `readCurrentPosition()` → `MeasuredPosition`; `GeolocationError` con `reason` |
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
 | `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
 | `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument`, `buildClient`, `newClientIdentity`, `DEFAULT_CLIENT_RADIUS_METERS` (150) |
-| `src/model/visit.ts` | `Visit`, `VisitEvent`, `parseVisit` (un file per visita) |
+| `src/model/visit.ts` | `Visit` (`clientId` nullable), `VisitEvent`, `parseVisit`, `startVisit`, `endVisit`, `visitStorageLocation` |
 | `src/model/task.ts` | `Task` (`todo` / `purchase`), `TasksDocument` (`task.json`), `parseTasksDocument` |
 | `vite.config.ts` | config di Vite + Vitest |
 | `eslint.config.js` | lint (flat config, typescript-eslint) |
