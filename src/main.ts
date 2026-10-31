@@ -56,7 +56,7 @@ try {
     unmountCurrent();
     unmountCurrent = () => session.invalidateClients();
     appRoot.innerHTML = `
-      <button id="back-home" type="button" class="link-button">‹ Indietro</button>
+      <button id="back-home" type="button" class="secondary-button">‹ Indietro</button>
       <div id="clients-screen"></div>
     `;
     requireElement<HTMLButtonElement>(appRoot, '#back-home').addEventListener('click', showHome);

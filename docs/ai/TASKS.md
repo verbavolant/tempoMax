@@ -95,6 +95,18 @@
 - Obiettivo: "Clienti" nella home diventa un pulsante vero, non un link.
 - File: `src/ui/home.ts`, `src/style.css`
 
+### T-024 Pulsante "Indietro" nella pagina Clienti
+- Stato: [x]
+- Obiettivo: "‹ Indietro" diventa un pulsante vero, come "👥 Clienti" nella home (richiesta dell'utente del 2026-10-31).
+- File: `src/main.ts`
+
+### T-025 Evidenziare il cliente presso cui ci si trova
+- Stato: [ ]
+- Obiettivo: aprendo la pagina Clienti si legge il GPS e si evidenzia il cliente dato da `findClientAtPosition` (stessa regola del check-in). Se il GPS non risponde, non si evidenzia nulla.
+- Done quando: in un punto dentro il raggio di un cliente, quel cliente appare evidenziato con "📍 Sei qui".
+- File: `src/ui/clients.ts`, `src/style.css`
+- Dipende da: T-006, T-007
+
 ### T-009 Nota testuale alla visita
 - Stato: [ ] (rimandato su richiesta dell'utente: la schermata principale deve restare essenziale)
 - Obiettivo: aggiungere una nota testuale a una visita, in corso o chiusa.
@@ -107,7 +119,7 @@
 - Dipende da: T-008b
 
 ### T-010 Deploy HTTPS + test su iPhone
-- Stato: [~] online su https://verbavolant.github.io/tempoMax/ (Action verde); manca l'esecuzione di `docs/human/test-telefono.md` su iPhone
+- Stato: [x] online e verificato dall'utente su iPhone ("funziona come volevo", 2026-10-31)
 - Obiettivo: pubblicazione su hosting statico HTTPS e test end-to-end su iPhone.
 - Done quando: URL pubblico funzionante; checklist di test manuale in `docs/human/` eseguita ed esito annotato in PROGRESS.
 - File: config di deploy (GitHub Actions), `vite.config.ts` (`base`), `docs/human/`

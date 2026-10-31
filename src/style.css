@@ -177,10 +177,3 @@ textarea {
   border: 2px solid var(--accent);
   color: var(--accent);
 }
-
-.link-button {
-  border: none;
-  background: none;
-  color: var(--muted);
-  text-decoration: underline;
-}
