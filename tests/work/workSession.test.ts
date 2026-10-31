@@ -24,6 +24,7 @@ function setup(overrides: Partial<WorkSessionDependencies> = {}) {
       return action();
     },
     now: () => clock,
+    deviceName: () => 'iPhone di prova',
     ...overrides,
   };
   return {
@@ -58,6 +59,12 @@ describe('WorkSession', () => {
     expect(saved).toHaveLength(1);
     expect(register.save).toHaveBeenCalledTimes(1);
     expect(session.view().unsyncedCount).toBe(0);
+  });
+
+  it('registra nel periodo il nome del dispositivo', async () => {
+    const { session, saved } = setup();
+    await session.start();
+    expect(saved[0]?.device).toBe('iPhone di prova');
   });
 
   it('pausa pranzo: due periodi, il totale esclude la pausa', async () => {

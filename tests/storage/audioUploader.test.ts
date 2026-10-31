@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { type AudioNote, startVisit } from '../../src/model/visit';
 import { AudioUploader, audioAppProperties, audioFileExtension, audioFileName } from '../../src/storage/audioUploader';
 
-const visit = { ...startVisit('2026-10-31T09:00:00+01:00'), id: 'v-1' };
+const visit = { ...startVisit('2026-10-31T09:00:00+01:00', null), id: 'v-1' };
 const note: AudioNote = {
   id: 'a-1',
   recordedAt: '2026-10-31T09:10:00+01:00',
@@ -10,6 +10,7 @@ const note: AudioNote = {
   durationSeconds: 12,
   driveFileId: null,
   driveLink: null,
+  device: null,
 };
 
 describe('audioFileExtension', () => {
@@ -40,6 +41,11 @@ describe('audioAppProperties', () => {
       recordedAt: '2026-10-31T09:10:00+01:00',
       durationSeconds: '12',
     });
+  });
+
+  it('aggiunge il dispositivo se indicato', () => {
+    expect(audioAppProperties(null, { ...note, device: 'iPhone di Mario' }).device).toBe('iPhone di Mario');
+    expect(audioAppProperties(null, note)).not.toHaveProperty('device');
   });
 
   it('ogni coppia chiave-valore sta nei 124 byte UTF-8 consentiti da Drive', () => {

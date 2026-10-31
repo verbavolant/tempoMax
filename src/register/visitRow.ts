@@ -10,11 +10,12 @@ export const REGISTER_HEADER = [
   'Mappa inizio',
   'Mappa fine',
   'ID visita',
-  // In fondo, dopo l'ID: i fogli creati prima della colonna Audio restano coerenti.
+  // Le colonne nuove vanno in fondo, dopo l'ID: i fogli già esistenti restano coerenti.
   'Audio',
+  'Dispositivo',
 ] as const;
 
-export type RegisterRow = [string, string, string, number | '', string, string, string, string, string];
+export type RegisterRow = [string, string, string, number | '', string, string, string, string, string, string];
 
 /** Indice (da 0) della colonna con l'ID: serve per ritrovare la riga di una visita. */
 export const REGISTER_ID_COLUMN_INDEX = REGISTER_HEADER.indexOf('ID visita');
@@ -36,5 +37,6 @@ export function visitToRow(visit: Visit, clientName: string | null): RegisterRow
     visit.id,
     // Un link per riga della cella; solo le note già caricate su Drive.
     visit.audio.flatMap((note) => (note.driveLink ? [note.driveLink] : [])).join('\n'),
+    visit.device ?? '',
   ];
 }

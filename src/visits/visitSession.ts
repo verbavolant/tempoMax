@@ -21,6 +21,8 @@ export interface VisitSessionDependencies {
   /** Garantisce un token valido prima dell'azione; va chiamato in modo sincrono dentro il tap. */
   authorized: <T>(action: () => Promise<T>) => Promise<T>;
   now: () => Date;
+  /** Nome di questo dispositivo dalle Opzioni (T-032), registrato con visite e note. */
+  deviceName: () => string | null;
 }
 
 export interface VisitSessionView {
@@ -75,6 +77,11 @@ export class VisitSession {
     return () => this.listeners.delete(listener);
   }
 
+  /** Nome del dispositivo da registrare con una nuova nota vocale. */
+  currentDeviceName(): string | null {
+    return this.dependencies.deviceName();
+  }
+
   /** Da chiamare quando l'anagrafica cambia, così il prossimo check-in la rilegge. */
   invalidateClients(): void {
     this.clients = null;
@@ -96,7 +103,7 @@ export class VisitSession {
         );
       });
     }
-    const started = startVisit(at);
+    const started = startVisit(at, this.dependencies.deviceName());
     this.commit({ ...this.state, openVisit: started });
     return this.enqueueSync(async () => {
       const checkInPosition = await position;

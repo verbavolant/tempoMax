@@ -57,6 +57,7 @@ function setup(overrides: Partial<VisitSessionDependencies> = {}) {
       return action();
     },
     now: () => clock,
+    deviceName: () => 'iPhone di prova',
     ...overrides,
   };
   return {
@@ -96,6 +97,13 @@ describe('VisitSession', () => {
     );
     // Il token va chiesto nel tap stesso, non dopo un await.
     expect(authorizedCalls).toHaveLength(1);
+  });
+
+  it('registra nella visita il nome del dispositivo', async () => {
+    const { session, lastSaved } = setup();
+    await session.toggle();
+    expect(lastSaved()?.device).toBe('iPhone di prova');
+    expect(session.currentDeviceName()).toBe('iPhone di prova');
   });
 
   it('associa il cliente entro il raggio e salva su Drive con la posizione', async () => {
@@ -238,6 +246,7 @@ describe('VisitSession', () => {
         checkOut: { at: '2026-10-30T10:00:00+01:00', position: null },
         note: '',
         audio: [],
+        device: null,
       };
       await session.assignClient(fromDrive, 'c-villa');
       expect(lastSaved()).toEqual({ ...fromDrive, clientId: 'c-villa' });
@@ -255,6 +264,7 @@ describe('VisitSession', () => {
         checkOut: { at: '2026-10-30T10:00:00+01:00', position: null },
         note: '',
         audio: [],
+        device: null,
       };
       repository.save.mockRejectedValueOnce(new Error('rete assente'));
       await session.assignClient(fromDrive, null);
@@ -270,6 +280,7 @@ describe('VisitSession', () => {
       durationSeconds: 12,
       driveFileId: null,
       driveLink: null,
+      device: null,
     };
 
     it('aggiunge e toglie una nota dalla visita in corso, in locale', async () => {

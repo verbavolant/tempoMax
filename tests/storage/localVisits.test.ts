@@ -12,9 +12,9 @@ function memoryStorage(initial: Record<string, string> = {}) {
   };
 }
 
-const open: Visit = startVisit('2026-10-31T08:00:00+01:00');
+const open: Visit = startVisit('2026-10-31T08:00:00+01:00', null);
 const closed: Visit = {
-  ...startVisit('2026-10-30T08:00:00+01:00'),
+  ...startVisit('2026-10-30T08:00:00+01:00', null),
   checkOut: { at: '2026-10-30T09:00:00+01:00', position: null },
 };
 
@@ -32,6 +32,7 @@ describe('LocalVisitStore', () => {
       durationSeconds: 8,
       driveFileId: null,
       driveLink: null,
+      device: null,
     };
     const state = { openVisit: open, unsyncedVisits: [closed], freeNotes: [freeNote] };
     new LocalVisitStore(storage).save(state);

@@ -13,6 +13,8 @@ export interface WorkSessionDependencies {
   /** Garantisce un token valido prima dell'azione; va chiamato in modo sincrono dentro il tocco. */
   authorized: <T>(action: () => Promise<T>) => Promise<T>;
   now: () => Date;
+  /** Nome di questo dispositivo dalle Opzioni (T-032), registrato con ogni periodo. */
+  deviceName: () => string | null;
 }
 
 export interface WorkSessionView {
@@ -58,7 +60,7 @@ export class WorkSession {
   /** "Inizio lavoro". Se si sta già lavorando non apre un secondo periodo, ma riprova il salvataggio. */
   start(): Promise<void> {
     if (!this.view().currentPeriod) {
-      const period = startWorkPeriod(this.nowIso());
+      const period = startWorkPeriod(this.nowIso(), this.dependencies.deviceName());
       this.commit({ periods: [...this.state.periods, period], unsyncedIds: [...this.state.unsyncedIds, period.id] });
     }
     return this.enqueueSync();

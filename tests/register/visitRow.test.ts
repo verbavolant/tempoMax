@@ -12,6 +12,7 @@ const closed: Visit = {
   checkOut: { at: '2026-10-31T11:35:29+01:00', position: position(45.4643, 9.1901) },
   note: '',
   audio: [],
+  device: null,
 };
 
 describe('visitToRow', () => {
@@ -25,6 +26,7 @@ describe('visitToRow', () => {
       'https://www.google.com/maps/search/?api=1&query=45.4642%2C9.19',
       'https://www.google.com/maps/search/?api=1&query=45.4643%2C9.1901',
       'v-1',
+      '',
       '',
     ]);
   });
@@ -40,6 +42,7 @@ describe('visitToRow', () => {
       '',
       'v-1',
       '',
+      '',
     ]);
   });
 
@@ -50,7 +53,7 @@ describe('visitToRow', () => {
       checkIn: { ...closed.checkIn, position: null },
       checkOut: { at: '2026-10-31T09:05:40+01:00', position: null },
     };
-    expect(visitToRow(bare, null)).toEqual(['31/10/2026', '09:05', '09:05', 1, '', '', '', 'v-1', '']);
+    expect(visitToRow(bare, null)).toEqual(['31/10/2026', '09:05', '09:05', 1, '', '', '', 'v-1', '', '']);
   });
 
   it("l'ID è nella colonna indicata da REGISTER_ID_COLUMN_INDEX", () => {
@@ -60,7 +63,7 @@ describe('visitToRow', () => {
   });
 
   it('elenca nella colonna Audio i link delle note caricate, uno per riga', () => {
-    const note = { id: 'a', recordedAt: '2026-10-31T09:10:00+01:00', mimeType: 'audio/mp4', durationSeconds: 5 };
+    const note = { id: 'a', recordedAt: '2026-10-31T09:10:00+01:00', mimeType: 'audio/mp4', durationSeconds: 5, device: null };
     const withAudio: Visit = {
       ...closed,
       audio: [
@@ -69,8 +72,13 @@ describe('visitToRow', () => {
         { ...note, id: 'a-3', driveFileId: 'f-3', driveLink: 'https://drive.google.com/file/d/f-3/view' },
       ],
     };
-    expect(visitToRow(withAudio, null).at(-1)).toBe(
+    expect(visitToRow(withAudio, null).at(-2)).toBe(
       'https://drive.google.com/file/d/f-1/view\nhttps://drive.google.com/file/d/f-3/view',
     );
+  });
+
+  it("riporta nell'ultima colonna il dispositivo che ha registrato la visita", () => {
+    expect(visitToRow({ ...closed, device: 'iPhone di Mario' }, null).at(-1)).toBe('iPhone di Mario');
+    expect(REGISTER_HEADER.at(-1)).toBe('Dispositivo');
   });
 });

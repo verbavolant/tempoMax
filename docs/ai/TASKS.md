@@ -260,10 +260,18 @@
 - Obiettivo: repo pubblico `verbavolant/tempoMax-dev` (Pages: https://verbavolant.github.io/tempoMax-dev/); workflow che imposta ambiente e base dal nome del repo; ramo locale `dev` → `staging/main`; produzione (`origin/main`) **solo con conferma esplicita dell'utente**. Procedura in `docs/human/rilascio.md`.
 - Dipende da: T-031a
 
-### T-032 Nome del dispositivo + schermata Opzioni
+### T-032a Nome del dispositivo: dati
+- Stato: [x]
+- Obiettivo: campo `device: string | null` (assente nei dati vecchi = null) in `Visit`, `AudioNote`, `WorkPeriod`; `appProperties.device` sugli audio; colonna "Dispositivo" in fondo ai due fogli; `DeviceSettings` (localStorage `<prefisso>.device`, max 40 caratteri) e `guessDeviceName(userAgent)`; le sessioni ricevono `deviceName()`.
+- Done quando: test di modello, righe, sessioni e impostazioni.
+- File: `src/model/visit.ts`, `src/model/work.ts`, `src/device.ts`, `src/register/*.ts`, `src/storage/audioUploader.ts`, `src/visits/visitSession.ts`, `src/work/workSession.ts`, test
+- Note: richiesta dell'utente del 2026-10-31; il nome lo scrive l'utente perché il web non può leggere il nome del telefono.
+
+### T-032b Nome del dispositivo: schermata Opzioni
 - Stato: [ ]
-- Obiettivo: richiesta dell'utente del 2026-10-31. Schermata "Opzioni" con "Nome di questo telefono" (chiesto al primo avvio, precompilato da un'ipotesi dal browser: il nome vero del telefono non è leggibile dal web). Il nome viene registrato in visite, note audio e periodi di lavoro (campo `device`, assente nei dati vecchi), nelle `appProperties` degli audio e in una colonna "Dispositivo" dei due fogli.
-- Dipende da: T-031b (si sviluppa già sul binario di prova)
+- Obiettivo: schermata "⚙️ Opzioni" con "Nome di questo telefono" (precompilato da `guessDeviceName`); finché non è impostato la home mostra "📱 Dai un nome a questo telefono"; pulsante ⚙️ nella riga di navigazione. Qui arriverà anche il GPS disattivabile (T-026).
+- File: `src/ui/options.ts`, `src/ui/home.ts`, `src/main.ts`, `src/style.css`
+- Dipende da: T-032a
 
 ### T-027 Posizione senza rete (da valutare)
 - Stato: [!] probabilmente risolto da un bug corretto il 2026-10-31: senza login (offline) l'aggiornamento della posizione veniva scartato. Da riverificare in modalità aereo prima di toccare il timeout.

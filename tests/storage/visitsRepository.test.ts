@@ -11,12 +11,12 @@ function fakeDrive(files: Record<string, unknown> = {}) {
   };
 }
 
-const visitAt = (id: string, at: string): Visit => ({ ...startVisit(at), id });
+const visitAt = (id: string, at: string): Visit => ({ ...startVisit(at, null), id });
 
 describe('VisitsRepository.save', () => {
   it("salva la visita nella cartella dell'anno con data e id nel nome", async () => {
     const drive = fakeDrive();
-    const visit = startVisit('2026-10-31T08:00:00+01:00');
+    const visit = startVisit('2026-10-31T08:00:00+01:00', null);
     await new VisitsRepository(drive).save(visit);
     expect(drive.ensureFolderPath).toHaveBeenCalledWith(['TempoMax', 'visite', '2026']);
     expect(drive.writeJson).toHaveBeenCalledWith(`2026-10-31_${visit.id}.json`, 'year-folder', visit);
@@ -24,7 +24,7 @@ describe('VisitsRepository.save', () => {
 
   it('non scrive una visita non valida', async () => {
     const drive = fakeDrive();
-    const invalid = { ...startVisit('2026-10-31T08:00:00+01:00'), id: '' };
+    const invalid = { ...startVisit('2026-10-31T08:00:00+01:00', null), id: '' };
     await expect(new VisitsRepository(drive).save(invalid)).rejects.toThrow('visita.id');
     expect(drive.ensureFolderPath).not.toHaveBeenCalled();
   });

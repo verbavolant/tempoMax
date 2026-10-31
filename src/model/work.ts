@@ -6,6 +6,7 @@ import {
   expectIsoDateTime,
   expectNonEmptyString,
   expectObject,
+  expectOptionalNonEmptyString,
   expectSchemaVersion,
   expectUniqueIds,
   nullable,
@@ -17,6 +18,8 @@ export interface WorkPeriod {
   start: string;
   /** null finché si sta lavorando. */
   end: string | null;
+  /** Nome del dispositivo che ha registrato il periodo (T-032); null se non indicato o nei dati vecchi. */
+  device: string | null;
 }
 
 /** Contenuto di `lavoro/AAAA/AAAA-MM-GG.json` su Drive: i periodi iniziati in quel giorno. */
@@ -35,6 +38,7 @@ export function parseWorkPeriod(value: unknown, path: string): WorkPeriod {
     id: expectNonEmptyString(object.id, `${path}.id`),
     start: expectIsoDateTime(object.start, `${path}.start`),
     end: nullable(object.end, (present) => expectIsoDateTime(present, `${path}.end`)),
+    device: expectOptionalNonEmptyString(object.device, `${path}.device`),
   };
   if (period.end && Date.parse(period.end) < Date.parse(period.start)) {
     throw new ValidationError(`${path}.end`, 'fine precedente all’inizio');
@@ -58,8 +62,8 @@ export function parseWorkDayDocument(value: unknown): WorkDayDocument {
   return { schemaVersion, date, periods };
 }
 
-export function startWorkPeriod(at: string): WorkPeriod {
-  return parseWorkPeriod({ id: crypto.randomUUID(), start: at, end: null }, 'periodo');
+export function startWorkPeriod(at: string, device: string | null): WorkPeriod {
+  return parseWorkPeriod({ id: crypto.randomUUID(), start: at, end: null, device }, 'periodo');
 }
 
 export function endWorkPeriod(period: WorkPeriod, at: string): WorkPeriod {

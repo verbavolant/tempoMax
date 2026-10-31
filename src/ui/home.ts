@@ -165,6 +165,7 @@ export function mountHomeScreen(
         durationSeconds,
         driveFileId: null,
         driveLink: null,
+        device: session.currentDeviceName(),
       };
       // Prima il file sul telefono, poi il riferimento: mai un riferimento senza file.
       await audioStore.put(note.id, audio);

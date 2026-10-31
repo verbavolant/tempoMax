@@ -7,8 +7,8 @@ function memoryStorage(initial: Record<string, string> = {}) {
   return { items, getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
 }
 
-const yesterday: WorkPeriod = { id: 'ieri', start: '2026-10-30T08:00:00+01:00', end: '2026-10-30T17:00:00+01:00' };
-const today: WorkPeriod = { id: 'oggi', start: '2026-10-31T07:30:00+01:00', end: null };
+const yesterday: WorkPeriod = { id: 'ieri', start: '2026-10-30T08:00:00+01:00', end: '2026-10-30T17:00:00+01:00', device: null };
+const today: WorkPeriod = { id: 'oggi', start: '2026-10-31T07:30:00+01:00', end: null, device: null };
 
 describe('LocalWorkStore', () => {
   it('senza dati restituisce lo stato vuoto e rilegge ciò che salva', () => {

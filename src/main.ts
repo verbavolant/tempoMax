@@ -16,6 +16,7 @@ import { mountVisitsScreen } from './ui/visits';
 import { mountNotesScreen } from './ui/notes';
 import { AudioCatalog } from './storage/audioCatalog';
 import { formatLocalIsoDateTime } from './model/time';
+import { DeviceSettings } from './device';
 import { VisitSession } from './visits/visitSession';
 import { WorkSession } from './work/workSession';
 import { LocalWorkStore } from './storage/localWork';
@@ -79,6 +80,8 @@ try {
     }
   };
 
+  const deviceSettings = new DeviceSettings(window.localStorage);
+  const deviceName = () => deviceSettings.get();
   const audioStore = new AudioStore();
   const session = new VisitSession({
     store: new LocalVisitStore(window.localStorage),
@@ -89,6 +92,7 @@ try {
     readPosition: readCurrentPosition,
     authorized,
     now: () => new Date(),
+    deviceName,
   });
 
   const work = new WorkSession({
@@ -97,6 +101,7 @@ try {
     register: new WorkRegister(drive),
     authorized,
     now: () => new Date(),
+    deviceName,
   });
 
   let unmountCurrent: () => void = () => undefined;

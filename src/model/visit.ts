@@ -8,6 +8,7 @@ import {
   expectNonEmptyString,
   expectNumberInRange,
   expectObject,
+  expectOptionalNonEmptyString,
   expectSchemaVersion,
   expectString,
   expectUniqueIds,
@@ -30,6 +31,8 @@ export interface AudioNote {
   driveFileId: string | null;
   /** Link per aprire il file nel visualizzatore di Drive (`webViewLink`); null finché non è caricato. */
   driveLink: string | null;
+  /** Nome del dispositivo che ha registrato (T-032); null se non indicato o nei dati vecchi. */
+  device: string | null;
 }
 
 /** Contenuto di un file `visite/AAAA/AAAA-MM-GG_<id>.json` su Drive. */
@@ -43,6 +46,8 @@ export interface Visit {
   checkOut: VisitEvent | null;
   note: string;
   audio: AudioNote[];
+  /** Nome del dispositivo che ha registrato la visita (T-032); null se non indicato o nei dati vecchi. */
+  device: string | null;
 }
 
 export function parseAudioNote(value: unknown, path: string): AudioNote {
@@ -58,6 +63,7 @@ export function parseAudioNote(value: unknown, path: string): AudioNote {
       object.driveLink === undefined
         ? null
         : nullable(object.driveLink, (present) => expectNonEmptyString(present, `${path}.driveLink`)),
+    device: expectOptionalNonEmptyString(object.device, `${path}.device`),
   };
 }
 
@@ -83,6 +89,7 @@ export function parseVisit(value: unknown): Visit {
       object.audio === undefined
         ? []
         : expectArray(object.audio, 'visita.audio').map((item, index) => parseAudioNote(item, `visita.audio[${index}]`)),
+    device: expectOptionalNonEmptyString(object.device, 'visita.device'),
   };
   expectUniqueIds(visit.audio, 'visita.audio');
   if (visit.checkOut && Date.parse(visit.checkOut.at) < Date.parse(visit.checkIn.at)) {
@@ -92,7 +99,7 @@ export function parseVisit(value: unknown): Visit {
 }
 
 /** Nuova visita in corso: posizione e cliente si aggiungono dopo, quando il GPS risponde. */
-export function startVisit(at: string): Visit {
+export function startVisit(at: string, device: string | null): Visit {
   return parseVisit({
     schemaVersion: SCHEMA_VERSION,
     id: crypto.randomUUID(),
@@ -101,6 +108,7 @@ export function startVisit(at: string): Visit {
     checkOut: null,
     note: '',
     audio: [],
+    device,
   });
 }
 

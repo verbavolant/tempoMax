@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import type { WorkPeriod } from '../../src/model/work';
 import { WorkRepository } from '../../src/storage/workRepository';
 
-const morning: WorkPeriod = { id: 'mattina', start: '2026-10-31T07:30:00+01:00', end: '2026-10-31T12:30:00+01:00' };
-const afternoon: WorkPeriod = { id: 'pomeriggio', start: '2026-10-31T13:30:00+01:00', end: null };
+const morning: WorkPeriod = { id: 'mattina', start: '2026-10-31T07:30:00+01:00', end: '2026-10-31T12:30:00+01:00', device: null };
+const afternoon: WorkPeriod = { id: 'pomeriggio', start: '2026-10-31T13:30:00+01:00', end: null, device: null };
 
 function fakeDrive(existing: unknown) {
   return {

@@ -114,3 +114,8 @@ export function expectUniqueIds(items: readonly { id: string }[], path: string):
     seen.add(item.id);
   });
 }
+
+/** Campo aggiunto in una versione successiva: assente (dati vecchi) o null valgono null. */
+export function expectOptionalNonEmptyString(value: unknown, path: string): string | null {
+  return value === undefined ? null : nullable(value, (present) => expectNonEmptyString(present, path));
+}

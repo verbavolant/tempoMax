@@ -11,6 +11,7 @@ const visit: Visit = {
   checkOut: null,
   note: '',
   audio: [],
+  device: null,
 };
 
 const jsonResponse = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
@@ -40,15 +41,15 @@ describe('VisitRegister', () => {
       'application/vnd.google-apps.spreadsheet',
     );
     const [header, lookup, append] = drive.calls();
-    expect(header?.url).toBe('https://sheets.googleapis.com/v4/spreadsheets/new-sheet/values/A1:I1?valueInputOption=RAW');
+    expect(header?.url).toBe('https://sheets.googleapis.com/v4/spreadsheets/new-sheet/values/A1:J1?valueInputOption=RAW');
     expect(header?.init).toMatchObject({ method: 'PUT', body: JSON.stringify({ values: [REGISTER_HEADER] }) });
     expect(lookup?.url).toBe('https://sheets.googleapis.com/v4/spreadsheets/new-sheet/values/H1:H10000');
     expect(append?.url).toBe(
-      'https://sheets.googleapis.com/v4/spreadsheets/new-sheet/values/A1:I1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS',
+      'https://sheets.googleapis.com/v4/spreadsheets/new-sheet/values/A1:J1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS',
     );
     expect(append?.init).toMatchObject({
       method: 'POST',
-      body: JSON.stringify({ values: [['31/10/2026', '09:05', '', '', '', '', '', 'v-2', '']] }),
+      body: JSON.stringify({ values: [['31/10/2026', '09:05', '', '', '', '', '', 'v-2', '', '']] }),
     });
   });
 
@@ -58,9 +59,9 @@ describe('VisitRegister', () => {
 
     expect(drive.createEmptyFile).not.toHaveBeenCalled();
     // Il foglio esistente riceve l'intestazione aggiornata (colonna Audio).
-    expect(drive.calls()[0]?.url).toBe('https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/A1:I1?valueInputOption=RAW');
+    expect(drive.calls()[0]?.url).toBe('https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/A1:J1?valueInputOption=RAW');
     const update = drive.calls().at(-1);
-    expect(update?.url).toBe('https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/A3:I3?valueInputOption=RAW');
+    expect(update?.url).toBe('https://sheets.googleapis.com/v4/spreadsheets/sheet-1/values/A3:J3?valueInputOption=RAW');
     expect(update?.init?.method).toBe('PUT');
   });
 

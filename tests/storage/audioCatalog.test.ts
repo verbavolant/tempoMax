@@ -58,6 +58,7 @@ describe('mergeCatalog', () => {
     durationSeconds: 5,
     driveFileId,
     driveLink: null,
+    device: null,
   });
 
   it('aggiunge le note ancora sul telefono, senza duplicare quelle già su Drive, dalla più recente', () => {
@@ -66,7 +67,7 @@ describe('mergeCatalog', () => {
     );
     if (!onDrive) throw new Error('nota non riconosciuta');
     const visit = {
-      ...startVisit('2026-10-31T09:00:00+01:00'),
+      ...startVisit('2026-10-31T09:00:00+01:00', null),
       id: 'v-1',
       audio: [localNote('a-1', '2026-10-31T09:10:00+01:00', 'f-1'), localNote('a-2', '2026-10-31T09:20:00+01:00')],
     };

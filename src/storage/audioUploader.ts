@@ -31,6 +31,7 @@ export function audioAppProperties(visit: Visit | null, note: AudioNote): Record
     recordedAt: note.recordedAt,
     durationSeconds: String(note.durationSeconds),
     ...(visit && { visitId: visit.id }),
+    ...(note.device && { device: note.device }),
   };
 }
 

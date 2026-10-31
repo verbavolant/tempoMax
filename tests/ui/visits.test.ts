@@ -27,7 +27,7 @@ describe('orderClientsByDistance', () => {
 });
 
 describe('mergeVisits', () => {
-  const visitAt = (id: string, at: string): Visit => ({ ...startVisit(at), id });
+  const visitAt = (id: string, at: string): Visit => ({ ...startVisit(at, null), id });
 
   it('preferisce la versione locale e ordina dalla più recente', () => {
     const old = visitAt('a', '2026-10-30T09:00:00+01:00');

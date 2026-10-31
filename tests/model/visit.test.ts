@@ -19,6 +19,7 @@ const closedVisit: Visit = {
   checkOut: { at: '2026-10-30T11:40:00+01:00', position: null },
   note: 'Potatura siepe lato strada',
   audio: [],
+  device: null,
 };
 
 describe('parseVisit', () => {
@@ -74,7 +75,7 @@ describe('cliente facoltativo', () => {
 
 describe('startVisit / endVisit', () => {
   it('apre una visita senza cliente né posizione', () => {
-    const visit = startVisit('2026-10-31T08:00:00+01:00');
+    const visit = startVisit('2026-10-31T08:00:00+01:00', null);
     expect(visit).toMatchObject({
       schemaVersion: 1,
       clientId: null,
@@ -82,12 +83,13 @@ describe('startVisit / endVisit', () => {
       checkOut: null,
       note: '',
       audio: [],
+      device: null,
     });
-    expect(visit.id).not.toBe(startVisit('2026-10-31T08:00:00+01:00').id);
+    expect(visit.id).not.toBe(startVisit('2026-10-31T08:00:00+01:00', null).id);
   });
 
   it('chiude la visita conservando il resto', () => {
-    const open = { ...startVisit('2026-10-31T08:00:00+01:00'), clientId: 'c-1' };
+    const open = { ...startVisit('2026-10-31T08:00:00+01:00', null), clientId: 'c-1' };
     expect(endVisit(open, '2026-10-31T10:30:00+01:00')).toStrictEqual({
       ...open,
       checkOut: { at: '2026-10-31T10:30:00+01:00', position: null },
@@ -96,12 +98,12 @@ describe('startVisit / endVisit', () => {
 
   it('rifiuta di chiudere due volte o prima del check-in', () => {
     expect(() => endVisit(closedVisit, '2026-10-30T12:00:00+01:00')).toThrow('visita già chiusa');
-    const open = startVisit('2026-10-31T08:00:00+01:00');
+    const open = startVisit('2026-10-31T08:00:00+01:00', null);
     expect(() => endVisit(open, '2026-10-31T07:59:00+01:00')).toThrow('check-out precedente al check-in');
   });
 
   it('rifiuta un orario senza fuso', () => {
-    expect(() => startVisit('2026-10-31T08:00:00')).toThrow('visita.checkIn.at');
+    expect(() => startVisit('2026-10-31T08:00:00', null)).toThrow('visita.checkIn.at');
   });
 });
 
@@ -143,7 +145,16 @@ describe('note audio', () => {
     durationSeconds: 42.5,
     driveFileId: null,
     driveLink: null,
+    device: null,
   };
+
+  it('una visita salvata prima del nome dispositivo (senza campo) ha device null', () => {
+    const legacy: Partial<Visit> = { ...closedVisit };
+    delete legacy.device;
+    expect(parseVisit(legacy).device).toBeNull();
+    expect(parseVisit({ ...closedVisit, device: 'iPhone' }).device).toBe('iPhone');
+    expect(() => parseVisit({ ...closedVisit, device: '' })).toThrow('visita.device');
+  });
 
   it('una visita salvata prima dell’audio (senza campo) vale “nessuna nota”', () => {
     const legacy: Partial<Visit> = { ...closedVisit };

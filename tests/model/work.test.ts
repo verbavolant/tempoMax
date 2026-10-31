@@ -8,17 +8,17 @@ import {
   workedMilliseconds,
 } from '../../src/model/work';
 
-const period = (id: string, start: string, end: string | null): WorkPeriod => ({ id, start, end });
+const period = (id: string, start: string, end: string | null): WorkPeriod => ({ id, start, end, device: null });
 
 describe('startWorkPeriod / endWorkPeriod', () => {
   it('apre un periodo senza fine e lo chiude', () => {
-    const open = startWorkPeriod('2026-10-31T07:30:00+01:00');
+    const open = startWorkPeriod('2026-10-31T07:30:00+01:00', null);
     expect(open).toMatchObject({ start: '2026-10-31T07:30:00+01:00', end: null });
     expect(endWorkPeriod(open, '2026-10-31T12:30:00+01:00')).toEqual({ ...open, end: '2026-10-31T12:30:00+01:00' });
   });
 
   it('rifiuta di chiudere due volte o prima dell’inizio', () => {
-    const open = startWorkPeriod('2026-10-31T07:30:00+01:00');
+    const open = startWorkPeriod('2026-10-31T07:30:00+01:00', null);
     expect(() => endWorkPeriod(open, '2026-10-31T07:00:00+01:00')).toThrow('fine precedente all’inizio');
     const closed = endWorkPeriod(open, '2026-10-31T12:30:00+01:00');
     expect(() => endWorkPeriod(closed, '2026-10-31T13:00:00+01:00')).toThrow('periodo già chiuso');
