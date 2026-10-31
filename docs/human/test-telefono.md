@@ -11,7 +11,8 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] Aprendola, l'app si vede a schermo intero, senza la barra del browser.
 - [ ] Con la **modalità aereo** attiva l'app si apre lo stesso e INIZIA registra la visita ("…non ancora su Drive: nessuna connessione").
 
-> Nota: l'app installata ha un suo spazio separato da Safari. Le visite in corso o non salvate su Drive in Safari non compaiono nell'app installata (e viceversa): chiudi le visite prima di passare all'app installata.
+> Attenzione: l'app installata potrebbe avere un archivio separato da Safari. Per sicurezza, chiudi con FINE le visite aperte in Safari prima di passare all'app installata.
+- [ ] Verifica: una visita aperta in Safari compare anche nell'app installata? (sì / no)
 
 ## Preparazione
 - [ ] Apri l'indirizzo in **Safari** (iPhone) o **Chrome** (Android).
