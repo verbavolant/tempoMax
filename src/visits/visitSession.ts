@@ -4,6 +4,8 @@ import type { MeasuredPosition } from '../model/position';
 import { formatLocalIsoDateTime } from '../model/time';
 import { type AudioNote, type Visit, endVisit, parseVisit, startVisit } from '../model/visit';
 import { type LocalVisitState, type LocalVisitStore, upsertVisit } from '../storage/localVisits';
+import type { AudioUploader } from '../storage/audioUploader';
+import { FileTooLargeError } from '../storage/drive';
 import type { VisitRegister } from '../storage/visitRegister';
 import type { VisitsRepository } from '../storage/visitsRepository';
 
@@ -13,6 +15,7 @@ export interface VisitSessionDependencies {
   store: Pick<LocalVisitStore, 'load' | 'save'>;
   repository: Pick<VisitsRepository, 'save'>;
   register: Pick<VisitRegister, 'save'>;
+  audio: Pick<AudioUploader, 'upload' | 'deleteLocal'>;
   loadClients: () => Promise<Client[]>;
   readPosition: () => Promise<MeasuredPosition>;
   /** Garantisce un token valido prima dell'azione; va chiamato in modo sincrono dentro il tap. */
@@ -41,6 +44,7 @@ export class VisitSession {
   private readonly latestVisits = new Map<string, Visit>();
   private positionNotice: string | null = null;
   private syncError: string | null = null;
+  private audioNotice: string | null = null;
   private readonly listeners = new Set<(view: VisitSessionView) => void>();
 
   /** Lancia se l'archivio locale è corrotto: il chiamante deve mostrarlo, non ripartire da zero. */
@@ -54,7 +58,7 @@ export class VisitSession {
       openVisit: this.state.openVisit,
       clientName: this.knownClients.find((client) => client.id === clientId)?.name ?? null,
       unsyncedCount: this.state.unsyncedVisits.length,
-      notice: this.syncError ?? this.positionNotice,
+      notice: this.syncError ?? this.audioNotice ?? this.positionNotice,
     };
   }
 
@@ -183,24 +187,76 @@ export class VisitSession {
   /** Salva la visita in corso e tutte quelle chiuse in attesa; toglie dalla coda solo la versione confermata. */
   private async saveToDrive(): Promise<void> {
     if (this.state.openVisit) {
-      await this.saveVisit(this.state.openVisit);
+      await this.saveVisit(this.state.openVisit.id);
     }
     for (const visit of [...this.state.unsyncedVisits]) {
-      await this.saveVisit(visit);
+      const saved = await this.saveVisit(visit.id);
+      // Si toglie solo la versione salvata: se nel frattempo la visita è cambiata, resta in coda.
       this.commit({
         ...this.state,
-        unsyncedVisits: this.state.unsyncedVisits.filter((current) => current !== visit),
+        unsyncedVisits: this.state.unsyncedVisits.filter((current) => current !== saved),
       });
     }
   }
 
-  /** Prima il JSON (fonte di verità), poi la riga del registro: se il registro fallisce, la visita resta in coda. */
-  private async saveVisit(visit: Visit): Promise<void> {
+  /**
+   * Prima gli audio, poi il JSON (fonte di verità) con i loro riferimenti, poi la riga del registro.
+   * Se un passo fallisce la visita resta in coda; restituisce la versione salvata.
+   */
+  private async saveVisit(visitId: string): Promise<Visit> {
+    await this.uploadPendingAudio(visitId);
+    const visit = this.findVisit(visitId);
+    if (!visit) {
+      throw new Error(`Visita ${visitId} non trovata sul telefono`);
+    }
     await this.dependencies.repository.save(visit);
     const clientName = visit.clientId
       ? ((await this.loadClients()).find((client) => client.id === visit.clientId)?.name ?? null)
       : null;
     await this.dependencies.register.save(visit, clientName);
+    return visit;
+  }
+
+  private async uploadPendingAudio(visitId: string): Promise<void> {
+    const pending = this.findVisit(visitId)?.audio.filter((note) => !note.driveFileId) ?? [];
+    for (const note of pending) {
+      const visit = this.findVisit(visitId);
+      if (!visit) {
+        return;
+      }
+      let uploaded;
+      try {
+        uploaded = await this.dependencies.audio.upload(visit, note);
+      } catch (error) {
+        // Un file troppo grande non passerà mai: lo si segnala senza bloccare il salvataggio della visita.
+        if (error instanceof FileTooLargeError) {
+          this.audioNotice = `Nota vocale non caricata: ${error.message}`;
+          continue;
+        }
+        throw error;
+      }
+      if (!uploaded) {
+        this.audioNotice = 'Nota vocale non caricata: il file non è su questo telefono';
+        continue;
+      }
+      const { fileId, link } = uploaded;
+      this.updateVisit(visitId, (visit) => ({
+        ...visit,
+        audio: visit.audio.map((current) =>
+          current.id === note.id ? { ...current, driveFileId: fileId, driveLink: link } : current,
+        ),
+      }));
+      // Il riferimento su Drive è salvato sul telefono: la copia locale non serve più.
+      await this.dependencies.audio.deleteLocal(note.id);
+    }
+  }
+
+  private findVisit(id: string): Visit | undefined {
+    const { openVisit, unsyncedVisits } = this.state;
+    if (openVisit?.id === id) {
+      return openVisit;
+    }
+    return unsyncedVisits.find((visit) => visit.id === id) ?? this.latestVisits.get(id);
   }
 
   private updateVisit(id: string, change: (visit: Visit) => Visit): void {

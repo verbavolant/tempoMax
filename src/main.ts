@@ -5,6 +5,7 @@ import { readCurrentPosition } from './geo/currentPosition';
 import { ClientsRepository } from './storage/clientsRepository';
 import { DriveClient, DriveError } from './storage/drive';
 import { AudioStore } from './storage/audioStore';
+import { AudioUploader } from './storage/audioUploader';
 import { LocalVisitStore } from './storage/localVisits';
 import { VisitRegister } from './storage/visitRegister';
 import { VisitsRepository } from './storage/visitsRepository';
@@ -72,17 +73,18 @@ try {
     }
   };
 
+  const audioStore = new AudioStore();
   const session = new VisitSession({
     store: new LocalVisitStore(window.localStorage),
     repository: visitsRepository,
     register: new VisitRegister(drive),
+    audio: new AudioUploader(drive, audioStore),
     loadClients: () => clientsRepository.load(),
     readPosition: readCurrentPosition,
     authorized,
     now: () => new Date(),
   });
 
-  const audioStore = new AudioStore();
   let unmountCurrent: () => void = () => undefined;
 
   const showHome = () => {

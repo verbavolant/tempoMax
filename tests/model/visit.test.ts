@@ -142,6 +142,7 @@ describe('note audio', () => {
     mimeType: 'audio/mp4',
     durationSeconds: 42.5,
     driveFileId: null,
+    driveLink: null,
   };
 
   it('una visita salvata prima dell’audio (senza campo) vale “nessuna nota”', () => {
@@ -153,6 +154,12 @@ describe('note audio', () => {
   it('conserva le note audio nel round-trip JSON', () => {
     const withAudio = { ...closedVisit, audio: [note, { ...note, id: 'a-2', driveFileId: 'drive-1' }] };
     expect(parseVisit(JSON.parse(JSON.stringify(withAudio)))).toStrictEqual(withAudio);
+  });
+
+  it('una nota salvata prima del caricamento (senza driveLink) ha link null', () => {
+    const legacyNote: Partial<typeof note> = { ...note };
+    delete legacyNote.driveLink;
+    expect(parseVisit({ ...closedVisit, audio: [legacyNote] }).audio[0]?.driveLink).toBeNull();
   });
 
   it('rifiuta durate negative e id duplicati', () => {

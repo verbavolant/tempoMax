@@ -184,7 +184,7 @@
 - Dipende da: T-013b
 
 ### T-014b Caricamento delle note su Drive
-- Stato: [ ]
+- Stato: [~] codice e test pronti; manca la prova su Drive reale
 - Obiettivo: prima di salvare il JSON della visita, le note con `driveFileId` null vengono caricate in `TempoMax/audio/AAAA/` (nome `AAAA-MM-GG_<idVisita>_<idNota>.<m4a|webm>`), con id e `webViewLink` salvati nella nota (`driveLink`, campo nuovo: assente = null); dopo il caricamento la copia locale si elimina.
 - Done quando: test della sessione (upload, errore, file locale mancante); su Drive c'è l'audio e il JSON ne contiene id e link.
 - File: `src/storage/drive.ts`, `src/storage/audioUploader.ts`, `src/model/visit.ts`, `src/visits/visitSession.ts`, `src/main.ts`, test

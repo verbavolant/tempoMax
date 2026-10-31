@@ -68,7 +68,12 @@ export function mountHomeScreen(
     player?.pause();
     const audio = await audioStore.get(note.id);
     if (!audio) {
-      audioMessage.textContent = 'File audio non presente sul telefono';
+      // Dopo il caricamento la copia locale viene eliminata: la nota si ascolta da Drive.
+      if (note.driveLink) {
+        window.open(note.driveLink, '_blank', 'noopener');
+      } else {
+        audioMessage.textContent = 'File audio non presente sul telefono';
+      }
       return;
     }
     const url = URL.createObjectURL(audio);
@@ -152,6 +157,7 @@ export function mountHomeScreen(
         mimeType: audio.type,
         durationSeconds,
         driveFileId: null,
+        driveLink: null,
       };
       // Prima il file sul telefono, poi il riferimento nella visita: mai un riferimento senza file.
       await audioStore.put(note.id, audio);

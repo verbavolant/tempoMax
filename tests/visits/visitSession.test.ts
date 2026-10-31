@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Client } from '../../src/model/client';
 import type { MeasuredPosition } from '../../src/model/position';
-import type { Visit } from '../../src/model/visit';
+import type { AudioNote, Visit } from '../../src/model/visit';
+import { FileTooLargeError } from '../../src/storage/drive';
 import { LocalVisitStore } from '../../src/storage/localVisits';
 import { VisitSession, type VisitSessionDependencies } from '../../src/visits/visitSession';
 
@@ -35,12 +36,20 @@ function setup(overrides: Partial<VisitSessionDependencies> = {}) {
   const saved: Visit[] = [];
   const repository = { save: vi.fn(async (visit: Visit) => void saved.push(structuredClone(visit))) };
   const register = { save: vi.fn<(visit: Visit, clientName: string | null) => Promise<void>>().mockResolvedValue() };
+  const audio = {
+    upload: vi.fn<(visit: Visit, note: AudioNote) => Promise<{ fileId: string; link: string } | null>>(async (_visit, note) => ({
+      fileId: `drive-${note.id}`,
+      link: `https://drive.example/${note.id}`,
+    })),
+    deleteLocal: vi.fn<(noteId: string) => Promise<void>>().mockResolvedValue(),
+  };
   let clock = new Date(Date.UTC(2026, 9, 31, 8, 0, 0));
   const authorizedCalls: number[] = [];
   const dependencies: VisitSessionDependencies = {
     store: new LocalVisitStore(storage),
     repository,
     register,
+    audio,
     loadClients: vi.fn().mockResolvedValue([villa]),
     readPosition: vi.fn().mockResolvedValue(atVilla),
     authorized: (action) => {
@@ -55,6 +64,7 @@ function setup(overrides: Partial<VisitSessionDependencies> = {}) {
     saved,
     repository,
     register,
+    audio,
     authorizedCalls,
     dependencies,
     session: new VisitSession(dependencies),
@@ -249,6 +259,7 @@ describe('VisitSession', () => {
       mimeType: 'audio/mp4',
       durationSeconds: 12,
       driveFileId: null,
+      driveLink: null,
     };
 
     it('aggiunge e toglie una nota dalla visita in corso, in locale', async () => {
@@ -279,8 +290,63 @@ describe('VisitSession', () => {
       advance(5);
       await session.toggle();
       const lastVersion = saved.filter((visit) => visit.id === visitId).at(-1);
-      expect(lastVersion).toMatchObject({ checkOut: { at: '2026-10-31T09:10:00+01:00' }, audio: [note] });
+      expect(lastVersion).toMatchObject({
+        checkOut: { at: '2026-10-31T09:10:00+01:00' },
+        audio: [{ ...note, driveFileId: 'drive-a-1', driveLink: 'https://drive.example/a-1' }],
+      });
       expect(session.view().unsyncedCount).toBe(0);
+    });
+
+    it('al salvataggio carica le note, salva id e link nel JSON e cancella la copia locale', async () => {
+      const { session, audio, saved } = setup();
+      await session.toggle();
+      const visitId = session.view().openVisit?.id ?? '';
+      session.addAudio(visitId, note);
+      await session.toggle();
+
+      expect(audio.upload).toHaveBeenCalledTimes(1);
+      expect(audio.deleteLocal).toHaveBeenCalledWith('a-1');
+      const savedNotes = saved.filter((visit) => visit.id === visitId).at(-1)?.audio;
+      expect(savedNotes).toEqual([{ ...note, driveFileId: 'drive-a-1', driveLink: 'https://drive.example/a-1' }]);
+    });
+
+    it('non ricarica una nota già su Drive', async () => {
+      const { session, audio } = setup();
+      await session.toggle();
+      const visitId = session.view().openVisit?.id ?? '';
+      session.addAudio(visitId, { ...note, driveFileId: 'già-su-drive', driveLink: 'https://drive.example/x' });
+      await session.toggle();
+      expect(audio.upload).not.toHaveBeenCalled();
+    });
+
+    it('se il caricamento fallisce per la rete la visita resta in coda e la copia locale resta', async () => {
+      const { session, audio, saved } = setup();
+      await session.toggle();
+      const visitId = session.view().openVisit?.id ?? '';
+      session.addAudio(visitId, note);
+      audio.upload.mockRejectedValueOnce(new Error('rete assente'));
+      await session.toggle();
+
+      expect(session.view()).toMatchObject({ unsyncedCount: 1 });
+      expect(audio.deleteLocal).not.toHaveBeenCalled();
+      expect(saved.filter((visit) => visit.id === visitId && visit.checkOut)).toEqual([]);
+    });
+
+    it('un file troppo grande o mancante viene segnalato ma non blocca la visita', async () => {
+      const { session, audio, saved } = setup();
+      await session.toggle();
+      const visitId = session.view().openVisit?.id ?? '';
+      session.addAudio(visitId, note);
+      session.addAudio(visitId, { ...note, id: 'a-2' });
+      audio.upload.mockRejectedValueOnce(new FileTooLargeError(6_000_000)).mockResolvedValueOnce(null);
+      await session.toggle();
+
+      expect(session.view().unsyncedCount).toBe(0);
+      expect(saved.filter((visit) => visit.id === visitId).at(-1)?.audio.map((saved) => saved.driveFileId)).toEqual([
+        null,
+        null,
+      ]);
+      expect(session.view().notice).toBe('Nota vocale non caricata: il file non è su questo telefono');
     });
   });
 });

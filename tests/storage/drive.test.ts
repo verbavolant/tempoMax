@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ValidationError } from '../../src/model/validation';
-import { DriveClient, DriveError, MULTIPART_UPLOAD_MAX_BYTES, escapeQueryValue } from '../../src/storage/drive';
+import {
+  DriveClient,
+  DriveError,
+  FileTooLargeError,
+  MULTIPART_UPLOAD_MAX_BYTES,
+  escapeQueryValue,
+} from '../../src/storage/drive';
 
 const FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder';
 
@@ -196,10 +202,23 @@ describe('DriveClient', () => {
     });
   });
 
+  describe('uploadFile', () => {
+    it('chiede id e webViewLink e li restituisce', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ id: 'f-1', webViewLink: 'https://drive.google.com/file/d/f-1/view' }));
+      await expect(drive.uploadFile('nota.m4a', 'folder-1', new Blob(['x'], { type: 'audio/mp4' }))).resolves.toEqual({
+        id: 'f-1',
+        webViewLink: 'https://drive.google.com/file/d/f-1/view',
+      });
+      const { url } = requestAt(fetchMock, 0);
+      expect(url.searchParams.get('uploadType')).toBe('multipart');
+      expect(url.searchParams.get('fields')).toBe('id,webViewLink');
+    });
+  });
+
   describe('limiti di upload', () => {
     it('rifiuta file oltre il limite del multipart senza chiamare la rete', async () => {
       const tooBig = new Blob([new Uint8Array(MULTIPART_UPLOAD_MAX_BYTES + 1)], { type: 'audio/mp4' });
-      await expect(drive.createFile('audio.m4a', 'folder-1', tooBig)).rejects.toThrow('File troppo grande');
+      await expect(drive.createFile('audio.m4a', 'folder-1', tooBig)).rejects.toBeInstanceOf(FileTooLargeError);
       expect(fetchMock).not.toHaveBeenCalled();
     });
 

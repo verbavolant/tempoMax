@@ -25,8 +25,10 @@ export interface AudioNote {
   recordedAt: string;
   mimeType: string;
   durationSeconds: number;
-  /** null finché il file non è stato caricato su Drive (T-014). */
+  /** null finché il file non è stato caricato su Drive. */
   driveFileId: string | null;
+  /** Link per aprire il file nel visualizzatore di Drive (`webViewLink`); null finché non è caricato. */
+  driveLink: string | null;
 }
 
 /** Contenuto di un file `visite/AAAA/AAAA-MM-GG_<id>.json` su Drive. */
@@ -50,6 +52,11 @@ function parseAudioNote(value: unknown, path: string): AudioNote {
     mimeType: expectNonEmptyString(object.mimeType, `${path}.mimeType`),
     durationSeconds: expectNumberInRange(object.durationSeconds, `${path}.durationSeconds`, 0, Infinity),
     driveFileId: nullable(object.driveFileId, (present) => expectNonEmptyString(present, `${path}.driveFileId`)),
+    // Campo aggiunto con l'upload (T-014b): assente nelle note salvate prima.
+    driveLink:
+      object.driveLink === undefined
+        ? null
+        : nullable(object.driveLink, (present) => expectNonEmptyString(present, `${path}.driveLink`)),
   };
 }
 

@@ -9,6 +9,14 @@ const JSON_MIME_TYPE = 'application/json';
 // Fonte: https://developers.google.com/workspace/drive/api/guides/manage-uploads
 export const MULTIPART_UPLOAD_MAX_BYTES = 5_000_000;
 
+/** File oltre il limite del multipart (ADR-007): errore permanente, riprovare non serve. */
+export class FileTooLargeError extends Error {
+  constructor(size: number) {
+    super(`File troppo grande (${size} byte): limite ${MULTIPART_UPLOAD_MAX_BYTES}`);
+    this.name = 'FileTooLargeError';
+  }
+}
+
 export class DriveError extends Error {
   readonly status: number;
 
@@ -100,6 +108,16 @@ export class DriveClient {
   }
 
   async createFile(name: string, parentId: string, content: Blob): Promise<string> {
+    return parseFileId(await this.createMultipart(name, parentId, content, 'id'), 'create');
+  }
+
+  /** Carica un file e ne restituisce id e link per aprirlo nel visualizzatore di Drive (`webViewLink`). */
+  async uploadFile(name: string, parentId: string, content: Blob): Promise<{ id: string; webViewLink: string }> {
+    const file = expectObject(await this.createMultipart(name, parentId, content, 'id,webViewLink'), 'upload');
+    return { id: parseFileId(file, 'upload'), webViewLink: expectNonEmptyString(file.webViewLink, 'upload.webViewLink') };
+  }
+
+  private async createMultipart(name: string, parentId: string, content: Blob, fields: string): Promise<unknown> {
     assertUploadable(content);
     const boundary = `tempomax-${crypto.randomUUID()}`;
     const body = new Blob([
@@ -109,12 +127,13 @@ export class DriveClient {
       content,
       `\r\n--${boundary}--`,
     ]);
-    const response = await this.request(`${DRIVE_UPLOAD_URL}/files?uploadType=multipart&fields=id`, {
+    const params = new URLSearchParams({ uploadType: 'multipart', fields });
+    const response = await this.request(`${DRIVE_UPLOAD_URL}/files?${params}`, {
       method: 'POST',
       headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
       body,
     });
-    return parseFileId(await response.json(), 'create');
+    return response.json();
   }
 
   async updateFile(fileId: string, content: Blob): Promise<void> {
@@ -203,8 +222,7 @@ function assertUploadable(content: Blob): void {
     throw new Error('Tipo MIME mancante per il file da caricare');
   }
   if (content.size > MULTIPART_UPLOAD_MAX_BYTES) {
-    // TODO(T-014): upload "resumable" per audio lunghi oltre il limite del multipart.
-    throw new Error(`File troppo grande (${content.size} byte): limite ${MULTIPART_UPLOAD_MAX_BYTES}`);
+    throw new FileTooLargeError(content.size);
   }
 }
 
