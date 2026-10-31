@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-010 app online
+- Fatto: scope `workflow` aggiunto dall'utente, push riuscito; GitHub Action "Deploy static content to Pages" (run 41209809296) verde in 58 s, con lint, test e build.
+- Stato: parziale. Manca la checklist `docs/human/test-telefono.md` su iPhone.
+- Verifica: `https://verbavolant.github.io/tempoMax/` → 200; il bundle `/tempoMax/assets/index-*.js` → 200 e contiene il Client ID; nessun header COOP (il popup OAuth può funzionare).
+- Prossimo passo: l'utente esegue la checklist e riporta gli esiti; i problemi diventano nuovi task.
+- Trappole/note: annotazione di GitHub: `ubuntu-latest` passa a Ubuntu 26 dal 19/10/2026; il workflow non dipende dalla versione di Ubuntu.
+
 ## [2026-10-31] — T-011b chiuso, T-010 deploy (parziale)
 - Fatto: errori Google con servizio e messaggio (`googleErrorMessage`, `serviceName` in `src/storage/drive.ts`); il 403 era la Sheets API non abilitata nel progetto Cloud. T-010: `.github/workflows/deploy.yml` (workflow ufficiale Vite con action fissate a SHA, più lint e test), `base: '/tempoMax/'` in `vite.config.ts`, Pages attivato via `gh api -X POST repos/verbavolant/tempoMax/pages -f build_type=workflow`, checklist `docs/human/test-telefono.md`.
 - Stato: T-011b completo. T-010 parziale: il token `gh` non ha lo scope `workflow`, quindi il push del workflow viene rifiutato. L'utente deve lanciare `gh auth refresh -h github.com -s workflow`.

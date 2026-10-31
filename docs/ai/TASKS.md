@@ -107,7 +107,7 @@
 - Dipende da: T-008b
 
 ### T-010 Deploy HTTPS + test su iPhone
-- Stato: [~] workflow e `base` pronti, Pages attivato (build_type=workflow); manca il push del workflow (serve lo scope `workflow` per `gh`) e la checklist su iPhone
+- Stato: [~] online su https://verbavolant.github.io/tempoMax/ (Action verde); manca l'esecuzione di `docs/human/test-telefono.md` su iPhone
 - Obiettivo: pubblicazione su hosting statico HTTPS e test end-to-end su iPhone.
 - Done quando: URL pubblico funzionante; checklist di test manuale in `docs/human/` eseguita ed esito annotato in PROGRESS.
 - File: config di deploy (GitHub Actions), `vite.config.ts` (`base`), `docs/human/`
