@@ -58,6 +58,11 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] "Registrazioni": ▶ riproduce la nota della visita, ⏸ la ferma.
 - [ ] In **modalità aereo**: INIZIA e FINE → poi, con la rete, la visita in Visite ha il link Maps (la posizione ora si salva anche offline).
 
+## Nome del dispositivo (versione di prova: TempoMax DEV)
+- [ ] Installa **TempoMax DEV** da https://verbavolant.github.io/tempoMax-dev/ (icona arancione): è un'app separata, con dati su Drive in `TempoMax-dev`.
+- [ ] Al primo avvio compare "📱 Dai un nome a questo telefono": toccalo, controlla la proposta, scrivi il nome e tocca **Salva**. L'avviso sparisce.
+- [ ] Fai una visita, una nota vocale e un periodo di lavoro: nei JSON in `TempoMax-dev` c'è `"device": "<nome>"`, e nei fogli "Registro visite" e "Orario di lavoro" di `TempoMax-dev` c'è la colonna **Dispositivo**.
+
 ## Senza rete
 - [ ] Attiva la modalità aereo, tocca **INIZIA**: compare "Salvata sul telefono, non ancora su Drive…".
 - [ ] Togli la modalità aereo, tocca **FINE**: l'avviso sparisce.

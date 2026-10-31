@@ -268,7 +268,7 @@
 - Note: richiesta dell'utente del 2026-10-31; il nome lo scrive l'utente perché il web non può leggere il nome del telefono.
 
 ### T-032b Nome del dispositivo: schermata Opzioni
-- Stato: [ ]
+- Stato: [~] pubblicato sulla prova; da verificare dall'utente con TempoMax DEV
 - Obiettivo: schermata "⚙️ Opzioni" con "Nome di questo telefono" (precompilato da `guessDeviceName`); finché non è impostato la home mostra "📱 Dai un nome a questo telefono"; pulsante ⚙️ nella riga di navigazione. Qui arriverà anche il GPS disattivabile (T-026).
 - File: `src/ui/options.ts`, `src/ui/home.ts`, `src/main.ts`, `src/style.css`
 - Dipende da: T-032a

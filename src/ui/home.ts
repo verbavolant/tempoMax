@@ -23,10 +23,11 @@ export function mountHomeScreen(
   session: VisitSession,
   work: WorkSession,
   audioStore: AudioStore,
-  navigation: { openClients: () => void; openVisits: () => void; openNotes: () => void },
+  navigation: { openClients: () => void; openVisits: () => void; openNotes: () => void; openOptions: () => void },
 ): () => void {
   container.innerHTML = `
     <section class="home">
+      <button id="device-banner" type="button" class="device-banner" hidden>📱 Dai un nome a questo telefono</button>
       <div id="work-panel-slot"></div>
       <button id="visit-toggle" type="button" class="big-button">
         <span class="big-button-label"></span>
@@ -42,7 +43,8 @@ export function mountHomeScreen(
       <nav class="home-nav">
         <button id="open-clients" type="button" class="nav-button"><span>👥</span>Clienti</button>
         <button id="open-visits" type="button" class="nav-button"><span>🕘</span>Visite</button>
-        <button id="open-notes" type="button" class="nav-button"><span>🎧</span>Note vocali</button>
+        <button id="open-notes" type="button" class="nav-button"><span>🎧</span>Note</button>
+        <button id="open-options" type="button" class="nav-button"><span>⚙️</span>Opzioni</button>
       </nav>
     </section>
   `;
@@ -233,6 +235,11 @@ export function mountHomeScreen(
   requireElement<HTMLButtonElement>(container, '#open-clients').addEventListener('click', navigation.openClients);
   requireElement<HTMLButtonElement>(container, '#open-visits').addEventListener('click', navigation.openVisits);
   requireElement<HTMLButtonElement>(container, '#open-notes').addEventListener('click', navigation.openNotes);
+  requireElement<HTMLButtonElement>(container, '#open-options').addEventListener('click', navigation.openOptions);
+  // Finché il telefono non ha un nome, i dati registrati non dicono da quale dispositivo arrivano (T-032).
+  const deviceBanner = requireElement<HTMLButtonElement>(container, '#device-banner');
+  deviceBanner.hidden = session.currentDeviceName() !== null;
+  deviceBanner.addEventListener('click', navigation.openOptions);
 
   return () => {
     unmountWorkPanel();

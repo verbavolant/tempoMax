@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-032a, T-032b: nome del dispositivo (solo sulla prova)
+- Fatto: `src/device.ts`; campo `device` (assente = null, `expectOptionalNonEmptyString`) in `Visit`, `AudioNote`, `WorkPeriod`; `startVisit(at, device)`, `startWorkPeriod(at, device)`; `deviceName()` nelle dipendenze delle sessioni, `VisitSession.currentDeviceName()`; `appProperties.device` sugli audio; colonna "Dispositivo" in fondo ai due fogli (J e F). `src/ui/options.ts`, pulsante ⚙️ Opzioni (navigazione su 4 colonne), avviso "📱 Dai un nome a questo telefono" nella home.
+- Stato: T-032a completo; T-032b pubblicato **solo** su https://verbavolant.github.io/tempoMax-dev/, in attesa di prova. Produzione invariata (`origin/main` = 7893553).
+- Verifica: `npm test` (251), typecheck, lint, build OK. Chrome headless con user agent iPhone: avviso visibile → proposta "iPhone" → salvato "iPhone di prova" (spazi normalizzati) → avviso sparito → `device` registrato in visita e periodo.
+- Prossimo passo: prova dell'utente su TempoMax DEV; poi T-026 (GPS disattivabile, nella stessa schermata Opzioni). Rilascio in produzione solo su sua conferma esplicita.
+- Trappole/note: i fogli esistenti ricevono la nuova intestazione al primo salvataggio della sessione (colonna in fondo, ID invariato).
+
 ## [2026-10-31] — T-031a, T-031b: ambiente di prova
 - Fatto: ADR-008. T-031a: `src/config.ts` (`IS_STAGING`, `LOCAL_STORAGE_PREFIX`, `DRIVE_ROOT_FOLDER`), `src/vite-env.d.ts`, chiavi di localStorage e nome IndexedDB con prefisso, `ROOT_FOLDER` da configurazione, plugin `appEnvironment` in `vite.config.ts` (manifest generato, nome, icone e colore per ambiente; `base` da `VITE_BASE`), `index.html` con segnaposto e manifest relativo, `public/icons-dev/`, cache del service worker per scope. T-031b: repo pubblico `verbavolant/tempoMax-dev` (remote `staging`), Pages con build da workflow, workflow che ricava ambiente e base da `GITHUB_REPOSITORY`, ramo `dev` (copia anche su `origin/dev`), `docs/human/rilascio.md`.
 - Stato: completo. Produzione **non** aggiornata (`main` locale avanti di 1 commit di documentazione, non pubblicato).

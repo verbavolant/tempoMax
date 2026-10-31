@@ -16,7 +16,8 @@ import { mountVisitsScreen } from './ui/visits';
 import { mountNotesScreen } from './ui/notes';
 import { AudioCatalog } from './storage/audioCatalog';
 import { formatLocalIsoDateTime } from './model/time';
-import { DeviceSettings } from './device';
+import { DeviceSettings, guessDeviceName } from './device';
+import { mountOptionsScreen } from './ui/options';
 import { VisitSession } from './visits/visitSession';
 import { WorkSession } from './work/workSession';
 import { LocalWorkStore } from './storage/localWork';
@@ -112,6 +113,7 @@ try {
       openClients: showClients,
       openVisits: showVisits,
       openNotes: showNotes,
+      openOptions: showOptions,
     });
   };
 
@@ -166,6 +168,11 @@ try {
         authorized,
         currentYear: formatLocalIsoDateTime(new Date()).slice(0, 4),
       }),
+    );
+
+  const showOptions = () =>
+    showSecondary((container) =>
+      mountOptionsScreen(container, { deviceSettings, suggestedDeviceName: guessDeviceName(navigator.userAgent) }),
     );
 
   showHome();

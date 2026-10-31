@@ -253,7 +253,7 @@ select {
 .home-nav {
   width: min(90vw, 420px);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
@@ -293,4 +293,11 @@ select {
 
 .visit-details h4 {
   margin: 4px 0;
+}
+
+.device-banner {
+  width: min(90vw, 420px);
+  border: 2px dashed var(--accent);
+  color: var(--accent);
+  font-weight: 600;
 }
