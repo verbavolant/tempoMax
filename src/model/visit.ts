@@ -78,3 +78,15 @@ export function endVisit(visit: Visit, at: string): Visit {
 export function visitStorageLocation(visit: Visit): { year: string; fileName: string } {
   return { year: visit.checkIn.at.slice(0, 4), fileName: `${visit.checkIn.at.slice(0, 10)}_${visit.id}.json` };
 }
+
+/**
+ * Durata in minuti di una visita chiusa, null se è ancora in corso.
+ * Regola provvisoria (decisione dell'utente: "per ora al minuto"): arrotondamento al minuto più vicino.
+ * La regola di fatturazione definitiva sostituirà questa funzione (T-012).
+ */
+export function visitDurationMinutes(visit: Visit): number | null {
+  if (!visit.checkOut) {
+    return null;
+  }
+  return Math.round((Date.parse(visit.checkOut.at) - Date.parse(visit.checkIn.at)) / 60_000);
+}

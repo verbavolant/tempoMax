@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { type Visit, endVisit, parseVisit, startVisit, visitStorageLocation } from '../../src/model/visit';
+import {
+  type Visit,
+  endVisit,
+  parseVisit,
+  startVisit,
+  visitDurationMinutes,
+  visitStorageLocation,
+} from '../../src/model/visit';
 
 const closedVisit: Visit = {
   schemaVersion: 1,
@@ -101,5 +108,27 @@ describe('visitStorageLocation', () => {
     // 00:30 a Roma (+01:00) corrisponde alle 23:30 UTC del 31 dicembre: conta il giorno locale.
     const visit = { ...closedVisit, id: 'v-7', checkIn: { at: '2027-01-01T00:30:00+01:00', position: null }, checkOut: null };
     expect(visitStorageLocation(visit)).toEqual({ year: '2027', fileName: '2027-01-01_v-7.json' });
+  });
+});
+
+describe('visitDurationMinutes', () => {
+  const at = (checkIn: string, checkOut: string | null): Visit => ({
+    ...closedVisit,
+    checkIn: { at: checkIn, position: null },
+    checkOut: checkOut ? { at: checkOut, position: null } : null,
+  });
+
+  it('è null per una visita in corso', () => {
+    expect(visitDurationMinutes(at('2026-10-31T09:00:00+01:00', null))).toBeNull();
+  });
+
+  it.each([
+    ['2026-10-31T09:00:00+01:00', '2026-10-31T11:30:00+01:00', 150],
+    ['2026-10-31T09:00:00+01:00', '2026-10-31T09:00:29+01:00', 0],
+    ['2026-10-31T09:00:00+01:00', '2026-10-31T09:00:30+01:00', 1],
+    // Stessa ora "di orologio" ma fusi diversi (cambio dell'ora legale): conta il tempo reale.
+    ['2026-10-25T01:30:00+02:00', '2026-10-25T02:30:00+01:00', 120],
+  ])('da %s a %s → %i minuti', (checkIn, checkOut, minutes) => {
+    expect(visitDurationMinutes(at(checkIn, checkOut))).toBe(minutes);
   });
 });

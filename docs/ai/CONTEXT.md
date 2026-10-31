@@ -31,6 +31,8 @@ docs/human/       # documentazione per l'utente/setup
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
 | `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, pulsante "👥 Clienti"; blocco del doppio tap per 2 s |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista, form nuovo/modifica, "Sono qui adesso" |
+| `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
+| `src/register/visitRow.ts` | `REGISTER_HEADER`, `visitToRow`, `REGISTER_ID_COLUMN_INDEX` |
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
 | `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
 | `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json` |
@@ -44,7 +46,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/model/validation.ts` | `ValidationError` (con percorso del campo), helper `expect*`, `SCHEMA_VERSION` |
 | `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
 | `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument`, `buildClient`, `newClientIdentity`, `DEFAULT_CLIENT_RADIUS_METERS` (200) |
-| `src/model/visit.ts` | `Visit` (`clientId` nullable), `VisitEvent`, `parseVisit`, `startVisit`, `endVisit`, `visitStorageLocation` |
+| `src/model/visit.ts` | `Visit` (`clientId` nullable), `VisitEvent`, `parseVisit`, `startVisit`, `endVisit`, `visitStorageLocation`, `visitDurationMinutes` (provvisoria: arrotonda al minuto) |
 | `src/model/task.ts` | `Task` (`todo` / `purchase`), `TasksDocument` (`task.json`), `parseTasksDocument` |
 | `vite.config.ts` | config di Vite + Vitest |
 | `eslint.config.js` | lint (flat config, typescript-eslint) |

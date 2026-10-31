@@ -116,18 +116,27 @@
 
 ## Fase 2 — Fatturazione ore
 
-### T-011 Foglio "Registro ore"
+### T-011a Registro: righe del foglio
+- Stato: [x]
+- Obiettivo: funzioni pure per il registro: link Google Maps da coordinate, durata in minuti (regola provvisoria: arrotondamento al minuto più vicino), riga del foglio da una visita, intestazione.
+- Colonne (richiesta dell'utente del 2026-10-31: link Maps per controllare le posizioni la sera dal PC): Data · Inizio · Fine · Durata (min) · Cliente · Mappa inizio · Mappa fine · ID visita.
+- Done quando: test su link, durata e righe (visita aperta, chiusa, senza posizione, senza cliente).
+- File: `src/geo/mapsLink.ts`, `src/model/visit.ts`, `src/register/visitRow.ts`, test
+- Dipende da: T-008a
+
+### T-011b Registro: Foglio Google su Drive
 - Stato: [ ]
-- Obiettivo: creare il Foglio dall'app e aggiungere o aggiornare una riga per ogni visita chiusa (data, cliente, inizio, fine, durata, nota).
-- Done quando: chiusa una visita, la riga compare nel Foglio; riaprendo la stessa visita la riga non viene duplicata.
-- Dipende da: Fase 1
-- Note: scope `drive.file`, già verificato sulla doc ufficiale (ADR-001).
+- Obiettivo: creare `TempoMax/Registro visite` (Drive `files.create` con mimeType `application/vnd.google-apps.spreadsheet`, come indicato dalla guida Sheets "create"), scrivere l'intestazione, aggiornare la riga della visita (cercando l'ID in colonna H) o aggiungerla in fondo. Si chiama dalla coda di `VisitSession` dopo il JSON.
+- Done quando: dopo check-in e check-out nel foglio c'è **una sola** riga per la visita, con i link che aprono Maps.
+- File: `src/storage/drive.ts`, `src/storage/visitRegister.ts`, `src/storage/layout.ts`, `src/visits/visitSession.ts`, `src/main.ts`, test
+- Dipende da: T-011a
+- Note: il JSON resta la fonte di verità (ADR-003). Scope `drive.file` verificato (ADR-001). *Da verificare*: che un URL scritto con `valueInputOption=RAW` sia cliccabile nel foglio.
 
 ### T-012 Riepilogo mensile ore per cliente
 - Stato: [ ]
 - Obiettivo: totale delle ore per cliente e per mese, in app e/o in un foglio di riepilogo.
 - Done quando: test sul calcolo dei totali in minuti esatti.
-- Dipende da: T-011
+- Dipende da: T-011b
 - Note: arrotondamento provvisorio = minuti esatti; la regola finale arriverà dall'utente (vedi sotto).
 
 ## Fase 3 — Audio

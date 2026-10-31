@@ -31,7 +31,7 @@ Criteri di successo:
 - Scopo: login Google, **un pulsante unico check-in/check-out** con GPS, salvataggio su Drive. Cliente facoltativo; anagrafica clienti in una schermata secondaria.
 - Principio UI (richiesta dell'utente, 2026-10-31): la schermata principale è visivamente essenziale; le funzioni si aggiungono un po' alla volta, fuori dalla schermata principale.
 - Done: su iPhone reale (deploy HTTPS) si fa una visita completa e su Drive compare il JSON corretto.
-- Task: T-001 … T-010, T-021
+- Task: T-001 … T-010, T-021 … T-023, T-011a/T-011b (registro anticipato su richiesta dell'utente)
 
 ### Fase 2 — Fatturazione ore
 - Scopo: Foglio Google "Registro" con una riga per visita, e riepilogo mensile delle ore per cliente.
