@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-013b chiuso
+- Fatto: nessun cambio al codice.
+- Stato: completo. L'utente conferma che la registrazione funziona su iPhone con la versione che tenta i formati in sequenza.
+- Verifica: prova dell'utente.
+- Prossimo passo: T-014 (upload audio su Drive).
+- Trappole/note: *ipotesi* sulla causa: Safari dichiarava supportato `audio/mp4;codecs=mp4a.40.2` ma il registratore non partiva; il formato scelto sull'iPhone non è stato osservato. Manca l'esito con lo schermo bloccato.
+
 ## [2026-10-31] — T-013b: errore microfono su iPhone (diagnosi in corso)
 - Fatto: su iPhone (Safari, permesso "consenti mentre visiti il sito") compare "Microfono non disponibile: The request is not allowed by the user agent or the platform in the current context…" (NotAllowedError). Non riproducibile qui. `src/audio/recorder.ts`: messaggio che distingue "il telefono non ha concesso il microfono (…)" (getUserMedia) da "registratore non avviato (…)" (MediaRecorder), con `name` dell'errore e `cause`; `audioMimeTypeCandidates` + `firstThatWorks` tentano i formati in ordine e infine quello del browser.
 - Stato: in attesa del nuovo messaggio dall'iPhone.
