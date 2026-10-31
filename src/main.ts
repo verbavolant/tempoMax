@@ -4,6 +4,7 @@ import { GOOGLE_CLIENT_ID, GOOGLE_SCOPE } from './config';
 import { readCurrentPosition } from './geo/currentPosition';
 import { ClientsRepository } from './storage/clientsRepository';
 import { DriveClient, DriveError } from './storage/drive';
+import { AudioStore } from './storage/audioStore';
 import { LocalVisitStore } from './storage/localVisits';
 import { VisitRegister } from './storage/visitRegister';
 import { VisitsRepository } from './storage/visitsRepository';
@@ -81,11 +82,12 @@ try {
     now: () => new Date(),
   });
 
+  const audioStore = new AudioStore();
   let unmountCurrent: () => void = () => undefined;
 
   const showHome = () => {
     unmountCurrent();
-    unmountCurrent = mountHomeScreen(appRoot, session, { openClients: showClients, openVisits: showVisits });
+    unmountCurrent = mountHomeScreen(appRoot, session, audioStore, { openClients: showClients, openVisits: showVisits });
   };
 
   /** Schermata secondaria con "Indietro"; `mount` va chiamato senza await precedenti, per il popup di login nel tap. */

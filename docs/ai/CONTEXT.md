@@ -31,8 +31,8 @@ docs/human/       # documentazione per l'utente/setup
 | `public/sw.js` | service worker: precache della pagina e dei file referenziati, network-first, solo stessa origine |
 | `public/icons/` | icone PNG (generate con Pillow: cronometro bianco su verde) |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
-| `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
-| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, pulsanti "👥 Clienti" e "🕘 Visite"; blocco del doppio tap per 2 s |
+| `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, `addAudio()`/`removeAudio()` (solo in locale), GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
+| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (solo a visita aperta: registra, ▶ ascolta, 🗑 elimina), pulsanti "👥 Clienti" e "🕘 Visite"; blocco del doppio tap per 2 s |
 | `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali), assegnazione del cliente; `orderClientsByDistance`, `mergeVisits` |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista (cliente "📍 Sei qui" in cima, evidenziato), form nuovo/modifica, "Sono qui adesso"; `orderClientsForList` |
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |

@@ -241,4 +241,46 @@ describe('VisitSession', () => {
       expect(session.view().unsyncedCount).toBe(1);
     });
   });
+
+  describe('note audio', () => {
+    const note = {
+      id: 'a-1',
+      recordedAt: '2026-10-31T09:10:00+01:00',
+      mimeType: 'audio/mp4',
+      durationSeconds: 12,
+      driveFileId: null,
+    };
+
+    it('aggiunge e toglie una nota dalla visita in corso, in locale', async () => {
+      const { session, storage, dependencies } = setup();
+      await session.toggle();
+      const openId = session.view().openVisit?.id ?? '';
+
+      session.addAudio(openId, note);
+      expect(session.view().openVisit?.audio).toEqual([note]);
+      const reloaded = new VisitSession({ ...dependencies, store: new LocalVisitStore(storage) });
+      expect(reloaded.view().openVisit?.audio).toEqual([note]);
+
+      session.removeAudio(openId, 'a-1');
+      expect(session.view().openVisit?.audio).toEqual([]);
+    });
+
+    it('una nota fermata dopo FINE finisce nella visita chiusa e viene risalvata al tap successivo', async () => {
+      const { session, advance, saved } = setup();
+      await session.toggle();
+      const visitId = session.view().openVisit?.id ?? '';
+      advance(10);
+      await session.toggle();
+      expect(session.view().unsyncedCount).toBe(0);
+
+      session.addAudio(visitId, note);
+      expect(session.view().unsyncedCount).toBe(1);
+
+      advance(5);
+      await session.toggle();
+      const lastVersion = saved.filter((visit) => visit.id === visitId).at(-1);
+      expect(lastVersion).toMatchObject({ checkOut: { at: '2026-10-31T09:10:00+01:00' }, audio: [note] });
+      expect(session.view().unsyncedCount).toBe(0);
+    });
+  });
 });

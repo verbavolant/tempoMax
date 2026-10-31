@@ -1,6 +1,7 @@
-// In ordine di preferenza. Safari registra in MP4 con AAC (WebKit, "MediaRecorder API", blog 11353);
-// Chrome e Firefox di solito in WebM/Opus.
-const PREFERRED_MIME_TYPES = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'] as const;
+// In ordine di preferenza: AAC in MP4 (.m4a) si riproduce quasi ovunque, anche nell'anteprima sul PC.
+// Safari registra in MP4 con AAC (WebKit, "MediaRecorder API", blog 11353). Chrome con il solo "audio/mp4"
+// sceglie Opus in MP4 (osservato su Chrome 156), da qui il codec esplicito mp4a.40.2 (AAC-LC) per primo.
+const PREFERRED_MIME_TYPES = ['audio/mp4;codecs=mp4a.40.2', 'audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'] as const;
 
 // Blocchi da un secondo: se la registrazione si interrompe per errore, i secondi già registrati restano.
 const CHUNK_MILLISECONDS = 1_000;
@@ -23,6 +24,7 @@ export class AudioRecording {
   private constructor(
     private readonly stream: MediaStream,
     private readonly recorder: MediaRecorder,
+    private readonly requestedMimeType: string | undefined,
   ) {
     recorder.addEventListener('dataavailable', (event) => {
       if (event.data.size > 0) {
@@ -39,7 +41,7 @@ export class AudioRecording {
     }
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mimeType = chooseAudioMimeType((candidate) => MediaRecorder.isTypeSupported(candidate));
-    return new AudioRecording(stream, new MediaRecorder(stream, mimeType ? { mimeType } : undefined));
+    return new AudioRecording(stream, new MediaRecorder(stream, mimeType ? { mimeType } : undefined), mimeType);
   }
 
   elapsedSeconds(): number {
@@ -50,7 +52,9 @@ export class AudioRecording {
     return new Promise((resolve, reject) => {
       this.recorder.addEventListener('stop', () => {
         this.releaseMicrophone();
-        const audio = new Blob(this.chunks, { type: this.recorder.mimeType });
+        // Se il browser non dichiara il formato si usa quello richiesto; senza nessuno dei due, binario generico.
+        const type = this.recorder.mimeType || this.requestedMimeType || 'application/octet-stream';
+        const audio = new Blob(this.chunks, { type });
         if (audio.size === 0) {
           reject(new Error('Registrazione vuota'));
           return;

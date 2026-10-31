@@ -2,7 +2,7 @@ import { findClientAtPosition } from '../geo/distance';
 import type { Client } from '../model/client';
 import type { MeasuredPosition } from '../model/position';
 import { formatLocalIsoDateTime } from '../model/time';
-import { type Visit, endVisit, parseVisit, startVisit } from '../model/visit';
+import { type AudioNote, type Visit, endVisit, parseVisit, startVisit } from '../model/visit';
 import { type LocalVisitState, type LocalVisitStore, upsertVisit } from '../storage/localVisits';
 import type { VisitRegister } from '../storage/visitRegister';
 import type { VisitsRepository } from '../storage/visitsRepository';
@@ -120,6 +120,18 @@ export class VisitSession {
       this.commit({ ...this.state, unsyncedVisits: upsertVisit(this.state.unsyncedVisits, updated) });
     }
     return this.enqueueSync(async () => undefined);
+  }
+
+  /**
+   * Aggiunge una nota audio alla visita (in corso, o appena chiusa se FINE è arrivato durante la registrazione).
+   * Solo in locale: il JSON su Drive si aggiorna al prossimo salvataggio, il file audio con T-014.
+   */
+  addAudio(visitId: string, note: AudioNote): void {
+    this.updateVisit(visitId, (visit) => ({ ...visit, audio: [...visit.audio, note] }));
+  }
+
+  removeAudio(visitId: string, noteId: string): void {
+    this.updateVisit(visitId, (visit) => ({ ...visit, audio: visit.audio.filter((note) => note.id !== noteId) }));
   }
 
   private async readPositionOrNull(): Promise<MeasuredPosition | null> {

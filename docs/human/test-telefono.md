@@ -29,6 +29,13 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] Chiudi la scheda del browser e riapri l'indirizzo: la visita è ancora in corso.
 - [ ] Tocca **FINE**.
 
+## Note vocali
+- [ ] Durante una visita tocca **🎤 Nota vocale**: il telefono chiede il microfono, consenti. Il pulsante diventa rosso **⏹ Ferma** con il tempo.
+- [ ] Parla qualche secondo, tocca **⏹ Ferma**: compare "🎧 Nota 1 · 0:00:0x".
+- [ ] **▶** riproduce la nota; **🗑** la elimina (chiede conferma).
+- [ ] Avvia una nota e **blocca lo schermo** per 20 secondi, poi riapri: la registrazione continua? Fermandola, la nota dura circa quanto il tempo trascorso?
+- [ ] Avvia una nota e tocca direttamente **FINE**: la visita si chiude e la nota non va persa (si vedrà su Drive con T-014).
+
 ## Senza rete
 - [ ] Attiva la modalità aereo, tocca **INIZIA**: compare "Salvata sul telefono, non ancora su Drive…".
 - [ ] Togli la modalità aereo, tocca **FINE**: l'avviso sparisce.

@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-013a, T-013b (parziale): note vocali
+- Fatto: T-013a: `AudioNote` e `Visit.audio` (assente nei JSON vecchi = `[]`), `src/storage/audioStore.ts` (IndexedDB, ArrayBuffer + tipo), `src/audio/recorder.ts` (MediaRecorder a blocchi da 1 s, `chooseAudioMimeType`), devDependency `fake-indexeddb@6.2.7`. T-013b: `VisitSession.addAudio/removeAudio` (solo in locale, tramite `updateVisit`), UI in `src/ui/home.ts` (pannello audio, elenco ridisegnato solo quando cambia), `AudioStore` creato in `src/main.ts`, stili. Aggiunto T-027 (GPS senza rete, da valutare) su osservazione dell'utente.
+- Stato: T-013a completo; T-013b parziale (prova su iPhone, schermo bloccato).
+- Verifica: `npm test` (168), typecheck, lint, build OK. Chrome headless con `--use-fake-device-for-media-stream` via CDP: registrazione di circa 2,6 s salvata (nota nella visita + file in IndexedDB), formato `audio/mp4;codecs=mp4a.40.2`; FINE durante la registrazione → visita chiusa con 1 nota.
+- Prossimo passo: prova su iPhone (`docs/human/test-telefono.md` → Note vocali), poi T-014 (upload su Drive, resumable oltre 5 MB, colonna Audio nel registro).
+- Trappole/note: Chrome 156 con il solo `audio/mp4` registra **Opus** in MP4. Per questo `audio/mp4;codecs=mp4a.40.2` (AAC-LC) è il primo della lista. Il primo tentativo di registrazione in un profilo Chrome nuovo non è partito, senza errori visibili, e non si è ripetuto. *Ipotesi*: permesso del microfono concesso con ritardo; da tenere d'occhio sul telefono. FINE durante la registrazione: prima `toggle()` (orario e token nel gesto), poi `finishRecording()` aggancia la nota alla visita chiusa.
+
 ## [2026-10-31] — T-019 chiuso
 - Fatto: nessun cambio al codice.
 - Stato: completo. L'utente ha verificato su iPhone: installazione, schermo intero, avvio e visita offline, salvataggio quando torna la rete.

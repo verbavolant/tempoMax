@@ -170,7 +170,7 @@
 - Dipende da: T-008b
 
 ### T-013b Audio: schermata
-- Stato: [ ]
+- Stato: [~] codice pronto e provato in Chrome con microfono finto; manca la prova su iPhone (anche con lo schermo bloccato)
 - Obiettivo: durante una visita, sotto FINE, il pulsante "🎤 Nota vocale" (diventa "⏹ Ferma" con il tempo); elenco delle note della visita con ▶ ascolta e 🗑 elimina; `VisitSession.addAudio/removeAudio` passando dalla coda.
 - Done quando: su iPhone si registra, si ascolta e si elimina una nota; si annota cosa succede se lo schermo si blocca durante la registrazione.
 - File: `src/ui/home.ts`, `src/visits/visitSession.ts`, `src/style.css`, test
