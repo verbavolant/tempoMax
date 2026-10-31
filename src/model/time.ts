@@ -23,3 +23,11 @@ export function formatElapsed(milliseconds: number): string {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   return `${hours}:${pad(minutes)}:${pad(totalSeconds % 60)}`;
 }
+
+/**
+ * Minuti tra due istanti ISO con fuso. Regola provvisoria (decisione dell'utente: "per ora al minuto"):
+ * arrotondamento al minuto più vicino. La regola di fatturazione definitiva sostituirà questa funzione (T-012).
+ */
+export function roundedMinutesBetween(startAt: string, endAt: string): number {
+  return Math.round((Date.parse(endAt) - Date.parse(startAt)) / 60_000);
+}

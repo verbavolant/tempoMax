@@ -216,6 +216,31 @@
 - File: `src/storage/audioCatalog.ts`, `src/ui/notes.ts`, `src/ui/home.ts`, `src/main.ts`, test
 - Dipende da: T-028a
 
+### T-029a Orario di lavoro: modello e archivio locale
+- Stato: [x]
+- Obiettivo: richiesta dell'utente del 2026-10-31: segnare inizio e fine del lavoro, comprese le pause (pausa = fine + nuovo inizio). `WorkPeriod {id, start, end|null}`, documento giornaliero `{schemaVersion, date, periods}`, `startWorkPeriod`/`endWorkPeriod`, totale lavorato del giorno; `roundedMinutesBetween` condivisa con `visitDurationMinutes`; `LocalWorkStore` (localStorage `tempomax.work`: periodi di oggi + id non ancora su Drive).
+- Done quando: test di modello, durate e archivio locale.
+- File: `src/model/work.ts`, `src/model/time.ts`, `src/model/visit.ts`, `src/storage/localWork.ts`, test
+- Note: indipendente dalle visite e senza GPS (scelte dichiarate all'utente, da confermare).
+
+### T-029b Orario di lavoro: Drive e Foglio "Orario di lavoro"
+- Stato: [ ]
+- Obiettivo: `TempoMax/lavoro/AAAA/AAAA-MM-GG.json` (lettura-modifica-scrittura del giorno); registro generico riusato per il Foglio "Orario di lavoro" (Data · Inizio · Fine · Durata (min) · ID periodo), una riga per periodo.
+- File: `src/storage/workRepository.ts`, `src/storage/sheetRegister.ts` (estratto da `visitRegister.ts`), `src/register/workRow.ts`, test
+- Dipende da: T-029a
+
+### T-029c Orario di lavoro: logica dei pulsanti
+- Stato: [ ]
+- Obiettivo: `WorkSession.start()/stop()`: orario al tocco, salvataggio locale, coda verso Drive (JSON del giorno + riga del foglio), riprova al tocco successivo.
+- File: `src/work/workSession.ts`, test
+- Dipende da: T-029b
+
+### T-029d Orario di lavoro: home
+- Stato: [ ]
+- Obiettivo: in cima alla home "▶ Inizio lavoro" / "⏸ Fine lavoro" affiancati (attivo solo quello sensato) e riga "Al lavoro da … · oggi …" / "In pausa · oggi …".
+- File: `src/ui/home.ts`, `src/main.ts`, `src/style.css`
+- Dipende da: T-029c
+
 ### T-027 Posizione senza rete (da valutare)
 - Stato: [ ] (da decidere con l'utente)
 - Contesto: in modalità aereo l'utente ha visto visite senza posizione. *Ipotesi*: il GPS dell'iPhone può funzionare anche senza rete, ma l'aggancio è più lento e supera il timeout di 20 s (`POSITION_TIMEOUT_MS`). Possibili soluzioni: timeout più lungo, oppure un nuovo tentativo in background che aggiorna la visita.

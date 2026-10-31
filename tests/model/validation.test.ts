@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ValidationError, expectIsoDateTime, expectNumberInRange, expectUniqueIds } from '../../src/model/validation';
+import {
+  ValidationError,
+  expectIsoDate,
+  expectIsoDateTime,
+  expectNumberInRange,
+  expectUniqueIds,
+} from '../../src/model/validation';
 
 describe('expectIsoDateTime', () => {
   it.each([
@@ -49,5 +55,15 @@ describe('expectUniqueIds', () => {
     expect(() => expectUniqueIds([{ id: 'a' }, { id: 'b' }, { id: 'a' }], 'lista')).toThrow(
       'lista[2].id: id duplicato "a"',
     );
+  });
+});
+
+describe('expectIsoDate', () => {
+  it('accetta una data esistente', () => {
+    expect(expectIsoDate('2028-02-29', 'data')).toBe('2028-02-29');
+  });
+
+  it.each(['2027-02-29', '2026-13-01', '31/10/2026', '2026-10-31T00:00:00Z'])('rifiuta %s', (text) => {
+    expect(() => expectIsoDate(text, 'data')).toThrow(ValidationError);
   });
 });

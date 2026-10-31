@@ -74,12 +74,28 @@ export function expectIsoDateTime(value: unknown, path: string): string {
   if (!match || Number.isNaN(Date.parse(text))) {
     throw new ValidationError(path, 'attesa una data ISO 8601 con fuso orario');
   }
-  // Date.parse accetta giorni inesistenti (es. 30 febbraio) spostandoli al mese dopo.
-  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  expectCalendarDay(Number(match[1]), Number(match[2]), Number(match[3]), path);
+  return text;
+}
+
+// Date.parse accetta giorni inesistenti (es. 30 febbraio) spostandoli al mese dopo.
+function expectCalendarDay(year: number, month: number, day: number, path: string): void {
   const calendarDate = new Date(Date.UTC(year, month - 1, day));
   if (calendarDate.getUTCMonth() !== month - 1 || calendarDate.getUTCDate() !== day) {
     throw new ValidationError(path, 'data inesistente nel calendario');
   }
+}
+
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** Solo data, `AAAA-MM-GG`, esistente nel calendario. */
+export function expectIsoDate(value: unknown, path: string): string {
+  const text = expectString(value, path);
+  const match = ISO_DATE.exec(text);
+  if (!match) {
+    throw new ValidationError(path, 'attesa una data AAAA-MM-GG');
+  }
+  expectCalendarDay(Number(match[1]), Number(match[2]), Number(match[3]), path);
   return text;
 }
 
