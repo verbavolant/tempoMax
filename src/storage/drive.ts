@@ -151,10 +151,35 @@ export class DriveClient {
       headers: { ...init.headers, Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
-      throw new DriveError(response.status, `Google Drive ha risposto ${response.status}`);
+      throw new DriveError(response.status, `Google ${serviceName(url)} ha risposto ${response.status}: ${await googleErrorMessage(response)}`);
     }
     return response;
   }
+}
+
+function serviceName(url: string): string {
+  const { hostname, pathname } = new URL(url);
+  if (hostname === 'sheets.googleapis.com') {
+    return 'Sheets';
+  }
+  return pathname.includes('/drive/') ? 'Drive' : hostname;
+}
+
+/**
+ * Le API Google restituiscono di solito `{ "error": { "message": … } }`: il testo spiega la causa
+ * (es. API non abilitata, permesso mancante). Se il corpo ha un'altra forma, si usa lo status testuale.
+ */
+async function googleErrorMessage(response: Response): Promise<string> {
+  try {
+    const body: unknown = await response.json();
+    const error = typeof body === 'object' && body !== null && 'error' in body ? body.error : undefined;
+    if (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string') {
+      return error.message;
+    }
+  } catch {
+    // Corpo non JSON: si ricade sullo status testuale qui sotto.
+  }
+  return response.statusText || 'nessun dettaglio';
 }
 
 function assertUploadable(content: Blob): void {

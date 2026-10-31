@@ -54,9 +54,25 @@ describe('DriveClient', () => {
       await expect(drive.getUser()).rejects.toBeInstanceOf(ValidationError);
     });
 
-    it('propaga lo status HTTP in caso di errore', async () => {
-      fetchMock.mockResolvedValueOnce(jsonResponse({ error: { code: 403 } }, 403));
-      await expect(drive.getUser()).rejects.toEqual(new DriveError(403, 'Google Drive ha risposto 403'));
+    it("propaga status, servizio e messaggio dell'errore Google", async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ error: { code: 403, message: 'Google Sheets API has not been used in project 1' } }, 403),
+      );
+      await expect(drive.getUser()).rejects.toEqual(
+        new DriveError(403, 'Google Drive ha risposto 403: Google Sheets API has not been used in project 1'),
+      );
+    });
+
+    it('indica Sheets quando a rispondere è la Sheets API', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ error: { message: 'The caller does not have permission' } }, 403));
+      await expect(drive.request('https://sheets.googleapis.com/v4/spreadsheets/s-1/values/A1:H1')).rejects.toMatchObject({
+        message: 'Google Sheets ha risposto 403: The caller does not have permission',
+      });
+    });
+
+    it('con un corpo non JSON usa lo status testuale', async () => {
+      fetchMock.mockResolvedValueOnce(new Response('<html>', { status: 502, statusText: 'Bad Gateway' }));
+      await expect(drive.getUser()).rejects.toMatchObject({ status: 502, message: 'Google Drive ha risposto 502: Bad Gateway' });
     });
 
     it('senza token fallisce con 401 senza chiamare la rete', async () => {
