@@ -192,4 +192,51 @@ describe('VisitSession', () => {
     await session.toggle();
     expect(session.view()).toMatchObject({ unsyncedCount: 1 });
   });
+
+  describe('assignClient', () => {
+    it('sulla visita in corso cambia il cliente e lo mantiene dopo la risposta del GPS', async () => {
+      const gps = deferred<MeasuredPosition>();
+      const { session, lastSaved } = setup({ readPosition: () => gps.promise });
+      const checkIn = session.toggle();
+      const open = session.view().openVisit;
+      if (!open) throw new Error('visita non aperta');
+
+      const assigned = session.assignClient(open, 'c-altro');
+      gps.resolve(atVilla);
+      await Promise.all([checkIn, assigned]);
+
+      expect(lastSaved()).toMatchObject({ id: open.id, clientId: 'c-altro', checkIn: { position: atVilla } });
+    });
+
+    it('su una visita letta da Drive la salva con il nuovo cliente, JSON e registro', async () => {
+      const { session, lastSaved, register } = setup();
+      const fromDrive: Visit = {
+        schemaVersion: 1,
+        id: 'v-drive',
+        clientId: null,
+        checkIn: { at: '2026-10-30T09:00:00+01:00', position: null },
+        checkOut: { at: '2026-10-30T10:00:00+01:00', position: null },
+        note: '',
+      };
+      await session.assignClient(fromDrive, 'c-villa');
+      expect(lastSaved()).toEqual({ ...fromDrive, clientId: 'c-villa' });
+      expect(register.save).toHaveBeenLastCalledWith({ ...fromDrive, clientId: 'c-villa' }, 'Villa Rossi');
+      expect(session.view().unsyncedCount).toBe(0);
+    });
+
+    it('senza rete la modifica resta in coda', async () => {
+      const { session, repository } = setup();
+      const fromDrive: Visit = {
+        schemaVersion: 1,
+        id: 'v-drive',
+        clientId: 'c-villa',
+        checkIn: { at: '2026-10-30T09:00:00+01:00', position: null },
+        checkOut: { at: '2026-10-30T10:00:00+01:00', position: null },
+        note: '',
+      };
+      repository.save.mockRejectedValueOnce(new Error('rete assente'));
+      await session.assignClient(fromDrive, null);
+      expect(session.view().unsyncedCount).toBe(1);
+    });
+  });
 });

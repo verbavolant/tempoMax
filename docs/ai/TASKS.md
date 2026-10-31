@@ -112,11 +112,20 @@
 - Obiettivo: aggiungere una nota testuale a una visita, in corso o chiusa.
 - Dipende da: T-008b
 
-### T-021 Assegnare il cliente a una visita in seguito
+### T-021a Visite recenti e assegnazione del cliente: dati
+- Stato: [x]
+- Obiettivo: `DriveClient.listFiles` (ordinati per nome decrescente); `VisitsRepository.listRecent(limit)` legge le ultime visite dell'anno corrente, ordinate per check-in decrescente; `VisitSession.assignClient(visit, clientId | null)` aggiorna la visita passando dalla coda (locale → JSON → registro).
+- Done quando: test per listFiles, listRecent e assignClient (visita in corso, in coda, già su Drive; offline).
+- File: `src/storage/drive.ts`, `src/storage/visitsRepository.ts`, `src/visits/visitSession.ts`, test
+- Dipende da: T-008b, T-011b
+- Note: solo l'anno corrente (per non creare cartelle di anni vuoti): a inizio gennaio le visite di dicembre non compaiono. Da rivedere se serve.
+
+### T-021b Visite recenti e assegnazione del cliente: schermata
 - Stato: [ ]
-- Obiettivo: in una schermata secondaria, elenco delle visite recenti con la possibilità di assegnare o cambiare il cliente (o lasciarlo vuoto).
-- Done quando: una visita senza cliente riceve un cliente e il JSON su Drive viene aggiornato.
-- Dipende da: T-008b
+- Obiettivo: pulsante "🕘 Visite" nella home → elenco delle ultime 20 visite (data, orari, cliente o "senza cliente"); tocco su una visita → scelta del cliente (quello più vicino alla posizione del check-in proposto per primo) oppure "nessuno" → salvataggio.
+- Done quando: una visita senza cliente riceve un cliente; JSON e riga del registro aggiornati.
+- File: `src/ui/visits.ts`, `src/ui/home.ts`, `src/main.ts`, `src/style.css`
+- Dipende da: T-021a
 
 ### T-010 Deploy HTTPS + test su iPhone
 - Stato: [x] online e verificato dall'utente su iPhone ("funziona come volevo", 2026-10-31)

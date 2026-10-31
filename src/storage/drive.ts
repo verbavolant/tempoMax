@@ -67,6 +67,22 @@ export class DriveClient {
     return this.findOne(`name = '${escapeQueryValue(name)}' and '${escapeQueryValue(parentId)}' in parents and mimeType != '${FOLDER_MIME_TYPE}' and trashed = false`);
   }
 
+  /** File (non cartelle) contenuti in una cartella, ordinati per nome decrescente. */
+  async listFiles(parentId: string, pageSize: number): Promise<{ id: string; name: string }[]> {
+    const params = new URLSearchParams({
+      q: `'${escapeQueryValue(parentId)}' in parents and mimeType != '${FOLDER_MIME_TYPE}' and trashed = false`,
+      fields: 'files(id,name)',
+      orderBy: 'name desc',
+      pageSize: String(pageSize),
+    });
+    const response = await this.request(`${DRIVE_API_URL}/files?${params}`);
+    return expectArray(expectObject(await response.json(), 'list').files, 'list.files').map((file, index) => {
+      const path = `list.files[${index}]`;
+      const object = expectObject(file, path);
+      return { id: parseFileId(object, path), name: expectNonEmptyString(object.name, `${path}.name`) };
+    });
+  }
+
   async readJson(fileId: string): Promise<unknown> {
     const response = await this.request(`${DRIVE_API_URL}/files/${encodeURIComponent(fileId)}?alt=media`);
     return response.json();

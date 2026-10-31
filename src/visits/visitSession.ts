@@ -2,7 +2,7 @@ import { findClientAtPosition } from '../geo/distance';
 import type { Client } from '../model/client';
 import type { MeasuredPosition } from '../model/position';
 import { formatLocalIsoDateTime } from '../model/time';
-import { type Visit, endVisit, startVisit } from '../model/visit';
+import { type Visit, endVisit, parseVisit, startVisit } from '../model/visit';
 import { type LocalVisitState, type LocalVisitStore, upsertVisit } from '../storage/localVisits';
 import type { VisitRegister } from '../storage/visitRegister';
 import type { VisitsRepository } from '../storage/visitsRepository';
@@ -98,6 +98,23 @@ export class VisitSession {
         this.updateVisit(started.id, (visit) => (visit.clientId ? visit : { ...visit, clientId: client.id }));
       }
     });
+  }
+
+  /**
+   * Assegna (o toglie, con null) il cliente di una visita. Passa dalla coda come le altre scritture:
+   * per la visita in corso o in attesa si modifica la copia locale; per una visita letta da Drive
+   * la si mette in coda, così senza rete la modifica viene risalvata al tap successivo.
+   */
+  assignClient(visit: Visit, clientId: string | null): Promise<void> {
+    const isLocal =
+      this.state.openVisit?.id === visit.id || this.state.unsyncedVisits.some((pending) => pending.id === visit.id);
+    if (isLocal) {
+      this.updateVisit(visit.id, (current) => ({ ...current, clientId }));
+    } else {
+      const updated = parseVisit({ ...visit, clientId });
+      this.commit({ ...this.state, unsyncedVisits: upsertVisit(this.state.unsyncedVisits, updated) });
+    }
+    return this.enqueueSync(async () => undefined);
   }
 
   private async readPositionOrNull(): Promise<MeasuredPosition | null> {
