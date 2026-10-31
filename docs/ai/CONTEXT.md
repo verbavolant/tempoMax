@@ -30,7 +30,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
 | `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, pulsante "👥 Clienti"; blocco del doppio tap per 2 s |
-| `src/ui/clients.ts` | `mountClientsScreen`: lista, form nuovo/modifica, "Sono qui adesso" |
+| `src/ui/clients.ts` | `mountClientsScreen`: lista (cliente "📍 Sei qui" in cima, evidenziato), form nuovo/modifica, "Sono qui adesso"; `orderClientsForList` |
 | `src/geo/mapsLink.ts` | `googleMapsUrl` (Maps URLs, azione search) |
 | `src/register/visitRow.ts` | `REGISTER_HEADER`, `visitToRow`, `REGISTER_ID_COLUMN_INDEX` |
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |

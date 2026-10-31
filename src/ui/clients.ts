@@ -1,3 +1,4 @@
+import { findClientAtPosition } from '../geo/distance';
 import { type Client, DEFAULT_CLIENT_RADIUS_METERS, buildClient, newClientIdentity } from '../model/client';
 import type { Coordinates, MeasuredPosition } from '../model/position';
 import type { ClientsRepository } from '../storage/clientsRepository';
@@ -16,6 +17,13 @@ function describeLocation(location: Coordinates | undefined, accuracyMeters?: nu
   }
   const accuracy = accuracyMeters === undefined ? '' : ` (±${Math.round(accuracyMeters)} m)`;
   return `${location.latitude.toFixed(5)}, ${location.longitude.toFixed(5)}${accuracy}`;
+}
+
+/** Ordine alfabetico, con in cima il cliente presso cui ci si trova. */
+export function orderClientsForList(clients: readonly Client[], hereClient: Client | null): Client[] {
+  return [...clients].sort(
+    (a, b) => Number(b === hereClient) - Number(a === hereClient) || a.name.localeCompare(b.name, 'it'),
+  );
 }
 
 export async function mountClientsScreen(container: HTMLElement, dependencies: ClientsScreenDependencies): Promise<void> {
@@ -59,17 +67,21 @@ export async function mountClientsScreen(container: HTMLElement, dependencies: C
   let clients: Client[] = [];
   let editing: Client | null = null;
   let formLocation: Coordinates | undefined;
+  let currentPosition: Coordinates | null = null;
+  let positionError: string | null = null;
 
   const renderList = () => {
-    const sorted = [...clients].sort((a, b) => a.name.localeCompare(b.name, 'it'));
+    // Stessa regola del check-in: il cliente evidenziato è quello che verrebbe associato alla visita.
+    const hereClient = currentPosition ? findClientAtPosition(currentPosition, clients) : null;
     list.replaceChildren(
-      ...sorted.map((client) => {
+      ...orderClientsForList(clients, hereClient).map((client) => {
         const item = document.createElement('li');
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'list-item';
+        button.classList.toggle('here', client === hereClient);
         const name = document.createElement('strong');
-        name.textContent = client.name;
+        name.textContent = client === hereClient ? `📍 Sei qui · ${client.name}` : client.name;
         const details = document.createElement('small');
         details.textContent = [client.address, client.location ? `raggio ${client.radiusMeters} m` : '⚠️ senza posizione']
           .filter(Boolean)
@@ -80,7 +92,11 @@ export async function mountClientsScreen(container: HTMLElement, dependencies: C
         return item;
       }),
     );
-    message.textContent = clients.length === 0 ? 'Nessun cliente: aggiungi il primo.' : '';
+    if (clients.length === 0) {
+      message.textContent = 'Nessun cliente: aggiungi il primo.';
+    } else {
+      message.textContent = positionError && !currentPosition ? `Posizione non disponibile (${positionError}): nessun cliente evidenziato.` : '';
+    }
   };
 
   const openForm = (client: Client | null) => {
@@ -112,6 +128,8 @@ export async function mountClientsScreen(container: HTMLElement, dependencies: C
     try {
       const position = await dependencies.readPosition();
       formLocation = { latitude: position.latitude, longitude: position.longitude };
+      currentPosition = formLocation;
+      positionError = null;
       locationText.textContent = describeLocation(formLocation, position.accuracyMeters);
       const radius = Number(radiusInput.value);
       formMessage.textContent =
@@ -155,6 +173,15 @@ export async function mountClientsScreen(container: HTMLElement, dependencies: C
     }
   });
 
+  // GPS in parallelo al caricamento: la lista compare subito, l'evidenziazione appena arriva la posizione.
+  const positionRead = dependencies.readPosition().then(
+    (position) => position,
+    (error: unknown) => {
+      positionError = errorMessage(error);
+      return null;
+    },
+  );
+
   message.textContent = 'Caricamento clienti…';
   try {
     clients = await dependencies.authorized(() => dependencies.repository.load());
@@ -163,5 +190,8 @@ export async function mountClientsScreen(container: HTMLElement, dependencies: C
     newButton.disabled = false;
   } catch (error) {
     message.textContent = `Impossibile caricare i clienti: ${errorMessage(error)}`;
+    return;
   }
+  currentPosition ??= await positionRead;
+  renderList();
 }

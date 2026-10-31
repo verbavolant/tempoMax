@@ -86,6 +86,11 @@ button:disabled {
   text-align: left;
 }
 
+.list-item.here {
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
 .list-item small {
   color: var(--muted);
 }

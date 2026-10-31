@@ -101,7 +101,7 @@
 - File: `src/main.ts`
 
 ### T-025 Evidenziare il cliente presso cui ci si trova
-- Stato: [ ]
+- Stato: [~] codice e test pronti; da verificare sul telefono in un punto dentro il raggio di un cliente
 - Obiettivo: aprendo la pagina Clienti si legge il GPS e si evidenzia il cliente dato da `findClientAtPosition` (stessa regola del check-in). Se il GPS non risponde, non si evidenzia nulla.
 - Done quando: in un punto dentro il raggio di un cliente, quel cliente appare evidenziato con "📍 Sei qui".
 - File: `src/ui/clients.ts`, `src/style.css`

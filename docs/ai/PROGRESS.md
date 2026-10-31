@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-010 chiuso, T-024, T-025 (parziale)
+- Fatto: T-010 verificato dall'utente su iPhone. T-024: "‹ Indietro" usa `.secondary-button`; rimosso `.link-button` (non più usato). T-025: `src/ui/clients.ts` legge il GPS in parallelo al caricamento e evidenzia (classe `.here`, "📍 Sei qui", in cima) il cliente di `findClientAtPosition`; `orderClientsForList` testato in `tests/ui/clients.test.ts`.
+- Stato: T-024 completo; T-025 parziale (prova sul telefono).
+- Verifica: `npm test` (146), typecheck, lint, build OK.
+- Prossimo passo: T-021 (assegnare il cliente a una visita in seguito), come da programma.
+- Trappole/note: la lettura GPS iniziale della pagina Clienti è gestita con `.then(ok, err)` per non lasciare promesse rifiutate senza gestione se il caricamento dei clienti fallisce.
+
 ## [2026-10-31] — T-010 app online
 - Fatto: scope `workflow` aggiunto dall'utente, push riuscito; GitHub Action "Deploy static content to Pages" (run 41209809296) verde in 58 s, con lint, test e build.
 - Stato: parziale. Manca la checklist `docs/human/test-telefono.md` su iPhone.
