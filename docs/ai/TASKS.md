@@ -256,7 +256,7 @@
 - Note: decisione dell'utente del 2026-10-31 (ADR-008).
 
 ### T-031b Ambiente di prova: repo, Pages e flusso di rilascio
-- Stato: [ ]
+- Stato: [x] repo `verbavolant/tempoMax-dev` creato, Pages attivo, prima pubblicazione verde
 - Obiettivo: repo pubblico `verbavolant/tempoMax-dev` (Pages: https://verbavolant.github.io/tempoMax-dev/); workflow che imposta ambiente e base dal nome del repo; ramo locale `dev` → `staging/main`; produzione (`origin/main`) **solo con conferma esplicita dell'utente**. Procedura in `docs/human/rilascio.md`.
 - Dipende da: T-031a
 

@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-031a, T-031b: ambiente di prova
+- Fatto: ADR-008. T-031a: `src/config.ts` (`IS_STAGING`, `LOCAL_STORAGE_PREFIX`, `DRIVE_ROOT_FOLDER`), `src/vite-env.d.ts`, chiavi di localStorage e nome IndexedDB con prefisso, `ROOT_FOLDER` da configurazione, plugin `appEnvironment` in `vite.config.ts` (manifest generato, nome, icone e colore per ambiente; `base` da `VITE_BASE`), `index.html` con segnaposto e manifest relativo, `public/icons-dev/`, cache del service worker per scope. T-031b: repo pubblico `verbavolant/tempoMax-dev` (remote `staging`), Pages con build da workflow, workflow che ricava ambiente e base da `GITHUB_REPOSITORY`, ramo `dev` (copia anche su `origin/dev`), `docs/human/rilascio.md`.
+- Stato: completo. Produzione **non** aggiornata (`main` locale avanti di 1 commit di documentazione, non pubblicato).
+- Verifica: build locali di produzione e prova confrontate (titolo, manifest, icone, nomi Drive e storage). Prova offline su `vite preview`: cache `tempomax:<scope>:v1`, visita salvata. Action di tempoMax-dev verde; https://verbavolant.github.io/tempoMax-dev/ serve "TempoMax DEV" con manifest arancione; l'ufficiale è invariata.
+- Prossimo passo: T-032 (nome dispositivo + Opzioni) sul ramo `dev`, pubblicato solo su prova.
+- Trappole/note: il manifest generato non viene più riscritto da Vite: un `href` assoluto "/manifest.webmanifest" finiva fuori dall'app (404) → usato un `href` relativo. In sviluppo il manifest è servito da `configureServer`. Primo rilascio in produzione dopo questo cambio: il service worker vecchio (cache `tempomax-v1`) viene sostituito e la sua cache cancellata (`LEGACY_CACHE_NAME`).
+
 ## [2026-10-31] — Verifiche utente; nuove richieste: nome dispositivo e ambiente di prova
 - Fatto: l'utente conferma su iPhone note vocali su Drive (T-014b/c), note libere e schermata Note (T-028b/c), orario di lavoro (T-029d). T-030 non ancora confermato.
 - Stato: nuove richieste in fase di progettazione, nessun codice: (1) registrare in JSON e fogli il nome del dispositivo; (2) un binario di sviluppo separato, con pubblicazione su GitHub Pages "ufficiale" **solo dopo conferma esplicita dell'utente**.
