@@ -4,6 +4,15 @@ App: **https://verbavolant.github.io/tempoMax/**
 
 Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messaggi).
 
+## Installazione sulla schermata Home
+- **iPhone (Safari)**: apri l'indirizzo → pulsante **Condividi** (quadrato con freccia) → **Aggiungi alla schermata Home** → **Aggiungi**.
+- **Android (Chrome)**: apri l'indirizzo → menu **⋮** → **Installa app** (o **Aggiungi a schermata Home**).
+- [ ] Sulla Home compare l'icona verde con il cronometro, nome **TempoMax**.
+- [ ] Aprendola, l'app si vede a schermo intero, senza la barra del browser.
+- [ ] Con la **modalità aereo** attiva l'app si apre lo stesso e INIZIA registra la visita ("…non ancora su Drive: nessuna connessione").
+
+> Nota: l'app installata ha un suo spazio separato da Safari. Le visite in corso o non salvate su Drive in Safari non compaiono nell'app installata (e viceversa): chiudi le visite prima di passare all'app installata.
+
 ## Preparazione
 - [ ] Apri l'indirizzo in **Safari** (iPhone) o **Chrome** (Android).
 - [ ] Compare il pulsante verde **INIZIA** e sotto **👥 Clienti**.

@@ -200,15 +200,25 @@
 - Dipende da: Fasi 1–4
 
 ### T-019 PWA installabile
-- Stato: [ ]
-- Obiettivo: manifest, icone, service worker per la cache dell'app.
-- Done quando: l'app si installa sulla schermata Home di iPhone e Android e si apre offline.
-- Dipende da: T-018
+- Stato: [~] codice pronto e verificato offline con Chrome (DevTools Protocol); manca l'installazione su iPhone
+- Obiettivo: manifest, icone, service worker (cache dell'app, network-first), avvio **senza rete**: il login Google si carica in background e la sua assenza non blocca il pulsante.
+- Done quando: l'app si installa sulla schermata Home di iPhone (e Android in T-020) e si apre in modalità aereo, registrando la visita in locale.
+- File: `public/manifest.webmanifest`, `public/sw.js`, `public/icons/*`, `index.html`, `src/main.ts`, `eslint.config.js`
+- Dipende da: T-008b (anticipato rispetto a T-018 su richiesta dell'utente)
 
 ### T-020 Test su Android
 - Stato: [ ]
 - Obiettivo: checklist di test manuale eseguita su Android/Chrome (GPS, audio webm, login, offline).
 - Dipende da: T-019
+
+---
+
+## Opzioni
+
+### T-026 Schermata Opzioni: GPS disattivabile
+- Stato: [ ]
+- Obiettivo: schermata "Opzioni" con un interruttore per disattivare il tracciamento GPS (privacy). Con il GPS spento: visite senza posizione e senza cliente automatico, nessuna lettura GPS nelle altre schermate.
+- Dipende da: T-019, T-014 (ordine concordato)
 
 ---
 

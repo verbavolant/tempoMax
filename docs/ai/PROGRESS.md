@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-019 PWA installabile (parziale)
+- Fatto: nuovo ordine dei lavori concordato (PLAN.md: T-019 → audio → T-026 Opzioni/GPS → Fase 2). `public/manifest.webmanifest`, `public/sw.js`, `public/icons/{icon-192,icon-512,apple-touch-icon}.png`, `index.html` (manifest, theme-color, icone), override ESLint per `public/sw.js`. `src/main.ts`: service worker registrato in produzione; login Google caricato in background, così l'app parte anche offline; `authorized()` rifiuta subito se `navigator.onLine` è false.
+- Stato: parziale. Manca l'installazione su iPhone (checklist aggiornata in `docs/human/test-telefono.md`).
+- Verifica: `npm test` (156), typecheck, lint, build OK. Prova con Chrome headless via DevTools Protocol su `vite preview`: service worker attivo, 6 file in cache; con `Network.emulateNetworkConditions offline` l'app si apre e INIZIA salva la visita in localStorage con "nessuna connessione".
+- Prossimo passo: l'utente installa su iPhone; poi Fase 3 audio (T-013).
+- Trappole/note: prima l'app offline non partiva affatto (`await loadGoogleIdentityServices()` all'avvio). Il service worker non è un requisito di installabilità (MDN, web.dev), ma serve per l'avvio offline. Alla prima visita i file sono caricati prima del service worker: `precacheAppShell` rilegge `index.html` e mette in cache i file referenziati. Per aggiornare la strategia di cache cambiare `CACHE_NAME`. L'app installata su iOS ha uno storage separato da Safari. Script di verifica CDP e generatore delle icone sono nello scratchpad della sessione, non nel repo.
+
 ## [2026-10-31] — T-021a, T-021b (parziale): assegnare il cliente dopo
 - Fatto: T-021a: `DriveClient.listFiles`, `VisitsRepository.listRecent`, `VisitSession.assignClient` e `localVisits`. T-021b: `src/ui/visits.ts` (elenco, tendina dei clienti ordinata per distanza dal check-in, "nessun cliente"), pulsante "🕘 Visite" in `src/ui/home.ts`, `showSecondary` in `src/main.ts`, stile del `select`. `italianDate`/`clockTime` esportati da `src/register/visitRow.ts`.
 - Stato: T-021a completo; T-021b parziale (prova sul telefono).

@@ -25,8 +25,11 @@ docs/human/       # documentazione per l'utente/setup
 ## File/moduli chiave
 | Path | Responsabilità |
 |------|----------------|
-| `src/main.ts` | bootstrap: `authorized()` (token nel gesto + `invalidateToken` su 401), `VisitSession`, navigazione Home ↔ Clienti / Visite (`showSecondary`). Nessuna schermata di login: il token si chiede al primo tap |
+| `src/main.ts` | bootstrap: registra il service worker (solo build), login Google caricato in background (l'app parte anche offline), `authorized()` (offline → errore immediato; token nel gesto; `invalidateToken` su 401), `VisitSession`, navigazione Home ↔ Clienti / Visite (`showSecondary`). Nessuna schermata di login: il token si chiede al primo tap |
 | `src/style.css` | stile mobile, chiaro/scuro |
+| `public/manifest.webmanifest` | manifest PWA (nome, icone 192/512 + maskable, standalone) |
+| `public/sw.js` | service worker: precache della pagina e dei file referenziati, network-first, solo stessa origine |
+| `public/icons/` | icone PNG (generate con Pillow: cronometro bianco su verde) |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
 | `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, pulsanti "👥 Clienti" e "🕘 Visite"; blocco del doppio tap per 2 s |

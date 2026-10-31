@@ -53,6 +53,9 @@ Criteri di successo:
 - Dipende da: Fasi 1–4
 - Task: T-018 … T-020
 
+## Ordine concordato (2026-10-31)
+Dopo la Fase 1, su richiesta dell'utente: **T-019 installazione sulla Home** → **Fase 3 audio (T-013, T-014)** → **T-026 schermata Opzioni con GPS disattivabile** → poi Fase 2 (riepilogo ore, serve la regola di fatturazione).
+
 ## Fuori scope (per ora)
 - Trascrizione automatica degli audio.
 - Integrazione con Google Calendar o appuntamenti pianificati.
