@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { audioMimeTypeCandidates, firstThatWorks } from '../../src/audio/recorder';
+import { MAX_RECORDING_SECONDS, audioMimeTypeCandidates, firstThatWorks, shouldStopForSize } from '../../src/audio/recorder';
 
 describe('audioMimeTypeCandidates', () => {
   it('mette AAC in MP4 esplicito per primo quando è dichiarato supportato (Chrome recente)', () => {
@@ -41,5 +41,26 @@ describe('firstThatWorks', () => {
         throw new Error(`fallito ${candidate}`);
       }),
     ).toThrow('fallito b');
+  });
+});
+
+describe('shouldStopForSize', () => {
+  const limit = 5_000_000;
+
+  it('continua finché restano almeno due blocchi di spazio', () => {
+    expect(shouldStopForSize(4_000_000, 16_000, limit)).toBe(false);
+    expect(shouldStopForSize(limit - 2 * 16_000 - 1, 16_000, limit)).toBe(false);
+  });
+
+  it('si ferma quando lo spazio rimasto non basta per due blocchi grandi come il più grande visto', () => {
+    expect(shouldStopForSize(limit - 2 * 16_000, 16_000, limit)).toBe(true);
+    expect(shouldStopForSize(4_950_000, 30_000, limit)).toBe(true);
+  });
+});
+
+describe('MAX_RECORDING_SECONDS', () => {
+  it('a 128 kbit/s il limite di tempo produce meno di 5 MB', () => {
+    const bytesAt128kbps = (128_000 / 8) * MAX_RECORDING_SECONDS;
+    expect(bytesAt128kbps).toBeLessThan(5_000_000);
   });
 });

@@ -136,7 +136,7 @@ export function mountHomeScreen(
     renderClock(view);
   };
 
-  const finishRecording = async () => {
+  const finishRecording = async (completionMessage = '') => {
     const current = active;
     if (!current) {
       return;
@@ -156,7 +156,7 @@ export function mountHomeScreen(
       // Prima il file sul telefono, poi il riferimento nella visita: mai un riferimento senza file.
       await audioStore.put(note.id, audio);
       session.addAudio(current.visitId, note);
-      audioMessage.textContent = '';
+      audioMessage.textContent = completionMessage;
     } catch (error) {
       audioMessage.textContent = `Nota non salvata: ${errorMessage(error)}`;
     } finally {
@@ -171,7 +171,10 @@ export function mountHomeScreen(
     render(session.view());
     try {
       const startedAt = formatLocalIsoDateTime(new Date());
-      active = { visitId, recording: await AudioRecording.start(), startedAt };
+      const recording = await AudioRecording.start(() => {
+        void finishRecording('Nota fermata: lunghezza massima raggiunta.');
+      });
+      active = { visitId, recording, startedAt };
     } catch (error) {
       audioMessage.textContent = `Microfono non disponibile: ${errorMessage(error)}`;
     } finally {

@@ -176,11 +176,25 @@
 - File: `src/ui/home.ts`, `src/visits/visitSession.ts`, `src/style.css`, test
 - Dipende da: T-013a
 
-### T-014 Upload audio su Drive
+### T-014a Tetto di dimensione delle note (ADR-007)
+- Stato: [x]
+- Obiettivo: il registratore somma la dimensione dei blocchi e si ferma da solo prima di 5.000.000 byte (limite multipart), avvisando "lunghezza massima raggiunta".
+- Done quando: test sulla logica del tetto; la UI salva la nota fermata automaticamente.
+- File: `src/audio/recorder.ts`, `src/ui/home.ts`, test
+- Dipende da: T-013b
+
+### T-014b Caricamento delle note su Drive
 - Stato: [ ]
-- Obiettivo: caricare gli audio in `TempoMax/audio/AAAA/` (multipart fino a 5 MB, upload resumable oltre), salvare l'id del file nella visita, colonna "Audio" nel registro con i link.
-- Done quando: l'audio si riproduce da Drive e il riferimento è nel JSON e nel registro.
-- Dipende da: T-013b, T-004
+- Obiettivo: prima di salvare il JSON della visita, le note con `driveFileId` null vengono caricate in `TempoMax/audio/AAAA/` (nome `AAAA-MM-GG_<idVisita>_<idNota>.<m4a|webm>`), con id e `webViewLink` salvati nella nota (`driveLink`, campo nuovo: assente = null); dopo il caricamento la copia locale si elimina.
+- Done quando: test della sessione (upload, errore, file locale mancante); su Drive c'è l'audio e il JSON ne contiene id e link.
+- File: `src/storage/drive.ts`, `src/storage/audioUploader.ts`, `src/model/visit.ts`, `src/visits/visitSession.ts`, `src/main.ts`, test
+- Dipende da: T-014a
+
+### T-014c Colonna "Audio" nel registro
+- Stato: [ ]
+- Obiettivo: colonna I "Audio" con i link alle note (uno per riga della cella); l'intestazione si aggiorna anche sui fogli già esistenti.
+- File: `src/register/visitRow.ts`, `src/storage/visitRegister.ts`, test
+- Dipende da: T-014b
 
 ### T-027 Posizione senza rete (da valutare)
 - Stato: [ ] (da decidere con l'utente)

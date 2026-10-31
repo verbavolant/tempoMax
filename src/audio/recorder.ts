@@ -3,8 +3,23 @@
 // sceglie Opus in MP4 (osservato su Chrome 156), da qui il codec esplicito mp4a.40.2 (AAC-LC) per primo.
 const PREFERRED_MIME_TYPES = ['audio/mp4;codecs=mp4a.40.2', 'audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'] as const;
 
-// Blocchi da un secondo: se la registrazione si interrompe per errore, i secondi già registrati restano.
+import { MULTIPART_UPLOAD_MAX_BYTES } from '../storage/drive';
+
+// Blocchi da un secondo: se la registrazione si interrompe per errore, i secondi già registrati restano,
+// e la dimensione si può controllare mentre si registra.
 const CHUNK_MILLISECONDS = 1_000;
+
+// Rete di sicurezza se un browser consegnasse i dati solo allo stop: 5 minuti stanno sotto i 5 MB
+// fino a circa 133 kbit/s. *Ipotesi*: il bitrate AAC dei telefoni è inferiore (non documentato).
+export const MAX_RECORDING_SECONDS = 5 * 60;
+
+/**
+ * Ci si ferma quando lo spazio rimasto non basta per altri due blocchi grandi come il più grande visto:
+ * dopo lo stop arriva ancora un ultimo blocco, più l'intestazione del contenitore (ADR-007).
+ */
+export function shouldStopForSize(recordedBytes: number, largestChunkBytes: number, limitBytes: number): boolean {
+  return recordedBytes + 2 * largestChunkBytes >= limitBytes;
+}
 
 /**
  * Formati da tentare in ordine: quelli preferiti dichiarati supportati, poi `undefined` (scelta del browser).
@@ -38,22 +53,36 @@ export interface RecordedAudio {
 export class AudioRecording {
   private readonly chunks: Blob[] = [];
   private readonly startedAt = Date.now();
+  private recordedBytes = 0;
+  private largestChunkBytes = 0;
+  private limitNotified = false;
+  private readonly timeLimit: ReturnType<typeof setTimeout>;
 
   private constructor(
     private readonly stream: MediaStream,
     private readonly recorder: MediaRecorder,
     private readonly requestedMimeType: string | undefined,
+    private readonly onLimitReached: () => void,
   ) {
     recorder.addEventListener('dataavailable', (event) => {
       if (event.data.size > 0) {
         this.chunks.push(event.data);
+        this.recordedBytes += event.data.size;
+        this.largestChunkBytes = Math.max(this.largestChunkBytes, event.data.size);
+        if (shouldStopForSize(this.recordedBytes, this.largestChunkBytes, MULTIPART_UPLOAD_MAX_BYTES)) {
+          this.notifyLimit();
+        }
       }
     });
     recorder.start(CHUNK_MILLISECONDS);
+    this.timeLimit = setTimeout(() => this.notifyLimit(), MAX_RECORDING_SECONDS * 1000);
   }
 
-  /** Chiede il permesso del microfono (solo HTTPS) e inizia a registrare. */
-  static async start(): Promise<AudioRecording> {
+  /**
+   * Chiede il permesso del microfono (solo HTTPS) e inizia a registrare.
+   * `onLimitReached` viene chiamato una volta quando la nota raggiunge la lunghezza massima: va fermata.
+   */
+  static async start(onLimitReached: () => void): Promise<AudioRecording> {
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       throw new Error('Questo browser non può registrare audio');
     }
@@ -68,7 +97,13 @@ export class AudioRecording {
     try {
       return firstThatWorks(
         candidates,
-        (mimeType) => new AudioRecording(stream, new MediaRecorder(stream, mimeType ? { mimeType } : undefined), mimeType),
+        (mimeType) =>
+          new AudioRecording(
+            stream,
+            new MediaRecorder(stream, mimeType ? { mimeType } : undefined),
+            mimeType,
+            onLimitReached,
+          ),
       );
     } catch (error) {
       stream.getTracks().forEach((track) => track.stop());
@@ -101,8 +136,16 @@ export class AudioRecording {
     });
   }
 
-  /** Spegne il microfono (l'indicatore di registrazione del telefono si spegne). */
+  private notifyLimit(): void {
+    if (!this.limitNotified) {
+      this.limitNotified = true;
+      this.onLimitReached();
+    }
+  }
+
+  /** Spegne il microfono (l'indicatore di registrazione del telefono si spegne) e il limite di tempo. */
   private releaseMicrophone(): void {
+    clearTimeout(this.timeLimit);
     this.stream.getTracks().forEach((track) => track.stop());
   }
 }

@@ -76,3 +76,12 @@
 - Alternative scartate: scegliere il cliente al check-in, come previsto prima in T-008 (attrito sul campo).
 - Aggiornamento 2026-10-31: l'utente ha scelto l'**associazione automatica**. Al check-in, se la posizione cade nel raggio di uno o più clienti, si associa il più vicino; altrimenti `clientId` resta `null`. L'orario si registra al tap, mentre GPS e salvataggio avvengono dopo.
 - Conseguenze: il registro ore (T-011) e i riepiloghi (T-012) devono gestire le visite "senza cliente". Nessuna visita è ancora stata salvata, quindi il cambio non richiede una nuova `SCHEMA_VERSION`. `Task.clientId` resta obbligatorio per ora: da rivedere in Fase 4.
+
+## ADR-007 — Note vocali entro 5 MB invece dell'upload resumable
+- Data: 2026-10-31
+- Stato: accettata
+- Contesto: l'upload multipart di Drive, già usato e verificato, è documentato per file fino a 5 MB. Per file più grandi serve l'upload resumable, che restituisce l'URI della sessione nell'header `Location`. Verificato con curl: nella risposta di errore (401) Google espone via CORS `Content-Length, Date, Server, Transfer-Encoding, X-GUploader-UploadID, X-Google-Trace, …`, ma non `Location`. Se `Location` sia leggibile dal browser nella risposta di successo non è documentato né verificabile senza token.
+- Decisione: il registratore somma la dimensione dei blocchi (uno al secondo) e si ferma da solo prima di 5.000.000 byte (`MULTIPART_UPLOAD_MAX_BYTES`), avvisando l'utente.
+- Motivazione: le note da cantiere sono brevi; con AAC il limite vale diversi minuti; nessuna dipendenza da un comportamento CORS non verificato.
+- Alternative scartate: upload resumable (rischio CORS non verificabile); ricostruire l'URI della sessione da `X-GUploader-UploadID` (formato non documentato).
+- Conseguenze: se servissero note più lunghe, verificare `Location` con un token reale e implementare il resumable.
