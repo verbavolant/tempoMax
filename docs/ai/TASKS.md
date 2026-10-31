@@ -200,7 +200,7 @@
 - Dipende da: Fasi 1–4
 
 ### T-019 PWA installabile
-- Stato: [~] codice pronto e verificato offline con Chrome (DevTools Protocol); manca l'installazione su iPhone
+- Stato: [x] verificato dall'utente su iPhone: installata, schermo intero, avvio e visita offline, salvataggio al ritorno della rete
 - Obiettivo: manifest, icone, service worker (cache dell'app, network-first), avvio **senza rete**: il login Google si carica in background e la sua assenza non blocca il pulsante.
 - Done quando: l'app si installa sulla schermata Home di iPhone (e Android in T-020) e si apre in modalità aereo, registrando la visita in locale.
 - File: `public/manifest.webmanifest`, `public/sw.js`, `public/icons/*`, `index.html`, `src/main.ts`, `eslint.config.js`
