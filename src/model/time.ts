@@ -15,3 +15,11 @@ export function formatLocalIsoDateTime(date: Date): string {
     `${sign}${pad(Math.floor(absoluteOffset / 60))}:${pad(absoluteOffset % 60)}`
   );
 }
+
+/** Durata come `H:MM:SS` (le ore possono superare 24). Durate negative valgono zero. */
+export function formatElapsed(milliseconds: number): string {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  return `${hours}:${pad(minutes)}:${pad(totalSeconds % 60)}`;
+}

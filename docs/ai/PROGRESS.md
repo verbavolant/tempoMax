@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-10-31] — T-008b Pulsante unico INIZIA / FINE (parziale)
+- Fatto: `src/visits/visitSession.ts`, `src/ui/home.ts`, `formatElapsed` in `src/model/time.ts`, `src/main.ts` riscritto (Home all'avvio, Clienti come schermata secondaria; tolti i pulsanti "Accedi" ed "Esci"), stile del pulsante grande in `src/style.css`. Test: `tests/visits/visitSession.test.ts` (9), `formatElapsed` (6); totale 124.
+- Stato: parziale. Manca la prova manuale: INIZIA → ricarica → FINE con login e GPS reali, poi il JSON su Drive.
+- Verifica: `npm test`, typecheck, lint e build OK. Screenshot headless della home: pulsante centrato (a 390 px Chrome headless sposta il layout, a 500 px è corretto).
+- Prossimo passo: prova dell'utente → chiudere T-008b → T-010 (deploy + iPhone).
+- Trappole/note: un test ha trovato un bug vero. Con un check-out prima della risposta GPS del check-in, l'operazione del check-in salvava su Drive una versione intermedia e la toglieva dalla coda, e la posizione del check-out andava persa. Risolto con `latestVisits`, che conserva l'ultima versione di ogni visita della sessione. La coda delle operazioni vive solo in memoria: dopo una ricarica, le visite in `unsyncedVisits` si risalvano al primo tap. Il nome del cliente sulla home compare solo dopo il primo caricamento dell'anagrafica nella sessione.
+
 ## [2026-10-31] — T-008a Visite: modello, archivio locale, Drive
 - Fatto: `src/model/visit.ts` (`clientId` nullable, `startVisit`, `endVisit`, `visitStorageLocation`), `src/storage/localVisits.ts`, `src/storage/visitsRepository.ts`, `VISITS_FOLDER` in `layout.ts`, `findClientAtPosition` in `src/geo/distance.ts`. T-008 diviso in T-008a/T-008b (troppi file per un solo task). Test: 109 passati.
 - Stato: completo.

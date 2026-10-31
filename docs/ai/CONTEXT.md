@@ -25,15 +25,17 @@ docs/human/       # documentazione per l'utente/setup
 ## File/moduli chiave
 | Path | Responsabilità |
 |------|----------------|
-| `src/main.ts` | bootstrap: login, `authorized()` (token nel gesto + `invalidateToken` su 401), monta la schermata clienti |
+| `src/main.ts` | bootstrap: `authorized()` (token nel gesto + `invalidateToken` su 401), `VisitSession`, navigazione Home ↔ Clienti. Nessuna schermata di login: il token si chiede al primo tap |
 | `src/style.css` | stile mobile, chiaro/scuro |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
+| `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
+| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, link "Clienti ›"; blocco del doppio tap per 2 s |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista, form nuovo/modifica, "Sono qui adesso" |
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
 | `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
 | `src/storage/visitsRepository.ts` | `VisitsRepository.save()` → `TempoMax/visite/AAAA/AAAA-MM-GG_<id>.json` |
 | `src/storage/clientsRepository.ts` | `ClientsRepository.load()` / `save()` su `TempoMax/clienti.json` |
-| `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso) |
+| `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`) |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
 | `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`; `DriveError` con status |

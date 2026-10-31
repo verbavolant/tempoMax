@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatLocalIsoDateTime } from '../../src/model/time';
+import { formatElapsed, formatLocalIsoDateTime } from '../../src/model/time';
 import { expectIsoDateTime } from '../../src/model/validation';
 
 describe('formatLocalIsoDateTime', () => {
@@ -27,5 +27,18 @@ describe('formatLocalIsoDateTime', () => {
   it("scarta i millisecondi", () => {
     vi.stubEnv('TZ', 'UTC');
     expect(formatLocalIsoDateTime(new Date(Date.UTC(2026, 0, 2, 3, 4, 5, 678)))).toBe('2026-01-02T03:04:05+00:00');
+  });
+});
+
+describe('formatElapsed', () => {
+  it.each([
+    [0, '0:00:00'],
+    [59_999, '0:00:59'],
+    [61_000, '0:01:01'],
+    [3_600_000, '1:00:00'],
+    [(25 * 3600 + 4 * 60 + 5) * 1000, '25:04:05'],
+    [-5_000, '0:00:00'],
+  ])('%i ms → %s', (milliseconds, expected) => {
+    expect(formatElapsed(milliseconds)).toBe(expected);
   });
 });
