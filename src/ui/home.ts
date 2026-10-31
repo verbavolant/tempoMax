@@ -15,7 +15,7 @@ export function mountHomeScreen(container: HTMLElement, session: VisitSession, o
       </button>
       <p id="visit-client" class="home-client"></p>
       <p id="visit-notice" class="home-notice" role="status"></p>
-      <button id="open-clients" type="button" class="link-button">Clienti ›</button>
+      <button id="open-clients" type="button" class="secondary-button">👥 Clienti</button>
     </section>
   `;
 

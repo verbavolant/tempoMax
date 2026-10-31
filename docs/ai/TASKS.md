@@ -91,7 +91,7 @@
 - File: `src/model/client.ts`
 
 ### T-023 Pulsante "Clienti" nella home
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: "Clienti" nella home diventa un pulsante vero, non un link.
 - File: `src/ui/home.ts`, `src/style.css`
 

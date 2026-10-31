@@ -169,6 +169,15 @@ textarea {
   min-height: 1.2em;
 }
 
+.secondary-button {
+  min-width: min(75vw, 320px);
+  min-height: 56px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
 .link-button {
   border: none;
   background: none;

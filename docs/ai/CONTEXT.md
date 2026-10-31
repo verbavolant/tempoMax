@@ -29,7 +29,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/style.css` | stile mobile, chiaro/scuro |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
-| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, link "Clienti ›"; blocco del doppio tap per 2 s |
+| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, pulsante "👥 Clienti"; blocco del doppio tap per 2 s |
 | `src/ui/clients.ts` | `mountClientsScreen`: lista, form nuovo/modifica, "Sono qui adesso" |
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
 | `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit` + `unsyncedVisits`), `upsertVisit` |
