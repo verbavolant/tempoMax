@@ -146,6 +146,7 @@ describe('note audio', () => {
     driveFileId: null,
     driveLink: null,
     device: null,
+    position: null,
   };
 
   it('una visita salvata prima del nome dispositivo (senza campo) ha device null', () => {
@@ -165,6 +166,14 @@ describe('note audio', () => {
   it('conserva le note audio nel round-trip JSON', () => {
     const withAudio = { ...closedVisit, audio: [note, { ...note, id: 'a-2', driveFileId: 'drive-1' }] };
     expect(parseVisit(JSON.parse(JSON.stringify(withAudio)))).toStrictEqual(withAudio);
+  });
+
+  it('una nota salvata prima della posizione (senza campo) ha position null, e la posizione si conserva', () => {
+    const legacyNote: Partial<typeof note> = { ...note };
+    delete legacyNote.position;
+    expect(parseVisit({ ...closedVisit, audio: [legacyNote] }).audio[0]?.position).toBeNull();
+    const located = { ...note, position: { latitude: 45.46, longitude: 9.19, accuracyMeters: 8 } };
+    expect(parseVisit(JSON.parse(JSON.stringify({ ...closedVisit, audio: [located] }))).audio[0]).toEqual(located);
   });
 
   it('una nota salvata prima del caricamento (senza driveLink) ha link null', () => {

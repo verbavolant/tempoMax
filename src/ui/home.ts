@@ -1,5 +1,6 @@
 import { AudioRecording } from '../audio/recorder';
 import { formatElapsed, formatLocalIsoDateTime } from '../model/time';
+import type { MeasuredPosition } from '../model/position';
 import type { AudioNote, Visit } from '../model/visit';
 import type { AudioStore } from '../storage/audioStore';
 import type { VisitSession, VisitSessionView } from '../visits/visitSession';
@@ -13,6 +14,8 @@ const DOUBLE_TAP_GUARD_MS = 2_000;
 interface ActiveRecording {
   /** null per una nota libera (registrata senza visita). */
   visitId: string | null;
+  /** Lettura GPS avviata all'inizio della registrazione (T-033). */
+  position: Promise<MeasuredPosition | null>;
   recording: AudioRecording;
   startedAt: string;
 }
@@ -158,6 +161,7 @@ export function mountHomeScreen(
     active = null;
     audioBusy = true;
     render(session.view());
+    let savedNoteId: string | null = null;
     try {
       const { audio, durationSeconds } = await current.recording.stop();
       const note: AudioNote = {
@@ -168,6 +172,7 @@ export function mountHomeScreen(
         driveFileId: null,
         driveLink: null,
         device: session.currentDeviceName(),
+        position: null,
       };
       // Prima il file sul telefono, poi il riferimento: mai un riferimento senza file.
       await audioStore.put(note.id, audio);
@@ -176,6 +181,7 @@ export function mountHomeScreen(
       } else {
         session.addFreeNote(note);
       }
+      savedNoteId = note.id;
       audioMessage.textContent = completionMessage || (current.visitId ? '' : 'Nota libera salvata.');
     } catch (error) {
       audioMessage.textContent = `Nota non salvata: ${errorMessage(error)}`;
@@ -183,18 +189,26 @@ export function mountHomeScreen(
       audioBusy = false;
       render(session.view());
     }
+    // La nota è già salvata; la posizione si aggiunge quando il GPS risponde. Chi attende questa promessa
+    // (il salvataggio su Drive) parte così con la posizione inclusa.
+    const position = await current.position;
+    if (savedNoteId && position) {
+      session.setNotePosition(savedNoteId, position);
+    }
   };
 
   const startRecording = async (visitId: string | null) => {
     audioBusy = true;
     audioMessage.textContent = '';
     render(session.view());
+    // GPS avviato al tocco, prima di attendere il microfono: è la posizione in cui inizia la nota.
+    const position = session.readNotePosition();
     try {
       const startedAt = formatLocalIsoDateTime(new Date());
       const recording = await AudioRecording.start(() => {
         void finishRecording('Nota fermata: lunghezza massima raggiunta.');
       });
-      active = { visitId, recording, startedAt };
+      active = { visitId, recording, startedAt, position };
     } catch (error) {
       audioMessage.textContent = `Microfono non disponibile: ${errorMessage(error)}`;
     } finally {

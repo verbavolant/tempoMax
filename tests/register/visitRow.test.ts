@@ -63,7 +63,7 @@ describe('visitToRow', () => {
   });
 
   it('elenca nella colonna Audio i link delle note caricate, uno per riga', () => {
-    const note = { id: 'a', recordedAt: '2026-10-31T09:10:00+01:00', mimeType: 'audio/mp4', durationSeconds: 5, device: null };
+    const note = { id: 'a', recordedAt: '2026-10-31T09:10:00+01:00', mimeType: 'audio/mp4', durationSeconds: 5, device: null, position: null };
     const withAudio: Visit = {
       ...closed,
       audio: [

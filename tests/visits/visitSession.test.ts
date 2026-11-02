@@ -281,6 +281,7 @@ describe('VisitSession', () => {
       driveFileId: null,
       driveLink: null,
       device: null,
+      position: null,
     };
 
     it('aggiunge e toglie una nota dalla visita in corso, in locale', async () => {
@@ -400,6 +401,34 @@ describe('VisitSession', () => {
       session.addFreeNote(note);
       await session.syncAfter(Promise.reject(new Error('registrazione fallita')));
       expect(audio.upload).toHaveBeenCalledTimes(1);
+    });
+
+    it('aggiunge la posizione a una nota della visita anche dopo che è stata salvata su Drive', async () => {
+      const { session, advance, saved } = setup();
+      await session.toggle();
+      const visitId = session.view().openVisit?.id ?? '';
+      session.addAudio(visitId, note);
+      advance(5);
+      await session.toggle();
+      expect(session.view().unsyncedCount).toBe(0);
+
+      session.setNotePosition('a-1', farAway);
+      expect(session.view().unsyncedCount).toBe(1);
+      await session.syncAfter(Promise.resolve());
+      expect(saved.filter((visit) => visit.id === visitId).at(-1)?.audio[0]?.position).toEqual(farAway);
+    });
+
+    it('aggiunge la posizione a una nota libera non ancora caricata', () => {
+      const { session } = setup();
+      session.addFreeNote(note);
+      session.setNotePosition('a-1', atVilla);
+      expect(session.view().pendingFreeNotes[0]?.position).toEqual(atVilla);
+    });
+
+    it('readNotePosition restituisce null (con avviso) se il GPS non risponde', async () => {
+      const { session } = setup({ readPosition: vi.fn().mockRejectedValue(new Error('timeout')) });
+      await expect(session.readNotePosition()).resolves.toBeNull();
+      expect(session.view().notice).toBe('Posizione non rilevata: timeout');
     });
   });
 });

@@ -77,6 +77,26 @@ export class VisitSession {
     return () => this.listeners.delete(listener);
   }
 
+  /** Posizione per una nota vocale che sta iniziando (T-033); null se il GPS non risponde. */
+  readNotePosition(): Promise<MeasuredPosition | null> {
+    return this.readPositionOrNull();
+  }
+
+  /** Aggiunge la posizione a una nota già salvata: il GPS può rispondere dopo la fine della registrazione. */
+  setNotePosition(noteId: string, position: MeasuredPosition): void {
+    const withPosition = (note: AudioNote) => (note.id === noteId ? { ...note, position } : note);
+    if (this.state.freeNotes.some((note) => note.id === noteId)) {
+      this.commit({ ...this.state, freeNotes: this.state.freeNotes.map(withPosition) });
+      return;
+    }
+    const owner = [...this.localVisits(), ...this.latestVisits.values()].find((visit) =>
+      visit.audio.some((note) => note.id === noteId),
+    );
+    if (owner) {
+      this.updateVisit(owner.id, (visit) => ({ ...visit, audio: visit.audio.map(withPosition) }));
+    }
+  }
+
   /** Nome del dispositivo da registrare con una nuova nota vocale. */
   currentDeviceName(): string | null {
     return this.dependencies.deviceName();

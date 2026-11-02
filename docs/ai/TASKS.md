@@ -273,6 +273,28 @@
 - File: `src/ui/options.ts`, `src/ui/home.ts`, `src/main.ts`, `src/style.css`
 - Dipende da: T-032a
 
+### T-033 Posizione GPS delle note vocali
+- Stato: [~] pubblicato sulla prova; da verificare dall'utente
+- Obiettivo: richiesta dell'utente del 2026-11-02. `AudioNote.position` (dove è iniziata la registrazione; assente nei dati vecchi = null): lettura GPS avviata all'inizio della registrazione, nota salvata subito, posizione aggiunta appena arriva (`VisitSession.setNotePosition`), caricamento su Drive dopo la posizione; `appProperties` `latitude`/`longitude`/`accuracyMeters`.
+- File: `src/model/visit.ts`, `src/visits/visitSession.ts`, `src/ui/home.ts`, `src/storage/audioUploader.ts`, test
+
+### T-034a "Da fare": modello, archivio, Drive
+- Stato: [ ]
+- Obiettivo: richiesta dell'utente del 2026-11-02 (Fase 4 anticipata, ridisegnata sul vocale). `Task` rivisto (non c'erano dati salvati): `kind`, `createdAt`, `dueDate` (AAAA-MM-GG o null), `completedAt`, `text` (anche vuoto), `audio` (nota o null; almeno uno dei due), `visitId`/`clientId` facoltativi, `device`. `TempoMax/task.json` (lettura-unione-scrittura), audio in `audio/AAAA/AAAA-MM-GG_dafare_<id>`, Foglio "Da fare". Date di scadenza: `addDays` sul giorno locale.
+- File: `src/model/task.ts`, `src/model/time.ts`, `src/storage/localTasks.ts`, `src/storage/tasksRepository.ts`, `src/register/taskRow.ts`, `src/tasks/taskSession.ts`, test
+
+### T-034b "Da fare": registrazione e scadenza
+- Stato: [ ]
+- Obiettivo: pulsante "✅ Da fare" sotto "🎤 Nota vocale"; allo stop il task si salva subito con scadenza Domani e compare la scelta a pulsanti grandi (Oggi · Domani · Dopodomani · Tra una settimana · Nessuna) con conto alla rovescia di 30 s (allo scadere resta Domani).
+- File: `src/ui/home.ts`, `src/ui/duePicker.ts`, `src/style.css`, `src/main.ts`
+- Dipende da: T-034a
+
+### T-034c "Da fare": elenco
+- Stato: [ ]
+- Obiettivo: schermata "✅ Da fare": aperti per scadenza (scaduti evidenziati), ▶ ascolto, ✓ fatto, cambio scadenza con lo stesso selettore; completati recenti; pulsante nella navigazione.
+- File: `src/ui/tasks.ts`, `src/ui/home.ts`, `src/main.ts`, `src/style.css`
+- Dipende da: T-034b
+
 ### T-027 Posizione senza rete (da valutare)
 - Stato: [!] probabilmente risolto da un bug corretto il 2026-10-31: senza login (offline) l'aggiornamento della posizione veniva scartato. Da riverificare in modalità aereo prima di toccare il timeout.
 - Contesto: in modalità aereo l'utente ha visto visite senza posizione. *Ipotesi*: il GPS dell'iPhone può funzionare anche senza rete, ma l'aggancio è più lento e supera il timeout di 20 s (`POSITION_TIMEOUT_MS`). Possibili soluzioni: timeout più lungo, oppure un nuovo tentativo in background che aggiorna la visita.

@@ -32,6 +32,11 @@ export function audioAppProperties(visit: Visit | null, note: AudioNote): Record
     durationSeconds: String(note.durationSeconds),
     ...(visit && { visitId: visit.id }),
     ...(note.device && { device: note.device }),
+    ...(note.position && {
+      latitude: String(note.position.latitude),
+      longitude: String(note.position.longitude),
+      accuracyMeters: String(Math.round(note.position.accuracyMeters)),
+    }),
   };
 }
 

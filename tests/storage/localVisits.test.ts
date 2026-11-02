@@ -33,6 +33,7 @@ describe('LocalVisitStore', () => {
       driveFileId: null,
       driveLink: null,
       device: null,
+      position: null,
     };
     const state = { openVisit: open, unsyncedVisits: [closed], freeNotes: [freeNote] };
     new LocalVisitStore(storage).save(state);

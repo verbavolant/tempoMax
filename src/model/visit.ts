@@ -33,6 +33,8 @@ export interface AudioNote {
   driveLink: string | null;
   /** Nome del dispositivo che ha registrato (T-032); null se non indicato o nei dati vecchi. */
   device: string | null;
+  /** Dove è iniziata la registrazione (T-033); null senza GPS o nei dati vecchi. */
+  position: MeasuredPosition | null;
 }
 
 /** Contenuto di un file `visite/AAAA/AAAA-MM-GG_<id>.json` su Drive. */
@@ -64,6 +66,10 @@ export function parseAudioNote(value: unknown, path: string): AudioNote {
         ? null
         : nullable(object.driveLink, (present) => expectNonEmptyString(present, `${path}.driveLink`)),
     device: expectOptionalNonEmptyString(object.device, `${path}.device`),
+    position:
+      object.position === undefined
+        ? null
+        : nullable(object.position, (present) => parseMeasuredPosition(present, `${path}.position`)),
   };
 }
 

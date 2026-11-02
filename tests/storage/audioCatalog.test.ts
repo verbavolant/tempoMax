@@ -59,6 +59,7 @@ describe('mergeCatalog', () => {
     driveFileId,
     driveLink: null,
     device: null,
+    position: null,
   });
 
   it('aggiunge le note ancora sul telefono, senza duplicare quelle già su Drive, dalla più recente', () => {

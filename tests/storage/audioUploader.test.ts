@@ -11,6 +11,7 @@ const note: AudioNote = {
   driveFileId: null,
   driveLink: null,
   device: null,
+  position: null,
 };
 
 describe('audioFileExtension', () => {
@@ -41,6 +42,12 @@ describe('audioAppProperties', () => {
       recordedAt: '2026-10-31T09:10:00+01:00',
       durationSeconds: '12',
     });
+  });
+
+  it('aggiunge la posizione di inizio registrazione se nota', () => {
+    const located = { ...note, position: { latitude: 45.4642, longitude: 9.19, accuracyMeters: 12.4 } };
+    expect(audioAppProperties(null, located)).toMatchObject({ latitude: '45.4642', longitude: '9.19', accuracyMeters: '12' });
+    expect(audioAppProperties(null, note)).not.toHaveProperty('latitude');
   });
 
   it('aggiunge il dispositivo se indicato', () => {
