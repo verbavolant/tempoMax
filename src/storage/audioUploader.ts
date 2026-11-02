@@ -16,21 +16,28 @@ export function audioFileExtension(mimeType: string): string {
   return 'bin';
 }
 
+/** A chi appartiene una nota: una visita, nessuno (nota libera) o un'attività "da fare" (T-034). */
+export type AudioOwner = { kind: 'visit'; visit: Visit } | { kind: 'free' } | { kind: 'todo'; taskId: string };
+
+const FILE_NAME_OWNER = { free: 'libera', todo: 'dafare' } as const;
+
 /**
- * `AAAA-MM-GG_<idVisita>_<idNota>.<estensione>` per le note di una visita, `AAAA-MM-GG_libera_<idNota>.<estensione>`
- * per le note libere: data locale di registrazione, ordinabile e univoco.
+ * `AAAA-MM-GG_<idVisita | libera | dafare>_<idNota>.<estensione>`: data locale di registrazione,
+ * ordinabile e univoco.
  */
-export function audioFileName(visit: Visit | null, note: AudioNote): string {
-  return `${note.recordedAt.slice(0, 10)}_${visit ? visit.id : 'libera'}_${note.id}.${audioFileExtension(note.mimeType)}`;
+export function audioFileName(owner: AudioOwner, note: AudioNote): string {
+  const ownerPart = owner.kind === 'visit' ? owner.visit.id : FILE_NAME_OWNER[owner.kind];
+  return `${note.recordedAt.slice(0, 10)}_${ownerPart}_${note.id}.${audioFileExtension(note.mimeType)}`;
 }
 
 /** Proprietà private salvate sul file audio: permettono di elencare le note con una sola richiesta (T-028c). */
-export function audioAppProperties(visit: Visit | null, note: AudioNote): Record<string, string> {
+export function audioAppProperties(owner: AudioOwner, note: AudioNote): Record<string, string> {
   return {
-    kind: visit ? 'visit' : 'free',
+    kind: owner.kind,
     recordedAt: note.recordedAt,
     durationSeconds: String(note.durationSeconds),
-    ...(visit && { visitId: visit.id }),
+    ...(owner.kind === 'visit' && { visitId: owner.visit.id }),
+    ...(owner.kind === 'todo' && { taskId: owner.taskId }),
     ...(note.device && { device: note.device }),
     ...(note.position && {
       latitude: String(note.position.latitude),
@@ -52,21 +59,18 @@ export class AudioUploader {
     private readonly store: Pick<AudioStore, 'get' | 'delete'>,
   ) {}
 
-  /**
-   * `visit` null per una nota libera. Restituisce null se il file non è più sul telefono
-   * (es. registrato in Safari e non nell'app installata).
-   */
-  async upload(visit: Visit | null, note: AudioNote): Promise<UploadedAudio | null> {
+  /** Restituisce null se il file non è più sul telefono (es. registrato in Safari e non nell'app installata). */
+  async upload(owner: AudioOwner, note: AudioNote): Promise<UploadedAudio | null> {
     const audio = await this.store.get(note.id);
     if (!audio) {
       return null;
     }
     const folderId = await this.drive.ensureFolderPath([ROOT_FOLDER, AUDIO_FOLDER, note.recordedAt.slice(0, 4)]);
     const { id, webViewLink } = await this.drive.uploadFile(
-      audioFileName(visit, note),
+      audioFileName(owner, note),
       folderId,
       audio,
-      audioAppProperties(visit, note),
+      audioAppProperties(owner, note),
     );
     return { fileId: id, link: webViewLink };
   }

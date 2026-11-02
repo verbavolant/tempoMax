@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatElapsed, formatHoursMinutes, formatLocalIsoDateTime } from '../../src/model/time';
+import { addDaysToDate, formatElapsed, formatHoursMinutes, formatLocalIsoDateTime } from '../../src/model/time';
 import { expectIsoDateTime } from '../../src/model/validation';
 
 describe('formatLocalIsoDateTime', () => {
@@ -52,5 +52,25 @@ describe('formatHoursMinutes', () => {
     [-1, '0:00'],
   ])('%i ms → %s', (milliseconds, expected) => {
     expect(formatHoursMinutes(milliseconds)).toBe(expected);
+  });
+});
+
+describe('addDaysToDate', () => {
+  it.each([
+    ['2026-11-02', 1, '2026-11-03'],
+    ['2026-11-30', 1, '2026-12-01'],
+    ['2026-12-31', 1, '2027-01-01'],
+    ['2028-02-28', 1, '2028-02-29'],
+    ['2027-02-28', 1, '2027-03-01'],
+    ['2026-10-24', 7, '2026-10-31'],
+    ['2026-11-02', 0, '2026-11-02'],
+  ])('%s + %i giorni → %s', (date, days, expected) => {
+    expect(addDaysToDate(date, days)).toBe(expected);
+  });
+
+  it('non dipende dal fuso del dispositivo', () => {
+    vi.stubEnv('TZ', 'Pacific/Chatham');
+    expect(addDaysToDate('2026-10-24', 7)).toBe('2026-10-31');
+    vi.unstubAllEnvs();
   });
 });

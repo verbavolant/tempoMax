@@ -37,3 +37,13 @@ export function formatHoursMinutes(milliseconds: number): string {
   const totalMinutes = Math.max(0, Math.floor(milliseconds / 60_000));
   return `${Math.floor(totalMinutes / 60)}:${pad(totalMinutes % 60)}`;
 }
+
+/**
+ * Giorno di calendario `AAAA-MM-GG` spostato di `days` giorni. Aritmetica sul solo calendario (in UTC),
+ * quindi indipendente da fuso e ora legale.
+ */
+export function addDaysToDate(date: string, days: number): string {
+  const [year, month, day] = date.split('-').map(Number);
+  const moved = new Date(Date.UTC(year ?? 0, (month ?? 1) - 1, (day ?? 1) + days));
+  return `${pad(moved.getUTCFullYear(), 4)}-${pad(moved.getUTCMonth() + 1)}-${pad(moved.getUTCDate())}`;
+}

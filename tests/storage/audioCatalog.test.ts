@@ -45,6 +45,11 @@ describe('catalogNoteFromDriveFile', () => {
     });
   });
 
+  it('riconosce le note dei "da fare" dalle proprietà o dal nome', () => {
+    expect(catalogNoteFromDriveFile(file('2026-10-31_dafare_n-1.m4a'))).toMatchObject({ kind: 'todo', visitId: null });
+    expect(catalogNoteFromDriveFile(file('2026-10-31_dafare_n-1.m4a', { kind: 'todo' }))?.kind).toBe('todo');
+  });
+
   it('ignora file che non sono note di TempoMax', () => {
     expect(catalogNoteFromDriveFile(file('foto.jpg'))).toBeNull();
   });

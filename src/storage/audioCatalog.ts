@@ -8,7 +8,7 @@ const MAX_NOTES_PER_YEAR = 1000;
 /** Una nota vocale da elencare: su Drive o ancora solo sul telefono. */
 export interface CatalogNote {
   noteId: string;
-  kind: 'visit' | 'free';
+  kind: 'visit' | 'free' | 'todo';
   /** Data e ora locali (ISO con fuso), oppure solo `AAAA-MM-GG` se ricavata dal nome del file. */
   recordedAt: string;
   durationSeconds: number | null;
@@ -31,13 +31,20 @@ export function catalogNoteFromDriveFile(file: DriveFileSummary): CatalogNote | 
   const [, date = '', owner = '', noteId = ''] = match;
   const { kind, recordedAt, durationSeconds, visitId } = file.appProperties;
   const duration = Number(durationSeconds);
-  const isFree = kind ? kind === 'free' : owner === 'libera';
+  const noteKind: CatalogNote['kind'] =
+    kind === 'visit' || kind === 'free' || kind === 'todo'
+      ? kind
+      : owner === 'libera'
+        ? 'free'
+        : owner === 'dafare'
+          ? 'todo'
+          : 'visit';
   return {
     noteId,
-    kind: isFree ? 'free' : 'visit',
+    kind: noteKind,
     recordedAt: recordedAt ?? date,
     durationSeconds: durationSeconds !== undefined && Number.isFinite(duration) ? duration : null,
-    visitId: isFree ? null : (visitId ?? owner),
+    visitId: noteKind === 'visit' ? (visitId ?? owner) : null,
     driveFileId: file.id,
   };
 }

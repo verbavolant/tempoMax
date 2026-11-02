@@ -279,7 +279,7 @@
 - File: `src/model/visit.ts`, `src/visits/visitSession.ts`, `src/ui/home.ts`, `src/storage/audioUploader.ts`, test
 
 ### T-034a "Da fare": modello, archivio, Drive
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: richiesta dell'utente del 2026-11-02 (Fase 4 anticipata, ridisegnata sul vocale). `Task` rivisto (non c'erano dati salvati): `kind`, `createdAt`, `dueDate` (AAAA-MM-GG o null), `completedAt`, `text` (anche vuoto), `audio` (nota o null; almeno uno dei due), `visitId`/`clientId` facoltativi, `device`. `TempoMax/task.json` (lettura-unione-scrittura), audio in `audio/AAAA/AAAA-MM-GG_dafare_<id>`, Foglio "Da fare". Date di scadenza: `addDays` sul giorno locale.
 - File: `src/model/task.ts`, `src/model/time.ts`, `src/storage/localTasks.ts`, `src/storage/tasksRepository.ts`, `src/register/taskRow.ts`, `src/tasks/taskSession.ts`, test
 

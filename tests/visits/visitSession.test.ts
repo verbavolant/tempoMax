@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Client } from '../../src/model/client';
 import type { MeasuredPosition } from '../../src/model/position';
 import type { AudioNote, Visit } from '../../src/model/visit';
+import type { AudioOwner } from '../../src/storage/audioUploader';
 import { FileTooLargeError } from '../../src/storage/drive';
 import { LocalVisitStore } from '../../src/storage/localVisits';
 import { VisitSession, type VisitSessionDependencies } from '../../src/visits/visitSession';
@@ -37,7 +38,7 @@ function setup(overrides: Partial<VisitSessionDependencies> = {}) {
   const repository = { save: vi.fn(async (visit: Visit) => void saved.push(structuredClone(visit))) };
   const register = { save: vi.fn<(visit: Visit, clientName: string | null) => Promise<void>>().mockResolvedValue() };
   const audio = {
-    upload: vi.fn<(visit: Visit, note: AudioNote) => Promise<{ fileId: string; link: string } | null>>(async (_visit, note) => ({
+    upload: vi.fn<(owner: AudioOwner, note: AudioNote) => Promise<{ fileId: string; link: string } | null>>(async (_owner, note) => ({
       fileId: `drive-${note.id}`,
       link: `https://drive.example/${note.id}`,
     })),
@@ -381,7 +382,7 @@ describe('VisitSession', () => {
       expect(authorizedCalls).toHaveLength(1);
       await sync;
 
-      expect(audio.upload).toHaveBeenCalledWith(null, note);
+      expect(audio.upload).toHaveBeenCalledWith({ kind: 'free' }, note);
       expect(audio.deleteLocal).toHaveBeenCalledWith('a-1');
       expect(session.view().pendingFreeNotes).toEqual([]);
     });

@@ -27,17 +27,25 @@ describe('audioFileExtension', () => {
 
 describe('audioFileName', () => {
   it('usa la data locale di registrazione, la visita e la nota', () => {
-    expect(audioFileName(visit, note)).toBe('2026-10-31_v-1_a-1.m4a');
+    expect(audioFileName({ kind: 'visit', visit }, note)).toBe('2026-10-31_v-1_a-1.m4a');
   });
 
   it('per una nota libera usa "libera" al posto della visita', () => {
-    expect(audioFileName(null, note)).toBe('2026-10-31_libera_a-1.m4a');
+    expect(audioFileName({ kind: 'free' }, note)).toBe('2026-10-31_libera_a-1.m4a');
+  });
+
+  it('per un "da fare" usa "dafare"', () => {
+    expect(audioFileName({ kind: 'todo', taskId: 't-1' }, note)).toBe('2026-10-31_dafare_a-1.m4a');
   });
 });
 
 describe('audioAppProperties', () => {
+  it('"da fare": tipo todo con id dell\'attività', () => {
+    expect(audioAppProperties({ kind: 'todo', taskId: 't-1' }, note)).toMatchObject({ kind: 'todo', taskId: 't-1' });
+  });
+
   it('nota libera: tipo free, senza visita', () => {
-    expect(audioAppProperties(null, note)).toEqual({
+    expect(audioAppProperties({ kind: 'free' }, note)).toEqual({
       kind: 'free',
       recordedAt: '2026-10-31T09:10:00+01:00',
       durationSeconds: '12',
@@ -46,17 +54,17 @@ describe('audioAppProperties', () => {
 
   it('aggiunge la posizione di inizio registrazione se nota', () => {
     const located = { ...note, position: { latitude: 45.4642, longitude: 9.19, accuracyMeters: 12.4 } };
-    expect(audioAppProperties(null, located)).toMatchObject({ latitude: '45.4642', longitude: '9.19', accuracyMeters: '12' });
-    expect(audioAppProperties(null, note)).not.toHaveProperty('latitude');
+    expect(audioAppProperties({ kind: 'free' }, located)).toMatchObject({ latitude: '45.4642', longitude: '9.19', accuracyMeters: '12' });
+    expect(audioAppProperties({ kind: 'free' }, note)).not.toHaveProperty('latitude');
   });
 
   it('aggiunge il dispositivo se indicato', () => {
-    expect(audioAppProperties(null, { ...note, device: 'iPhone di Mario' }).device).toBe('iPhone di Mario');
-    expect(audioAppProperties(null, note)).not.toHaveProperty('device');
+    expect(audioAppProperties({ kind: 'free' }, { ...note, device: 'iPhone di Mario' }).device).toBe('iPhone di Mario');
+    expect(audioAppProperties({ kind: 'free' }, note)).not.toHaveProperty('device');
   });
 
   it('ogni coppia chiave-valore sta nei 124 byte UTF-8 consentiti da Drive', () => {
-    const properties = audioAppProperties({ ...visit, id: crypto.randomUUID() }, { ...note, durationSeconds: 299.999 });
+    const properties = audioAppProperties({ kind: 'visit', visit: { ...visit, id: crypto.randomUUID() } }, { ...note, durationSeconds: 299.999 });
     for (const [key, value] of Object.entries(properties)) {
       expect(new TextEncoder().encode(key + value).length).toBeLessThanOrEqual(124);
     }
@@ -76,7 +84,7 @@ describe('AudioUploader', () => {
   it("carica il file nella cartella audio dell'anno e restituisce id e link", async () => {
     const blob = new Blob(['x'], { type: 'audio/mp4' });
     const { drive, uploader } = setup(blob);
-    await expect(uploader.upload(visit, note)).resolves.toEqual({
+    await expect(uploader.upload({ kind: 'visit', visit }, note)).resolves.toEqual({
       fileId: 'drive-1',
       link: 'https://drive.google.com/file/d/drive-1/view',
     });
@@ -91,7 +99,7 @@ describe('AudioUploader', () => {
 
   it('restituisce null se il file non è sul telefono, senza chiamare Drive', async () => {
     const { drive, uploader } = setup(null);
-    await expect(uploader.upload(visit, note)).resolves.toBeNull();
+    await expect(uploader.upload({ kind: 'visit', visit }, note)).resolves.toBeNull();
     expect(drive.uploadFile).not.toHaveBeenCalled();
   });
 });

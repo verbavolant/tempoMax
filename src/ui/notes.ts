@@ -119,7 +119,12 @@ export async function mountNotesScreen(container: HTMLElement, dependencies: Not
       (visit.clientId ? clientNames.get(visit.clientId) : null) ?? `visita del ${italianDate(visit.checkIn.at)}`,
     ]),
   );
-  notes = mergeCatalog(fromDrive, localVisits, dependencies.session.view().pendingFreeNotes);
+  // Le note dei "da fare" si ascoltano dalla loro schermata.
+  notes = mergeCatalog(
+    fromDrive.filter((note) => note.kind !== 'todo'),
+    localVisits,
+    dependencies.session.view().pendingFreeNotes,
+  );
   render();
 
   return () => player.stop();

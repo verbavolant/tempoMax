@@ -4,7 +4,7 @@ import type { MeasuredPosition } from '../model/position';
 import { formatLocalIsoDateTime } from '../model/time';
 import { type AudioNote, type Visit, endVisit, parseVisit, startVisit } from '../model/visit';
 import { type LocalVisitState, type LocalVisitStore, upsertVisit } from '../storage/localVisits';
-import type { AudioUploader, UploadedAudio } from '../storage/audioUploader';
+import type { AudioOwner, AudioUploader, UploadedAudio } from '../storage/audioUploader';
 import { FileTooLargeError } from '../storage/drive';
 import type { VisitRegister } from '../storage/visitRegister';
 import type { VisitsRepository } from '../storage/visitsRepository';
@@ -269,7 +269,7 @@ export class VisitSession {
   /** Le note libere caricate escono dalla coda; quelle impossibili da caricare restano, con un avviso. */
   private async uploadFreeNotes(): Promise<void> {
     for (const note of [...this.state.freeNotes]) {
-      const uploaded = await this.uploadAudio(null, note);
+      const uploaded = await this.uploadAudio({ kind: 'free' }, note);
       if (uploaded) {
         this.removeFreeNote(note.id);
         await this.dependencies.audio.deleteLocal(note.id);
@@ -278,9 +278,9 @@ export class VisitSession {
   }
 
   /** Carica una nota; null (con avviso) se non potrà mai essere caricata. Gli errori di rete si propagano. */
-  private async uploadAudio(visit: Visit | null, note: AudioNote): Promise<UploadedAudio | null> {
+  private async uploadAudio(owner: AudioOwner, note: AudioNote): Promise<UploadedAudio | null> {
     try {
-      const uploaded = await this.dependencies.audio.upload(visit, note);
+      const uploaded = await this.dependencies.audio.upload(owner, note);
       if (!uploaded) {
         this.audioNotice = 'Nota vocale non caricata: il file non è su questo telefono';
       }
@@ -302,7 +302,7 @@ export class VisitSession {
       if (!visit) {
         return;
       }
-      const uploaded = await this.uploadAudio(visit, note);
+      const uploaded = await this.uploadAudio({ kind: 'visit', visit }, note);
       if (!uploaded) {
         continue;
       }
