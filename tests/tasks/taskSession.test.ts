@@ -138,25 +138,25 @@ describe('TaskSession', () => {
   });
 
   it('una modifica arrivata durante il salvataggio resta in coda e non viene sovrascritta', async () => {
-    let releaseLoad!: () => void;
-    const loadStarted = new Promise<void>((resolve) => {
-      releaseLoad = resolve;
+    let releaseRegister!: () => void;
+    const registerBlocked = new Promise<void>((resolve) => {
+      releaseRegister = resolve;
     });
-    const { session, repository, remote } = setup();
+    const { session, register, remote } = setup();
     const created = session.addVoiceTask({ audio: note, dueDate: '2026-11-03', visitId: null, clientId: null });
-    repository.load.mockImplementationOnce(async () => {
-      await loadStarted;
-      return [];
-    });
+    register.save.mockImplementationOnce(() => registerBlocked);
     const firstSync = session.syncAfter(Promise.resolve());
-    await vi.waitFor(() => expect(repository.load).toHaveBeenCalledTimes(1));
+    // task.json è già scritto con la scadenza vecchia; il foglio è in corso quando arriva la modifica.
+    await vi.waitFor(() => expect(register.save).toHaveBeenCalledTimes(1));
+    expect(remote()[0]?.dueDate).toBe('2026-11-03');
 
     const secondSync = session.setDueDate(created.id, '2026-11-09');
-    releaseLoad();
+    releaseRegister();
     await Promise.all([firstSync, secondSync]);
 
     expect(session.view().open[0]?.dueDate).toBe('2026-11-09');
     expect(remote()[0]?.dueDate).toBe('2026-11-09');
+    expect(register.save).toHaveBeenLastCalledWith(expect.objectContaining({ dueDate: '2026-11-09' }), null);
     expect(session.view().unsyncedCount).toBe(0);
   });
 
