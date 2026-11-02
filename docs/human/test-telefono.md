@@ -63,6 +63,12 @@ Annota l'esito di ogni passo (✓ / ✗ con il testo esatto di eventuali messagg
 - [ ] Al primo avvio compare "📱 Dai un nome a questo telefono": toccalo, controlla la proposta, scrivi il nome e tocca **Salva**. L'avviso sparisce.
 - [ ] Fai una visita, una nota vocale e un periodo di lavoro: nei JSON in `TempoMax-dev` c'è `"device": "<nome>"`, e nei fogli "Registro visite" e "Orario di lavoro" di `TempoMax-dev` c'è la colonna **Dispositivo**.
 
+## Posizione delle note e "Da fare" (versione di prova: TempoMax DEV)
+- [ ] Registra una **🎤 Nota vocale**: nel JSON (o nelle proprietà del file) ci sono le coordinate di dove l'hai iniziata.
+- [ ] Tocca **✅ Da fare**, parla, **⏹**: compare la scelta della **scadenza** a icone grandi; scegli o aspetta 30 secondi (resta "Domani").
+- [ ] Il pulsante **Da fare** in basso mostra il numero di attività aperte; la schermata le elenca per scadenza con ▶ Ascolta, ⏰ Scadenza, ✓ Fatto.
+- [ ] Su Drive (`TempoMax-dev`): `task.json`, l'audio `…_dafare_….m4a` e il foglio **Da fare** con una riga per attività.
+
 ## Senza rete
 - [ ] Attiva la modalità aereo, tocca **INIZIA**: compare "Salvata sul telefono, non ancora su Drive…".
 - [ ] Togli la modalità aereo, tocca **FINE**: l'avviso sparisce.

@@ -47,3 +47,12 @@ export function addDaysToDate(date: string, days: number): string {
   const moved = new Date(Date.UTC(year ?? 0, (month ?? 1) - 1, (day ?? 1) + days));
   return `${pad(moved.getUTCFullYear(), 4)}-${pad(moved.getUTCMonth() + 1)}-${pad(moved.getUTCDate())}`;
 }
+
+/** Giorni di calendario da `from` a `to` (`AAAA-MM-GG`), negativi se `to` è prima. */
+export function daysBetweenDates(from: string, to: string): number {
+  const toUtc = (date: string) => {
+    const [year, month, day] = date.split('-').map(Number);
+    return Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1);
+  };
+  return Math.round((toUtc(to) - toUtc(from)) / 86_400_000);
+}

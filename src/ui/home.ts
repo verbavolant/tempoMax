@@ -32,7 +32,13 @@ export function mountHomeScreen(
   work: WorkSession,
   tasks: TaskSession,
   audioStore: AudioStore,
-  navigation: { openClients: () => void; openVisits: () => void; openNotes: () => void; openOptions: () => void },
+  navigation: {
+    openClients: () => void;
+    openVisits: () => void;
+    openNotes: () => void;
+    openTasks: () => void;
+    openOptions: () => void;
+  },
 ): () => void {
   container.innerHTML = `
     <section class="home">
@@ -54,6 +60,7 @@ export function mountHomeScreen(
         <button id="open-clients" type="button" class="nav-button"><span>👥</span>Clienti</button>
         <button id="open-visits" type="button" class="nav-button"><span>🕘</span>Visite</button>
         <button id="open-notes" type="button" class="nav-button"><span>🎧</span>Note</button>
+        <button id="open-tasks" type="button" class="nav-button"><span>✅</span>Da fare<b id="open-tasks-count" class="badge" hidden></b></button>
         <button id="open-options" type="button" class="nav-button"><span>⚙️</span>Opzioni</button>
       </nav>
     </section>
@@ -291,12 +298,22 @@ export function mountHomeScreen(
   requireElement<HTMLButtonElement>(container, '#open-visits').addEventListener('click', navigation.openVisits);
   requireElement<HTMLButtonElement>(container, '#open-notes').addEventListener('click', navigation.openNotes);
   requireElement<HTMLButtonElement>(container, '#open-options').addEventListener('click', navigation.openOptions);
+  requireElement<HTMLButtonElement>(container, '#open-tasks').addEventListener('click', navigation.openTasks);
+  const tasksCount = requireElement<HTMLElement>(container, '#open-tasks-count');
+  const renderTasksCount = () => {
+    const open = tasks.view().open.length;
+    tasksCount.hidden = open === 0;
+    tasksCount.textContent = String(open);
+  };
+  const unsubscribeTasks = tasks.subscribe(renderTasksCount);
+  renderTasksCount();
   // Finché il telefono non ha un nome, i dati registrati non dicono da quale dispositivo arrivano (T-032).
   const deviceBanner = requireElement<HTMLButtonElement>(container, '#device-banner');
   deviceBanner.hidden = session.currentDeviceName() !== null;
   deviceBanner.addEventListener('click', navigation.openOptions);
 
   return () => {
+    unsubscribeTasks();
     closeDuePicker?.();
     unmountWorkPanel();
     unsubscribe();

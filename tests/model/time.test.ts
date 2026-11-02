@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { addDaysToDate, formatElapsed, formatHoursMinutes, formatLocalIsoDateTime } from '../../src/model/time';
+import {
+  addDaysToDate,
+  daysBetweenDates,
+  formatElapsed,
+  formatHoursMinutes,
+  formatLocalIsoDateTime,
+} from '../../src/model/time';
 import { expectIsoDateTime } from '../../src/model/validation';
 
 describe('formatLocalIsoDateTime', () => {
@@ -72,5 +78,17 @@ describe('addDaysToDate', () => {
     vi.stubEnv('TZ', 'Pacific/Chatham');
     expect(addDaysToDate('2026-10-24', 7)).toBe('2026-10-31');
     vi.unstubAllEnvs();
+  });
+});
+
+describe('daysBetweenDates', () => {
+  it.each([
+    ['2026-11-02', '2026-11-02', 0],
+    ['2026-11-02', '2026-11-09', 7],
+    ['2026-11-02', '2026-10-31', -2],
+    ['2026-12-31', '2027-01-01', 1],
+    ['2026-10-24', '2026-10-26', 2],
+  ])('da %s a %s → %i', (from, to, days) => {
+    expect(daysBetweenDates(from, to)).toBe(days);
   });
 });

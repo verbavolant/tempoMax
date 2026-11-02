@@ -253,16 +253,17 @@ select {
 .home-nav {
   width: min(90vw, 420px);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
 }
 
 .nav-button {
+  position: relative;
   display: grid;
   justify-items: center;
   gap: 2px;
-  padding: 8px 4px;
-  font-size: 0.9rem;
+  padding: 8px 2px;
+  font-size: 0.8rem;
   font-weight: 600;
   border: 2px solid var(--accent);
   color: var(--accent);
@@ -355,4 +356,36 @@ select {
 .due-countdown {
   margin: 0;
   color: var(--muted);
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  min-width: 1.4em;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--stop);
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.task-item {
+  display: grid;
+  gap: 6px;
+  margin-top: 0;
+}
+
+.task-item .overdue {
+  color: var(--stop);
+}
+
+.task-item small {
+  color: var(--muted);
+}
+
+.task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }

@@ -32,7 +32,7 @@ docs/human/       # documentazione per l'utente/setup
 | `public/icons/`, `public/icons-dev/` | icone PNG (Pillow: cronometro bianco su verde / arancione per la prova) |
 | `src/ui/dom.ts` | `requireElement`, `errorMessage` |
 | `src/visits/visitSession.ts` | `VisitSession`: `toggle()` (check-in/out al tap), `assignClient()`, `addAudio()`/`removeAudio()` (solo in locale), `addFreeNote()`, `syncAfter(task)`, GPS e cliente in background, coda di salvataggi su Drive, `view()` / `subscribe()` |
-| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" (sempre: a visita aperta va alla visita, altrimenti nota libera; ⏹ avvia il salvataggio), riga di navigazione Clienti / Visite / Note / Opzioni; in cima l'avviso "Dai un nome a questo telefono" (se manca) e il pannello dell'orario di lavoro; blocco del doppio tap per 2 s |
+| `src/ui/home.ts` | `mountHomeScreen`: pulsante unico INIZIA/FINE con timer, nome cliente, avvisi, "🎤 Nota vocale" e "✅ Da fare" (una registrazione alla volta; ⏹ avvia il salvataggio; il "da fare" apre il selettore di scadenza), riga di navigazione Clienti / Visite / Note / Da fare (con contatore) / Opzioni; in cima l'avviso "Dai un nome a questo telefono" (se manca) e il pannello dell'orario di lavoro; blocco del doppio tap per 2 s |
 | `src/ui/visits.ts` | `mountVisitsScreen`: ultime 20 visite (Drive + locali; senza Drive solo locali), dettaglio con link Maps (se senza cliente), abbinamento, registrazioni ▶; `orderClientsByDistance`, `mergeVisits` |
 | `src/ui/notePlayer.ts` | `NotePlayer` (un lettore per schermata), `loadNoteAudio` (telefono, altrimenti Drive con cache) |
 | `src/device.ts` | `DeviceSettings` (localStorage `<prefisso>.device`), `guessDeviceName`, `normalizeDeviceName` (max 40 caratteri) |
@@ -43,7 +43,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/storage/layout.ts` | nomi di cartelle e file su Drive |
 | `src/storage/audioStore.ts` | `AudioStore` (IndexedDB `tempomax`/`audio`): `put`/`get`/`delete` per id della nota, salva ArrayBuffer + tipo |
 | `src/audio/recorder.ts` | `AudioRecording.start(onLimitReached)` / `stop()` (MediaRecorder, blocchi da 1 s, tetto 5 MB / 5 min), `audioMimeTypeCandidates`, `firstThatWorks`, `shouldStopForSize` |
-| `src/storage/audioUploader.ts` | `AudioUploader.upload(visit | null, note)` → `TempoMax/audio/AAAA/` con `appProperties` (kind, recordedAt, durationSeconds, visitId), `deleteLocal`; `audioFileName`, `audioAppProperties`, `audioFileExtension` |
+| `src/storage/audioUploader.ts` | `AudioUploader.upload(owner: AudioOwner (visit/free/todo), note)` → `TempoMax/audio/AAAA/` con `appProperties` (kind, recordedAt, durationSeconds, visitId), `deleteLocal`; `audioFileName`, `audioAppProperties`, `audioFileExtension` |
 | `src/storage/localVisits.ts` | `LocalVisitStore` (localStorage `tempomax.visits`: `openVisit`, `unsyncedVisits`, `freeNotes`), `upsertVisit` |
 | `src/storage/audioCatalog.ts` | `AudioCatalog.listYear` (una richiesta: file di `audio/AAAA` con `appProperties`), `download`; `catalogNoteFromDriveFile`, `mergeCatalog` |
 | `src/ui/notes.ts` | `mountNotesScreen`: "Note libere" e "Note delle visite", ▶/⏸ da telefono o da Drive; senza Drive mostra quelle locali |
@@ -58,7 +58,7 @@ docs/human/       # documentazione per l'utente/setup
 | `src/work/workSession.ts` | `WorkSession.start()/stop()`, `view()` (periodo in corso, totale di oggi), coda verso Drive |
 | `src/ui/workPanel.ts` | `mountWorkPanel`: "▶ Inizio lavoro" / "⏸ Fine lavoro" e riepilogo del giorno |
 | `src/storage/clientsRepository.ts` | `ClientsRepository.load()` / `save()` su `TempoMax/clienti.json` |
-| `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`), `formatHoursMinutes` (`H:MM`), `roundedMinutesBetween` (regola provvisoria) |
+| `src/model/time.ts` | `formatLocalIsoDateTime` (ora locale + fuso), `formatElapsed` (`H:MM:SS`), `formatHoursMinutes` (`H:MM`), `roundedMinutesBetween` (regola provvisoria), `addDaysToDate`, `daysBetweenDates` |
 | `src/config.ts` | `GOOGLE_CLIENT_ID`, `GOOGLE_SCOPE` (non segreti) |
 | `src/auth/googleAuth.ts` | `GoogleAuth`: token GIS in memoria, `currentToken()`, `requestToken()` (solo dentro un click), `invalidateToken()`, `signOut()` |
 | `src/storage/drive.ts` | `DriveClient`: `getUser`, `ensureFolderPath` (con cache), `findFile`, `readJson`, `writeJson` (crea o sostituisce), `createFile` (multipart ≤ 5 MB), `updateFile`, `createEmptyFile`, `listFiles` (con `webViewLink` e `appProperties`), `uploadFile` (id + `webViewLink`, `appProperties`), `downloadFile`, `request` (anche per Sheets); `FileTooLargeError`; `DriveError` con status |
@@ -68,7 +68,13 @@ docs/human/       # documentazione per l'utente/setup
 | `src/model/position.ts` | `Coordinates`, `MeasuredPosition` (con `accuracyMeters`) |
 | `src/model/client.ts` | `Client`, `ClientsDocument` (`clienti.json`), `parseClientsDocument`, `buildClient`, `newClientIdentity`, `DEFAULT_CLIENT_RADIUS_METERS` (200) |
 | `src/model/visit.ts` | `Visit` (`clientId` nullable, `audio: AudioNote[]`, assente nei JSON vecchi = `[]`), `VisitEvent`, `parseVisit`, `startVisit`, `endVisit`, `visitStorageLocation`, `visitDurationMinutes` (provvisoria: arrotonda al minuto) |
-| `src/model/task.ts` | `Task` (`todo` / `purchase`), `TasksDocument` (`task.json`), `parseTasksDocument` |
+| `src/model/task.ts` | `Task` (vocale o testo, `dueDate`, `completedAt`, visita/cliente facoltativi, `device`), `parseTasksDocument`, `createVoiceTask`, `compareOpenTasks` |
+| `src/storage/localTasks.ts` | `LocalTaskStore` (localStorage `<prefisso>.tasks`: attività + `unsyncedIds`) |
+| `src/storage/tasksRepository.ts` | `TasksRepository.load/saveAll` (`task.json`), `mergeTasks` (le modifiche locali non salvate vincono) |
+| `src/storage/taskRegister.ts`, `src/register/taskRow.ts` | Foglio "Da fare" (Creato · Scadenza · Stato · Completato · Cliente · Audio · Mappa · Dispositivo · ID) |
+| `src/tasks/taskSession.ts` | `TaskSession`: `addVoiceTask`, `setDueDate`, `setDone`, `setAudioPosition`, `refresh`, `syncAfter`; coda: audio → `task.json` unito → foglio |
+| `src/ui/duePicker.ts` | `showDuePicker` (icone grandi, 30 s, predefinita Domani), `DUE_CHOICES`, `dueDateForChoice`, `highlightedDaysFor` |
+| `src/ui/tasks.ts` | `mountTasksScreen`: aperti per scadenza, ▶, ⏰ Scadenza, ✓ Fatto, completati con ↩️ Riapri; `describeDue` |
 | `vite.config.ts` | config di Vite + Vitest |
 | `eslint.config.js` | lint (flat config, typescript-eslint) |
 | `tsconfig.json` | type check (strict, solo `noEmit`: il build lo fa Vite) |
@@ -88,13 +94,15 @@ docs/human/       # documentazione per l'utente/setup
 ```
 TempoMax/
   clienti.json
-  task.json                         # da fare + da comprare
+  task.json                         # attività "da fare" (vocali, con scadenza)
+  Da fare                           # Foglio Google: una riga per attività (vista derivata)
   lavoro/AAAA/AAAA-MM-GG.json       # periodi di lavoro del giorno (inizio/fine, pause)
   Registro visite                   # Foglio Google: una riga per visita, link Maps e Audio (vista derivata)
   Orario di lavoro                  # Foglio Google: una riga per periodo di lavoro (vista derivata)
   visite/AAAA/AAAA-MM-GG_<idVisita>.json
   audio/AAAA/AAAA-MM-GG_<idVisita>_<idNota>.m4a   # note delle visite (≤ 5 MB, ADR-007)
   audio/AAAA/AAAA-MM-GG_libera_<idNota>.m4a       # note libere (senza visita)
+  audio/AAAA/AAAA-MM-GG_dafare_<idNota>.m4a       # note dei "da fare"
 ```
 
 ## Convenzioni del progetto

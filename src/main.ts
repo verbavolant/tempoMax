@@ -18,6 +18,7 @@ import { AudioCatalog } from './storage/audioCatalog';
 import { formatLocalIsoDateTime } from './model/time';
 import { DeviceSettings, guessDeviceName } from './device';
 import { mountOptionsScreen } from './ui/options';
+import { mountTasksScreen } from './ui/tasks';
 import { VisitSession } from './visits/visitSession';
 import { WorkSession } from './work/workSession';
 import { TaskSession } from './tasks/taskSession';
@@ -129,6 +130,7 @@ try {
       openClients: showClients,
       openVisits: showVisits,
       openNotes: showNotes,
+      openTasks: showTasks,
       openOptions: showOptions,
     });
   };
@@ -183,6 +185,17 @@ try {
         session,
         authorized,
         currentYear: formatLocalIsoDateTime(new Date()).slice(0, 4),
+      }),
+    );
+
+  const showTasks = () =>
+    showSecondary((container) =>
+      mountTasksScreen(container, {
+        tasks,
+        audioStore,
+        download: (driveFileId) => drive.downloadFile(driveFileId),
+        loadClients: () => clientsRepository.load(),
+        authorized,
       }),
     );
 

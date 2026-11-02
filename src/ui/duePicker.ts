@@ -1,4 +1,4 @@
-import { addDaysToDate } from '../model/time';
+import { addDaysToDate, daysBetweenDates } from '../model/time';
 
 export interface DueChoice {
   icon: string;
@@ -27,8 +27,11 @@ export function dueDateForChoice(today: string, days: number | null): string | n
 export interface DuePickerOptions {
   title: string;
   today: string;
-  /** Scelta evidenziata e mantenuta se il tempo scade (in giorni da oggi; null = nessuna). */
-  highlightedDays: number | null;
+  /**
+   * Scelta evidenziata e mantenuta se il tempo scade (giorni da oggi; null = "Nessuna").
+   * undefined se la scadenza attuale non corrisponde a nessuna scelta.
+   */
+  highlightedDays: number | null | undefined;
   /** Chiamata solo se l'utente sceglie; allo scadere del tempo non cambia nulla. */
   onChoose: (dueDate: string | null) => void;
 }
@@ -52,7 +55,8 @@ export function showDuePicker(options: DuePickerOptions): () => void {
     window.clearInterval(timer);
     overlay.remove();
   };
-  const highlighted = DUE_CHOICES.find((choice) => choice.days === options.highlightedDays);
+  const highlighted =
+    options.highlightedDays === undefined ? undefined : DUE_CHOICES.find((choice) => choice.days === options.highlightedDays);
   const renderCountdown = () => {
     countdown.textContent = `Senza scelta resta "${highlighted?.label ?? 'invariata'}" tra ${remaining} s`;
   };
@@ -86,4 +90,13 @@ export function showDuePicker(options: DuePickerOptions): () => void {
   renderCountdown();
   document.body.append(overlay);
   return close;
+}
+
+/** Giorni della scadenza attuale da oggi, se corrisponde a una scelta del selettore (per evidenziarla). */
+export function highlightedDaysFor(today: string, dueDate: string | null): number | null | undefined {
+  if (dueDate === null) {
+    return null;
+  }
+  const days = daysBetweenDates(today, dueDate);
+  return DUE_CHOICES.some((choice) => choice.days === days) ? days : undefined;
 }

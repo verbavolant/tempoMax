@@ -14,6 +14,13 @@
 
 -->
 
+## [2026-11-02] — T-033, T-034a/b/c: posizione delle note e "Da fare" (solo sulla prova)
+- Fatto: T-033: `AudioNote.position` (GPS avviato al tocco, nota salvata subito, posizione aggiunta con `VisitSession.setNotePosition`, upload dopo la posizione), `appProperties` latitude/longitude/accuracyMeters. T-034a: `Task` riprogettato (nessun dato salvato prima), `addDaysToDate`, `LocalTaskStore`, `TasksRepository` + `mergeTasks`, Foglio "Da fare", `TaskSession`; `AudioOwner` (visit/free/todo) generalizza l'uploader; il catalogo riconosce `todo` e la schermata Note li esclude. T-034b: `src/ui/duePicker.ts` (selettore a tutto schermo, 30 s, predefinita Domani), pulsante "✅ Da fare" nella home. T-034c: `src/ui/tasks.ts`, `daysBetweenDates`, `highlightedDaysFor`, contatore nella navigazione (5 pulsanti).
+- Stato: pubblicato **solo** sulla prova; T-033 e T-034b/c da verificare dall'utente. Produzione invariata.
+- Verifica: `npm test` (298), typecheck, lint, build OK. Chrome headless con GPS e microfono simulati: nota libera con posizione; "Da fare" → selettore → "Dopodomani" = 2026-11-04 (oggi 2026-11-02); timeout di 31 s → resta 2026-11-03; elenco con contatore 2 → ✓ Fatto → contatore 1.
+- Prossimo passo: prova dell'utente su TempoMax DEV; poi T-026 (GPS disattivabile). Domanda dell'utente sul calendario: solo risposta, nessun codice.
+- Trappole/note: due controprove hanno mostrato test di concorrenza inefficaci (TaskSession: bloccare `load` non esercita nulla; la finestra critica è la scrittura del foglio dopo `saveAll`), entrambi corretti. Le emoji 📅/📆 su iOS mostrano una data fissa ("JUL 17"): non usarle per le scadenze.
+
 ## [2026-10-31] — T-032a, T-032b: nome del dispositivo (solo sulla prova)
 - Fatto: `src/device.ts`; campo `device` (assente = null, `expectOptionalNonEmptyString`) in `Visit`, `AudioNote`, `WorkPeriod`; `startVisit(at, device)`, `startWorkPeriod(at, device)`; `deviceName()` nelle dipendenze delle sessioni, `VisitSession.currentDeviceName()`; `appProperties.device` sugli audio; colonna "Dispositivo" in fondo ai due fogli (J e F). `src/ui/options.ts`, pulsante ⚙️ Opzioni (navigazione su 4 colonne), avviso "📱 Dai un nome a questo telefono" nella home.
 - Stato: T-032a completo; T-032b pubblicato **solo** su https://verbavolant.github.io/tempoMax-dev/, in attesa di prova. Produzione invariata (`origin/main` = 7893553).
