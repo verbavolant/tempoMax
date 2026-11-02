@@ -301,3 +301,58 @@ select {
   color: var(--accent);
   font-weight: 600;
 }
+
+.due-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--background);
+}
+
+.due-picker h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.due-grid {
+  width: min(92vw, 440px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.due-choice {
+  min-height: 110px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-width: 2px;
+}
+
+.due-choice:last-child {
+  grid-column: 1 / -1;
+  min-height: 80px;
+}
+
+.due-choice.highlighted {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.due-icon {
+  font-size: 2.6rem;
+}
+
+.due-countdown {
+  margin: 0;
+  color: var(--muted);
+}

@@ -284,7 +284,7 @@
 - File: `src/model/task.ts`, `src/model/time.ts`, `src/storage/localTasks.ts`, `src/storage/tasksRepository.ts`, `src/register/taskRow.ts`, `src/tasks/taskSession.ts`, test
 
 ### T-034b "Da fare": registrazione e scadenza
-- Stato: [ ]
+- Stato: [x]
 - Obiettivo: pulsante "✅ Da fare" sotto "🎤 Nota vocale"; allo stop il task si salva subito con scadenza Domani e compare la scelta a pulsanti grandi (Oggi · Domani · Dopodomani · Tra una settimana · Nessuna) con conto alla rovescia di 30 s (allo scadere resta Domani).
 - File: `src/ui/home.ts`, `src/ui/duePicker.ts`, `src/style.css`, `src/main.ts`
 - Dipende da: T-034a

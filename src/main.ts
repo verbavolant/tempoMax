@@ -20,6 +20,10 @@ import { DeviceSettings, guessDeviceName } from './device';
 import { mountOptionsScreen } from './ui/options';
 import { VisitSession } from './visits/visitSession';
 import { WorkSession } from './work/workSession';
+import { TaskSession } from './tasks/taskSession';
+import { LocalTaskStore } from './storage/localTasks';
+import { TasksRepository } from './storage/tasksRepository';
+import { TaskRegister } from './storage/taskRegister';
 import { LocalWorkStore } from './storage/localWork';
 import { WorkRepository } from './storage/workRepository';
 import { WorkRegister } from './storage/workRegister';
@@ -84,11 +88,12 @@ try {
   const deviceSettings = new DeviceSettings(window.localStorage);
   const deviceName = () => deviceSettings.get();
   const audioStore = new AudioStore();
+  const audioUploader = new AudioUploader(drive, audioStore);
   const session = new VisitSession({
     store: new LocalVisitStore(window.localStorage),
     repository: visitsRepository,
     register: new VisitRegister(drive),
-    audio: new AudioUploader(drive, audioStore),
+    audio: audioUploader,
     loadClients: () => clientsRepository.load(),
     readPosition: readCurrentPosition,
     authorized,
@@ -105,11 +110,22 @@ try {
     deviceName,
   });
 
+  const tasks = new TaskSession({
+    store: new LocalTaskStore(window.localStorage),
+    repository: new TasksRepository(drive),
+    register: new TaskRegister(drive),
+    audio: audioUploader,
+    loadClients: () => clientsRepository.load(),
+    authorized,
+    now: () => new Date(),
+    deviceName,
+  });
+
   let unmountCurrent: () => void = () => undefined;
 
   const showHome = () => {
     unmountCurrent();
-    unmountCurrent = mountHomeScreen(appRoot, session, work, audioStore, {
+    unmountCurrent = mountHomeScreen(appRoot, session, work, tasks, audioStore, {
       openClients: showClients,
       openVisits: showVisits,
       openNotes: showNotes,

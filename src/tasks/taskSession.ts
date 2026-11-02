@@ -1,6 +1,7 @@
 import type { Client } from '../model/client';
 import { type Task, compareOpenTasks, createVoiceTask } from '../model/task';
 import { formatLocalIsoDateTime } from '../model/time';
+import type { MeasuredPosition } from '../model/position';
 import type { AudioNote } from '../model/visit';
 import type { AudioUploader } from '../storage/audioUploader';
 import { FileTooLargeError } from '../storage/drive';
@@ -88,6 +89,11 @@ export class TaskSession {
     });
     this.commitChange(task);
     return task;
+  }
+
+  /** Posizione di inizio registrazione, aggiunta quando il GPS risponde (T-033). */
+  setAudioPosition(taskId: string, position: MeasuredPosition): void {
+    this.change(taskId, (task) => (task.audio ? { ...task, audio: { ...task.audio, position } } : task));
   }
 
   /** Da chiamare nel tocco: cambia la scadenza e avvia il salvataggio. */

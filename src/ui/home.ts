@@ -3,17 +3,22 @@ import { formatElapsed, formatLocalIsoDateTime } from '../model/time';
 import type { MeasuredPosition } from '../model/position';
 import type { AudioNote, Visit } from '../model/visit';
 import type { AudioStore } from '../storage/audioStore';
+import type { TaskSession } from '../tasks/taskSession';
 import type { VisitSession, VisitSessionView } from '../visits/visitSession';
 import type { WorkSession } from '../work/workSession';
 import { mountWorkPanel } from './workPanel';
 import { errorMessage, requireElement } from './dom';
+import { DEFAULT_DUE_DAYS, dueDateForChoice, showDuePicker } from './duePicker';
 
 // Un secondo tap involontario subito dopo il primo chiuderebbe la visita appena aperta.
 const DOUBLE_TAP_GUARD_MS = 2_000;
 
 interface ActiveRecording {
-  /** null per una nota libera (registrata senza visita). */
+  /** Nota vocale (della visita o libera) oppure attività "da fare" (T-034). */
+  purpose: 'note' | 'todo';
+  /** Visita in corso all'inizio; null per una nota libera o un "da fare" fuori visita. */
   visitId: string | null;
+  clientId: string | null;
   /** Lettura GPS avviata all'inizio della registrazione (T-033). */
   position: Promise<MeasuredPosition | null>;
   recording: AudioRecording;
@@ -25,6 +30,7 @@ export function mountHomeScreen(
   container: HTMLElement,
   session: VisitSession,
   work: WorkSession,
+  tasks: TaskSession,
   audioStore: AudioStore,
   navigation: { openClients: () => void; openVisits: () => void; openNotes: () => void; openOptions: () => void },
 ): () => void {
@@ -39,6 +45,7 @@ export function mountHomeScreen(
       <p id="visit-client" class="home-client"></p>
       <div id="audio-panel" class="audio-panel">
         <button id="audio-toggle" type="button" class="secondary-button"></button>
+        <button id="todo-toggle" type="button" class="secondary-button"></button>
         <ul id="audio-list" class="audio-list"></ul>
         <p id="audio-message" class="home-notice" role="status"></p>
       </div>
@@ -59,6 +66,7 @@ export function mountHomeScreen(
   const clientText = requireElement<HTMLParagraphElement>(container, '#visit-client');
   const noticeText = requireElement<HTMLParagraphElement>(container, '#visit-notice');
   const audioButton = requireElement<HTMLButtonElement>(container, '#audio-toggle');
+  const todoButton = requireElement<HTMLButtonElement>(container, '#todo-toggle');
   const audioList = requireElement<HTMLUListElement>(container, '#audio-list');
   const audioMessage = requireElement<HTMLParagraphElement>(container, '#audio-message');
 
@@ -66,15 +74,19 @@ export function mountHomeScreen(
   let audioBusy = false;
   let player: HTMLAudioElement | null = null;
   let renderedAudioKey = '';
+  let closeDuePicker: (() => void) | null = null;
 
   const renderClock = (view: VisitSessionView) => {
     const open = view.openVisit;
     elapsed.textContent = open ? formatElapsed(Date.now() - Date.parse(open.checkIn.at)) : '';
-    audioButton.textContent = active
-      ? `⏹ Ferma · ${formatElapsed(active.recording.elapsedSeconds() * 1000)}`
-      : '🎤 Nota vocale';
-    audioButton.classList.toggle('recording', active !== null);
-    audioButton.disabled = audioBusy;
+    const stopLabel = active ? `⏹ Ferma · ${formatElapsed(active.recording.elapsedSeconds() * 1000)}` : '';
+    // Una registrazione alla volta: il pulsante in uso diventa "Ferma", l'altro si disattiva.
+    audioButton.textContent = active?.purpose === 'note' ? stopLabel : '🎤 Nota vocale';
+    audioButton.classList.toggle('recording', active?.purpose === 'note');
+    audioButton.disabled = audioBusy || active?.purpose === 'todo';
+    todoButton.textContent = active?.purpose === 'todo' ? stopLabel : '✅ Da fare';
+    todoButton.classList.toggle('recording', active?.purpose === 'todo');
+    todoButton.disabled = audioBusy || active?.purpose === 'note';
   };
 
   const playNote = async (note: AudioNote) => {
@@ -162,6 +174,7 @@ export function mountHomeScreen(
     audioBusy = true;
     render(session.view());
     let savedNoteId: string | null = null;
+    let savedTaskId: string | null = null;
     try {
       const { audio, durationSeconds } = await current.recording.stop();
       const note: AudioNote = {
@@ -176,13 +189,33 @@ export function mountHomeScreen(
       };
       // Prima il file sul telefono, poi il riferimento: mai un riferimento senza file.
       await audioStore.put(note.id, audio);
-      if (current.visitId) {
-        session.addAudio(current.visitId, note);
+      if (current.purpose === 'todo') {
+        // Salvato subito con la scadenza predefinita: se il selettore scade o l'app si chiude, non si perde.
+        const today = tasks.today();
+        const task = tasks.addVoiceTask({
+          audio: note,
+          dueDate: dueDateForChoice(today, DEFAULT_DUE_DAYS),
+          visitId: current.visitId,
+          clientId: current.clientId,
+        });
+        savedTaskId = task.id;
+        audioMessage.textContent = completionMessage || 'Da fare salvato.';
+        closeDuePicker = showDuePicker({
+          title: 'Scadenza del "da fare"?',
+          today,
+          highlightedDays: DEFAULT_DUE_DAYS,
+          // Il tocco sulla scelta avvia anche il salvataggio su Drive (token nel gesto).
+          onChoose: (dueDate) => void tasks.setDueDate(task.id, dueDate),
+        });
       } else {
-        session.addFreeNote(note);
+        if (current.visitId) {
+          session.addAudio(current.visitId, note);
+        } else {
+          session.addFreeNote(note);
+        }
+        savedNoteId = note.id;
+        audioMessage.textContent = completionMessage || (current.visitId ? '' : 'Nota libera salvata.');
       }
-      savedNoteId = note.id;
-      audioMessage.textContent = completionMessage || (current.visitId ? '' : 'Nota libera salvata.');
     } catch (error) {
       audioMessage.textContent = `Nota non salvata: ${errorMessage(error)}`;
     } finally {
@@ -192,12 +225,25 @@ export function mountHomeScreen(
     // La nota è già salvata; la posizione si aggiunge quando il GPS risponde. Chi attende questa promessa
     // (il salvataggio su Drive) parte così con la posizione inclusa.
     const position = await current.position;
-    if (savedNoteId && position) {
+    if (position && savedNoteId) {
       session.setNotePosition(savedNoteId, position);
+    }
+    if (position && savedTaskId) {
+      tasks.setAudioPosition(savedTaskId, position);
     }
   };
 
-  const startRecording = async (visitId: string | null) => {
+  /** Ferma la registrazione e avvia il salvataggio su Drive giusto; da chiamare nel tocco. */
+  const finishAndSync = () => {
+    const purpose = active?.purpose;
+    const finished = finishRecording();
+    void (purpose === 'todo' ? tasks.syncAfter(finished) : session.syncAfter(finished));
+  };
+
+  const startRecording = async (purpose: ActiveRecording['purpose']) => {
+    const open = session.view().openVisit;
+    const visitId = open?.id ?? null;
+    const clientId = open?.clientId ?? null;
     audioBusy = true;
     audioMessage.textContent = '';
     render(session.view());
@@ -208,7 +254,7 @@ export function mountHomeScreen(
       const recording = await AudioRecording.start(() => {
         void finishRecording('Nota fermata: lunghezza massima raggiunta.');
       });
-      active = { visitId, recording, startedAt, position };
+      active = { purpose, visitId, clientId, recording, startedAt, position };
     } catch (error) {
       audioMessage.textContent = `Microfono non disponibile: ${errorMessage(error)}`;
     } finally {
@@ -230,21 +276,16 @@ export function mountHomeScreen(
       // Prima il check-in/out (orario del tap, token nel gesto), poi l'eventuale nota in corso.
       void session.toggle();
       if (active) {
-        void session.syncAfter(finishRecording());
+        finishAndSync();
       }
     } catch (error) {
       noticeText.textContent = errorMessage(error);
     }
   });
 
-  audioButton.addEventListener('click', () => {
-    if (active) {
-      // Salvataggio su Drive avviato nel tocco (token senza popup bloccati), eseguito a nota salvata.
-      void session.syncAfter(finishRecording());
-      return;
-    }
-    void startRecording(session.view().openVisit?.id ?? null);
-  });
+  // Il tocco su "Ferma" avvia il salvataggio su Drive (token senza popup bloccati), eseguito a nota salvata.
+  audioButton.addEventListener('click', () => (active ? finishAndSync() : void startRecording('note')));
+  todoButton.addEventListener('click', () => (active ? finishAndSync() : void startRecording('todo')));
 
   requireElement<HTMLButtonElement>(container, '#open-clients').addEventListener('click', navigation.openClients);
   requireElement<HTMLButtonElement>(container, '#open-visits').addEventListener('click', navigation.openVisits);
@@ -256,6 +297,7 @@ export function mountHomeScreen(
   deviceBanner.addEventListener('click', navigation.openOptions);
 
   return () => {
+    closeDuePicker?.();
     unmountWorkPanel();
     unsubscribe();
     window.clearInterval(timer);
